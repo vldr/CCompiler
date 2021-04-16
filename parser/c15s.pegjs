@@ -137,17 +137,13 @@ external_statement_list
     }
 
 external_statement
-  = statement:(preprocessor_external_branch
-               / external_declaration) { return statement; }
+  = statement:(external_declaration) { return statement; }
   / _ { return ""; }
 
 external_declaration
   = function_definition
   / global_declaration
-  / preprocessor_define
-  / preprocessor_operator
   / struct_definition
-  / macro_call
 
 
 // TODO(rowillia):  The preprocessor rules here are a hack.  This won't truely
@@ -327,12 +323,10 @@ statement_list
 statement_no_new_scope
   = compound_statement
   / simple_statement
-  / preprocessor_statement_branch
 
 statement_with_scope
   = compound_statement
   / simple_statement
-  / preprocessor_statement_branch
 
 simple_statement
   = statement:(declaration_statement
@@ -340,10 +334,7 @@ simple_statement
   / selection_statement
   / iteration_statement
   / jump_statement
-  / preprocessor_define
-  / preprocessor_operator
-  / sequence_expression
-  / macro_call) {
+  / sequence_expression) {
     return statement;
   }
 
@@ -419,8 +410,7 @@ jump_statement
     }
   / type:("continue" semicolon
           / "break" semicolon
-          / "return" semicolon
-          / "discard" semicolon) {
+          / "return" semicolon) {
             return new node({
               type:type[0]
             });
@@ -680,13 +670,17 @@ void_type "void"
     })
   }
 
-type_name "type name"
+primitive_type_name
   = "float"
   / "int"
   / "uint"
+
+type_name "type name"
+  = primitive_type_name
   / name:identifier {
       return name.name;
     }
+
 
 identifier "identifier"
   = !(keyword [^A-Za-z_0-9]) head:[\$A-Za-z_] tail:[\$A-Za-z_0-9]* {
@@ -698,13 +692,9 @@ identifier "identifier"
 
 keyword "keyword"
   = "bool" / "float" / "double" / "int" / "uint"
-  / sampler_buffer / sampler_rect / sampler_ms / sampler / sampler_cube
-  / vector / matrix
   / "break" / "continue" / "do" / "else" / "for" / "if"
-  / "discard" / "return" / "attribute" / "const"
-  / "in" / "out" / "inout" / "uniform" / "varying"
-  / "sampler2D" / "samplerCube" / "struct" / "void"
-  / "while" / "highp" / "mediump" / "lowp" / "true" / "false"
+  / "return" / "const" / "struct" / "void"
+  / "while" / "true" / "false"
 
 
 /*
@@ -812,17 +802,27 @@ bool_constant
 
 primary_expression
   = function_call
-  / type_cast
   / identifier
   / float_constant
   / int_constant
   / bool_constant
   / paren_expression
+  / type_cast
   
 type_cast
-  = left_paren t:type_name right_paren expression:expression  {
-      expression.cast_to = t;
-      return expression;
+  = left_paren t:primitive_type_name right_paren id:identifier {
+      return new node({
+         type: "type_cast",
+         cast_to: t,
+         expression: id
+      });
+    }
+  / left_paren t:primitive_type_name right_paren exp:expression {
+      return new node({
+         type: "type_cast",
+         cast_to: t,
+         expression: exp
+      });
     }
 
 index_accessor
