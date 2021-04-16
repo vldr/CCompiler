@@ -545,24 +545,47 @@ declarator_no_array
     }
 
 declarator_array_with_size
-  = name:identifier left_bracket arraySize:constant_expression right_bracket {
-      return new node({
-        type: "declarator_item",
-        name: name,
-        arraySize: arraySize,
-        isArray: true
-      });
+  = name:identifier left_bracket arraySize:constant_expression right_bracket
+    list:(equals left_brace (init_list?) right_brace)?
+  {
+      let newNode = new node({
+         type: "declarator_item",
+         name: name,
+         arraySize: arraySize,
+         isArray: true
+      })
+
+      if (list && list[2])
+      {
+         newNode.initializer_list = list[2];
+      }
+
+      return newNode;
     }
   / declarator_no_array
 
-declarator
-  = name:identifier left_bracket right_bracket {
-      return new node({
-        type: "declarator_item",
-        name: name,
-        isArray: true
-      });
+init_list
+  = head:assignment_expression tail:(comma assignment_expression)* {
+      return [ head ].concat(tail.map(function(item) { return item[1] }));
     }
+
+declarator
+  = name:identifier left_bracket right_bracket
+        equals left_brace initList:(init_list) right_brace
+        {
+          return new node({
+            type: "declarator_item",
+            name: name,
+            isArray: true,
+            arraySize: {
+                type: "int",
+                format: "number",
+                value_base10: initList.length,
+                value: initList.length
+            },
+            initializer_list: initList
+          });
+        }
   / declarator_array_with_size
 
 init_declarator
@@ -592,7 +615,7 @@ struct_definition
   = qualifier:((type_qualifier/attribute_qualifier) _)? "struct"
     identifier:(_ identifier)? left_brace
     members:member_list
-    right_brace declarators:declarator_list? semicolon {
+    right_brace declarators:declarator_list? semicolon? {
       var result = new node({
         type: "struct_definition",
         members:members
