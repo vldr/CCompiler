@@ -333,8 +333,7 @@ simple_statement
   / expression_statement
   / selection_statement
   / iteration_statement
-  / jump_statement
-  / sequence_expression) {
+  / jump_statement) {
     return statement;
   }
 
