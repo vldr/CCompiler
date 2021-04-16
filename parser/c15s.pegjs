@@ -809,14 +809,14 @@ primary_expression
   / type_cast
   
 type_cast
-  = left_paren t:primitive_type_name right_paren id:identifier {
-      return new node({
-         type: "type_cast",
-         cast_to: t,
-         expression: id
-      });
-    }
-  / left_paren t:primitive_type_name right_paren exp:expression {
+  = left_paren t:primitive_type_name right_paren exp:unary_expression {
+        return new node({
+           type: "type_cast",
+           cast_to: t,
+           expression: exp
+        });
+      }
+  / left_paren t:primitive_type_name right_paren exp:primary_expression {
       return new node({
          type: "type_cast",
          cast_to: t,
