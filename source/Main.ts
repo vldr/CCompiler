@@ -1,12 +1,13 @@
 // @ts-ignore
 import { parse } from "../parser/parser.js";
+import Logger from "./Logger"
 
 class Main
 {
-    static log(message: string): void
+    static start(): void
     {
-        console.log(parse("int a = 12;\n"));
+        Logger.log(parse("int a = 12;\n"));
     }
 }
 
-Main.log("Hello World");
+Main.start();
