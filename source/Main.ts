@@ -1,12 +1,25 @@
-// @ts-ignore
-import { parse } from "../parser/parser.js";
 import Logger from "./Logger"
+import Compiler from "./Compiler";
 
 class Main
 {
     static start(): void
     {
-        Logger.log(parse("int a = 12;\n"));
+        Logger.log(new Compiler().compile(`
+        int hello(int a)
+        {
+            return a * 2.2 + 2;
+        }
+        
+        int a = hello();
+        
+        float cool()
+        {
+            return 1.f;
+        }
+        
+        float c = cool();    
+        `));
     }
 }
 
