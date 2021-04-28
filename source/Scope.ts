@@ -1,9 +1,11 @@
 import Variable from "./Variable";
+import Struct from "./Struct";
 
 export default class Scope
 {
     private _name: string;
     private _variables: Array<Variable>;
+    private _structs: Array<Struct>;
     private _scope: Scope | undefined;
 
     constructor(name: string, scope?: Scope)
