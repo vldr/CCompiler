@@ -9,7 +9,7 @@ export default class Compiler
         this._parser = new Parser();
     }
 
-    public compile(content: string): object
+    public compile(content: string): any
     {
         return this._parser.parse(content);
     }
