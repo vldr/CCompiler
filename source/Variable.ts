@@ -1,6 +1,7 @@
 import Scope from "./Scope";
 import Type from "./Types/Type";
 import Quantifier from "./Quantifiers/Quantifier";
+import QuantifierConst from "./Quantifiers/QuantifierConst";
 
 export default class Variable
 {
@@ -14,6 +15,11 @@ export default class Variable
     )
     {
         this._labelName = `${_scope.name}_${this._name}`;
+    }
+
+    get isConst()
+    {
+        return this._quantifiers.find(q => q instanceof QuantifierConst) !== undefined;
     }
 
     get scope() { return this._scope };

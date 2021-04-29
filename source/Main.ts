@@ -5,7 +5,7 @@ class Main
 {
     static start(): void
     {
-        Logger.log(new Compiler().compile(`
+        new Compiler().compile(`
         int hello(int a)
         {
             return a * 2.2 + 2;
@@ -19,7 +19,7 @@ class Main
         }
         
         float c = cool();    
-        `));
+        `);
     }
 }
 

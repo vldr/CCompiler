@@ -25,7 +25,7 @@ export default class InstructionSTORE extends Instruction
         {
             case Integer:
             case UnsignedInteger:
-                stringValue = this._value + "f";
+                stringValue = this._value.toString();
                 break;
             case Float:
                 stringValue = this._value + "f";
