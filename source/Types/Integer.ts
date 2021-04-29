@@ -2,7 +2,8 @@ import Type from "./Type";
 
 export default class Integer extends Type
 {
-    constructor() {
+    constructor()
+    {
         super("int");
     }
 }

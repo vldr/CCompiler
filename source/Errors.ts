@@ -14,4 +14,9 @@ export default abstract class Errors
     {
         return this.generateError(`Unimplemented statement type, '${statementType}'.`);
     }
+
+    static UNSUPPORTED_VALUE_TYPE(valueType: Function)
+    {
+        return this.generateError(`Unsupported value type, '${valueType}'.`);
+    }
 }

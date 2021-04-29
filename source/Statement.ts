@@ -1,8 +1,13 @@
 import Errors from "./Errors";
+import Compiler from "./Compiler";
 
 export default abstract class Statement
 {
-    static generate(statement: any): Statement
+    constructor(private _compiler: Compiler)
+    {
+    }
+
+    public generate(statement: any): Statement
     {
         switch (statement.type) {
             // case "":

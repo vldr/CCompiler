@@ -1,9 +1,9 @@
 import Errors from "./Errors";
-import { Location } from "./Location"
+import Destination from "./Destinations/Destination";
 
 export default abstract class Expression
 {
-    static generate(expression: any, destination: Location): Expression
+    public make(expression: any, destination: Destination): Expression
     {
         switch (expression.type)
         {

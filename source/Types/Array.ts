@@ -2,15 +2,9 @@ import Type from "./Type";
 
 export default class Array extends Type
 {
-    private _size: number | undefined;
-    private _type: Type;
-
-    constructor(name: string, type: Type, size?: number)
+    constructor(private _type: Type, private _size?: number)
     {
-        super(name);
-
-        this._type = type;
-        this._size = size;
+        super("array");
     }
 
     get type(): Type { return this._type; }

@@ -2,7 +2,8 @@ import Type from "./Type";
 
 export default class Float extends Type
 {
-    constructor() {
+    constructor()
+    {
         super("float");
     }
 }
