@@ -8,9 +8,9 @@ export default class Scope
     private _structs: Array<Struct>;
     private _scope: Scope | undefined;
 
-    constructor(name: string, scope?: Scope)
+    constructor(name?: string, scope?: Scope)
     {
-        this._name = name;
+        this._name = name || "";
         this._scope = scope;
         this._variables = new Array<Variable>();
     }
