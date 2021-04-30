@@ -1,28 +1,56 @@
 import Parser from "./Parser";
 import Instruction from "./Instructions/Instruction";
 import Logger from "./Logger";
+import Statement from "./Statements/Statement";
+import Scope from "./Scope";
+import StatementGenerator from "./Statements/StatementGenerator";
+import ExpressionGenerator from "./Expressions/ExpressionGenerator";
+import Expression from "./Expressions/Expression";
+import Destination from "./Destinations/Destination";
 
 export default class Compiler
 {
-    private _logger: Logger;
-    private _root: Array<Instruction>;
-    private _functions: Array<Instruction>;
-    private _variables: Array<Instruction>;
+    private _logger: Logger = new Logger();
+    private _parser: Parser = new Parser();
+    private _root: Array<Instruction> = new Array<Instruction>();
+    private _functions: Array<Instruction> = new Array<Instruction>();
+    private _variables: Array<Instruction> = new Array<Instruction>();
 
-    private _parser: Parser;
+    private _rootScope: Scope;
 
-    constructor()
+    private _statementGenerator: StatementGenerator;
+    private _expressionGenerator: ExpressionGenerator;
+
+    public compile(code: string): any
     {
-        this._logger = new Logger();
-        this._parser = new Parser();
-        this._root = new Array<Instruction>();
-        this._functions = new Array<Instruction>();
-        this._variables = new Array<Instruction>();
+        const parsedCode = this._parser.parse(code);
+
+        this._rootScope = new Scope();
+        this._statementGenerator = new StatementGenerator(this, this._rootScope);
+        this._expressionGenerator = new ExpressionGenerator(this, this._rootScope);
+
+        parsedCode.statements.forEach((node: any) =>
+        {
+            this.generateStatement(node)?.generate();
+        })
+
+        const compiledOutput = (this._root.concat(this._functions).concat(this._variables)).map(s => s.emit());
+        console.log(compiledOutput);
     }
 
-    public compile(content: string): any
+    public generateStatement(node: any): Statement | undefined
     {
-        return this._logger.log(this._parser.parse(content));
+        return this._statementGenerator.generate(node);
+    }
+
+    public generateExpression(destination: Destination, node: any): Expression
+    {
+        return this._expressionGenerator.generate(destination, node);
+    }
+
+    public log(message: string)
+    {
+        this._logger.log(message);
     }
 
     public emitToRoot(instruction: Instruction)

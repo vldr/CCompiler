@@ -11,7 +11,8 @@ class Main
             return a * 2.2 + 2;
         }
         
-        int a = hello();
+        const int a = hello();
+        int a[2];
         
         float cool()
         {

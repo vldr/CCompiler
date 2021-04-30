@@ -1,12 +1,12 @@
 import Variable from "./Variable";
 import Function from "./Function"
-import Struct from "./Types/Struct";
+import TypeStruct from "./Types/TypeStruct";
 
 export default class Scope
 {
     private _name: string;
     private _variables: Array<Variable>;
-    private _structs: Array<Struct>;
+    private _structs: Array<TypeStruct>;
     private _scope: Scope | undefined;
     private _function: Function | undefined;
 
@@ -20,10 +20,10 @@ export default class Scope
         this._scope = scope;
         this._function = functionIn;
         this._variables = new Array<Variable>();
-        this._structs = new Array<Struct>();
+        this._structs = new Array<TypeStruct>();
     }
 
-    addStruct(struct: Struct)
+    addStruct(struct: TypeStruct)
     {
         this._structs.push(struct);
     }
@@ -45,7 +45,7 @@ export default class Scope
         return variable;
     }
 
-    getStructByName(name: string): Struct | undefined
+    getStructByName(name: string): TypeStruct | undefined
     {
         const struct = this._structs.find(s => s.name === name);
 

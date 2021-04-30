@@ -5,6 +5,11 @@ export default abstract class Errors
         return new Error(message);
     }
 
+    static UNIMPLEMENTED_EMITTER()
+    {
+        return this.generateError(`Unimplemented emitter.`);
+    }
+
     static UNIMPLEMENTED_EXPRESSION_TYPE(expressionType: string)
     {
         return this.generateError(`Unimplemented expression type, '${expressionType}'.`);
@@ -18,5 +23,15 @@ export default abstract class Errors
     static UNSUPPORTED_VALUE_TYPE(valueType: Function)
     {
         return this.generateError(`Unsupported value type, '${valueType}'.`);
+    }
+
+    static UNKNOWN_TYPE(type: string)
+    {
+        return this.generateError(`Unknown type '${type}'.`);
+    }
+
+    static UNKNOWN_QUALIFIER(qualifier: string)
+    {
+        return this.generateError(`Unknown qualifier '${qualifier}'.`);
     }
 }

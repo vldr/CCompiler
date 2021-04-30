@@ -2,9 +2,9 @@ import Instruction from "./Instruction";
 import DestinationVariable from "../Destinations/DestinationVariable";
 import Type from "../Types/Type";
 import Errors from "../Errors";
-import Float from "../Types/Float";
-import Integer from "../Types/Integer";
-import UnsignedInteger from "../Types/UnsignedInteger";
+import TypeFloat from "../Types/TypeFloat";
+import TypeInteger from "../Types/TypeInteger";
+import TypeUnsignedInteger from "../Types/TypeUnsignedInteger";
 
 export default class InstructionSTORE extends Instruction
 {
@@ -23,11 +23,11 @@ export default class InstructionSTORE extends Instruction
 
         switch (this._type.constructor)
         {
-            case Integer:
-            case UnsignedInteger:
+            case TypeInteger:
+            case TypeUnsignedInteger:
                 stringValue = this._value.toString();
                 break;
-            case Float:
+            case TypeFloat:
                 stringValue = this._value + "f";
                 break;
             default:
