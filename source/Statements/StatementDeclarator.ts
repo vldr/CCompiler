@@ -28,7 +28,7 @@ export default class StatementDeclarator extends Statement
 
         //////////////////////////////////////////////
 
-        let qualifier: Qualifier;
+        let qualifier: Qualifier | undefined;
 
         if (typeQualifier)
         {
@@ -79,7 +79,9 @@ export default class StatementDeclarator extends Statement
 
         //////////////////////////////////////////////
 
-        this._compiler.log(node);
+        this._compiler.log(type);
+        this._compiler.log(qualifier);
+        console.log();
     }
 
     public emit()

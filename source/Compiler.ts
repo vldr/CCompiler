@@ -14,9 +14,10 @@ export default class Compiler
     private _parser: Parser = new Parser();
     private _root: Array<Instruction> = new Array<Instruction>();
     private _functions: Array<Instruction> = new Array<Instruction>();
-    private _variables: Array<Instruction> = new Array<Instruction>();
+    private _variables: Array<string> = new Array<string>();
 
     private _rootScope: Scope;
+    private _scopes: Array<Scope>;
 
     private _statementGenerator: StatementGenerator;
     private _expressionGenerator: ExpressionGenerator;
@@ -25,17 +26,24 @@ export default class Compiler
     {
         const parsedCode = this._parser.parse(code);
 
-        this._rootScope = new Scope();
+        this._rootScope = new Scope(this);
         this._statementGenerator = new StatementGenerator(this, this._rootScope);
         this._expressionGenerator = new ExpressionGenerator(this, this._rootScope);
+        this._scopes = [ this._rootScope ];
 
         parsedCode.statements.forEach((node: any) =>
         {
             this.generateStatement(node)?.generate();
         })
 
-        const compiledOutput = (this._root.concat(this._functions).concat(this._variables)).map(s => s.emit());
+        const compiledOutput = (this._root.concat(this._functions)).map(s => s.emit()).concat(this._variables);
+
         console.log(compiledOutput);
+    }
+
+    public addScope(scope: Scope)
+    {
+        this._scopes.push(scope);
     }
 
     public generateStatement(node: any): Statement | undefined
@@ -48,7 +56,7 @@ export default class Compiler
         return this._expressionGenerator.generate(destination, node);
     }
 
-    public log(message: string)
+    public log(message: any)
     {
         this._logger.log(message);
     }
@@ -63,8 +71,8 @@ export default class Compiler
         this._functions.push(instruction);
     }
 
-    public emitToVariables(instruction: Instruction)
+    public emitToVariables(value: string)
     {
-        this._variables.push(instruction);
+        this._variables.push(value);
     }
 }

@@ -6,7 +6,10 @@ import Destination from "../Destinations/Destination";
 
 export default class ExpressionGenerator
 {
-    constructor(private _compiler: Compiler, private _scope: Scope)
+    constructor(
+        private _compiler: Compiler,
+        private _scope: Scope
+    )
     {
     }
 

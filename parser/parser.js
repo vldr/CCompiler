@@ -186,7 +186,7 @@ module.exports = /*
                 peg$c38 = peg$literalExpectation("}", false),
                 peg$c39 = function(statements) {
                     // Skip blank statements.  These were either whitespace or
-                    var result = new node({
+                    var result = new node({ location: location(),
                         type: "root",
                         statements: []
                     });
@@ -217,7 +217,7 @@ module.exports = /*
                 peg$c57 = peg$literalExpectation("include", false),
                 peg$c58 = function(directive, defname) {return defname.join("")},
                 peg$c59 = function(directive, value) {
-                    return new node({
+                    return new node({ location: location(),
                         type: "preprocessor",
                         directive: "#" + directive,
                         value: value
@@ -228,7 +228,7 @@ module.exports = /*
                 peg$c62 = /^[A-Za-z_0-9]/,
                 peg$c63 = peg$classExpectation([["A", "Z"], ["a", "z"], "_", ["0", "9"]], false, false),
                 peg$c64 = function(head, tail) {
-                    return new node({
+                    return new node({ location: location(),
                         type: "identifier",
                         name: head + tail.join("")
                     });
@@ -256,7 +256,7 @@ module.exports = /*
                     return [head].concat(tail.map(function(item) { return item[1]; }));
                 },
                 peg$c74 = function(macro_name, parameters) {
-                    var result = new node({
+                    var result = new node({ location: location(),
                         type: "macro_call",
                         macro_name: macro_name,
                         parameters: parameters
@@ -278,7 +278,7 @@ module.exports = /*
                 peg$c79 = peg$classExpectation([" ", "\t"], false, false),
                 peg$c80 = function(identifier, parameters, defname) {return defname.join("")},
                 peg$c81 = function(identifier, parameters, token_string) {
-                    return new node({
+                    return new node({ location: location(),
                         type: "preprocessor",
                         directive: "#define",
                         identifier: identifier.name,
@@ -293,7 +293,7 @@ module.exports = /*
                 peg$c86 = "if",
                 peg$c87 = peg$literalExpectation("if", false),
                 peg$c88 = function(directive, value) {
-                    return new node({
+                    return new node({ location: location(),
                         type: "preprocessor",
                         directive: "#" + directive,
                         value: value
@@ -303,7 +303,7 @@ module.exports = /*
                 peg$c90 = peg$literalExpectation("elif", false),
                 peg$c91 = function(defname) {return defname.join("")},
                 peg$c92 = function(value) {
-                    return new node({
+                    return new node({ location: location(),
                         type: "preprocessor",
                         directive: "#elif",
                         value: value
@@ -312,7 +312,7 @@ module.exports = /*
                 peg$c93 = "else",
                 peg$c94 = peg$literalExpectation("else", false),
                 peg$c95 = function() {
-                    return new node({
+                    return new node({ location: location(),
                         type: "preprocessor",
                         directive: "#else"
                     });
@@ -323,7 +323,7 @@ module.exports = /*
                     return preprocessor_branch(if_directive, elif_directive, else_directive);
                 },
                 peg$c99 = function(prototype, body) {
-                    var result = new node({
+                    var result = new node({ location: location(),
                         type: "function_declaration",
                         name: prototype.name,
                         returnType: prototype.returnType,
@@ -333,7 +333,7 @@ module.exports = /*
                     return result;
                 },
                 peg$c100 = function(statements) {
-                    var result = new node({
+                    var result = new node({ location: location(),
                         type: "scope",
                         statements: []
                     });
@@ -347,7 +347,7 @@ module.exports = /*
                     return statement;
                 },
                 peg$c103 = function(condition, if_body, else_body) {
-                    var result = new node({
+                    var result = new node({ location: location(),
                         type:"if_statement",
                         condition:condition,
                         body:if_body
@@ -360,7 +360,7 @@ module.exports = /*
                 peg$c104 = "for",
                 peg$c105 = peg$literalExpectation("for", false),
                 peg$c106 = function(initializer, condition, increment, body) {
-                    return new node({
+                    return new node({ location: location(),
                         type:"for_statement",
                         initializer:initializer,
                         condition:condition,
@@ -376,7 +376,7 @@ module.exports = /*
                     };
                 },
                 peg$c110 = function(w, body) {
-                    return new node({
+                    return new node({ location: location(),
                         type: "while_statement",
                         condition: w.condition,
                         body: body
@@ -385,7 +385,7 @@ module.exports = /*
                 peg$c111 = "do",
                 peg$c112 = peg$literalExpectation("do", false),
                 peg$c113 = function(body, w) {
-                    return new node({
+                    return new node({ location: location(),
                         type: "do_statement",
                         condition: w.condition,
                         body: body
@@ -406,7 +406,7 @@ module.exports = /*
                 peg$c126 = "-",
                 peg$c127 = peg$literalExpectation("-", false),
                 peg$c128 = function(head, expression) {
-                    return new node({
+                    return new node({ location: location(),
                         type: "return",
                         value: expression
                     });
@@ -416,18 +416,18 @@ module.exports = /*
                 peg$c131 = "break",
                 peg$c132 = peg$literalExpectation("break", false),
                 peg$c133 = function(type) {
-                    return new node({
+                    return new node({ location: location(),
                         type:type[0]
                     });
                 },
                 peg$c134 = function(e) {
-                    return new node({
+                    return new node({ location: location(),
                         type: "expression",
                         expression: e
                     });
                 },
                 peg$c135 = function(head, tail) {
-                    return new node({
+                    return new node({ location: location(),
                         type: "sequence",
                         expressions: [ head ].concat(tail.map(function(item) { return item[1] }))
                     })
@@ -437,14 +437,14 @@ module.exports = /*
                     return function_prototype;
                 },
                 peg$c138 = function(type, declarators) {
-                    return new node({
+                    return new node({ location: location(),
                         type: "declarator",
                         typeAttribute: type,
                         declarators: declarators
                     });
                 },
                 peg$c139 = function(type, declarators) {
-                    return new node({
+                    return new node({ location: location(),
                         type: "declarator",
                         typeAttribute: type,
                         declarators: declarators
@@ -456,7 +456,7 @@ module.exports = /*
                     return [ head ].concat(tail.map(function(item) { return item[1]; }));
                 },
                 peg$c143 = function(type, identifier, parameters) {
-                    var result = new node({
+                    var result = new node({ location: location(),
                         type:"function_prototype",
                         name: identifier.name,
                         returnType: type,
@@ -469,7 +469,7 @@ module.exports = /*
                 },
                 peg$c144 = "",
                 peg$c145 = function(const_qualifier, parameter, precision, type_name, identifier, array_size) {
-                    var result = new node({
+                    var result = new node({ location: location(),
                         type: "parameter",
                         type_name: type_name,
                         name: identifier.name
@@ -491,13 +491,13 @@ module.exports = /*
                     return [ head ].concat(tail.map(function(item) { return item[1]; }));
                 },
                 peg$c147 = function(name) {
-                    return new node({
+                    return new node({ location: location(),
                         type: "declarator_item",
                         name:name
                     });
                 },
                 peg$c148 = function(name, arraySize, list) {
-                    let newNode = new node({
+                    let newNode = new node({ location: location(),
                         type: "declarator_item",
                         name: name,
                         arraySize: arraySize,
@@ -515,7 +515,7 @@ module.exports = /*
                     return [ head ].concat(tail.map(function(item) { return item[1] }));
                 },
                 peg$c150 = function(name, initList) {
-                    return new node({
+                    return new node({ location: location(),
                         type: "declarator_item",
                         name: name,
                         isArray: true,
@@ -529,7 +529,7 @@ module.exports = /*
                     });
                 },
                 peg$c151 = function(name, initializer) {
-                    return new node({
+                    return new node({ location: location(),
                         type: "declarator_item",
                         name: name,
                         initializer:initializer
@@ -537,7 +537,7 @@ module.exports = /*
                 },
                 peg$c152 = function(declarators) {
                     return declarators.map(function(item) {
-                        return new node({
+                        return new node({ location: location(),
                             type: "declarator",
                             typeAttribute: item[0],
                             declarators: item[2]
@@ -547,7 +547,7 @@ module.exports = /*
                 peg$c153 = "struct",
                 peg$c154 = peg$literalExpectation("struct", false),
                 peg$c155 = function(qualifier, identifier, members, declarators) {
-                    var result = new node({
+                    var result = new node({ location: location(),
                         type: "struct_definition",
                         members:members
                     });
@@ -564,7 +564,7 @@ module.exports = /*
                     return result;
                 },
                 peg$c156 = function(precision, name) {
-                    var result = new node({
+                    var result = new node({ location: location(),
                         type: "type",
                         name: name
                     });
@@ -608,7 +608,7 @@ module.exports = /*
                 peg$c181 = peg$literalExpectation("uniform", false),
                 peg$c182 = peg$otherExpectation("void"),
                 peg$c183 = function() {
-                    return new node({
+                    return new node({ location: location(),
                         type: "type",
                         name: "void"
                     })
@@ -686,7 +686,7 @@ module.exports = /*
                 peg$c252 = /^[Uu]/,
                 peg$c253 = peg$classExpectation(["U", "u"], false, false),
                 peg$c254 = function(head, tail, unsigned) {
-                    return new node({
+                    return new node({ location: location(),
                         type: "int",
                         format: "number",
                         value_base10: parseInt([head].concat(tail).join(""), 10),
@@ -700,7 +700,7 @@ module.exports = /*
                 peg$c259 = /^[0-9A-Fa-f]/,
                 peg$c260 = peg$classExpectation([["0", "9"], ["A", "F"], ["a", "f"]], false, false),
                 peg$c261 = function(digits, unsigned) {
-                    return new node({
+                    return new node({ location: location(),
                         type: "int",
                         format: "hex",
                         value_base10: parseInt(digits.join(""), 16),
@@ -710,7 +710,7 @@ module.exports = /*
                 peg$c262 = /^[0-7]/,
                 peg$c263 = peg$classExpectation([["0", "7"]], false, false),
                 peg$c264 = function(digits, unsigned) {
-                    return new node({
+                    return new node({ location: location(),
                         type: "int",
                         format: "octal",
                         value_base10: parseInt(digits.join(""), 8),
@@ -718,7 +718,7 @@ module.exports = /*
                     });
                 },
                 peg$c265 = function(unsigned) {
-                    return new node({
+                    return new node({ location: location(),
                         type: "int",
                         format: "number",
                         value_base10: 0,
@@ -738,7 +738,7 @@ module.exports = /*
                 peg$c276 = function(digits, suffix) {
                     digits[0] = digits[0].join("");
                     digits[2] = digits[2].join("");
-                    return new node({
+                    return new node({ location: location(),
                         type: "float",
                         value_base10: parseFloat(digits.join("")),
                         value: digits.join("") + (suffix ? suffix : '')
@@ -747,7 +747,7 @@ module.exports = /*
                 peg$c277 = /^[f]/,
                 peg$c278 = peg$classExpectation(["f"], false, false),
                 peg$c279 = function(digits, suffix) {
-                    return new node({
+                    return new node({ location: location(),
                         type: "float",
                         value_base10: parseFloat(digits[0].join("") + digits[1]),
                         value: digits.join("") + (suffix ? suffix : '')
@@ -764,33 +764,33 @@ module.exports = /*
                     return expression;
                 },
                 peg$c286 = function(value) {
-                    return new node({
+                    return new node({ location: location(),
                         type: "bool",
                         value: value == "true"
                     });
                 },
                 peg$c287 = function(t, exp) {
-                    return new node({
+                    return new node({ location: location(),
                         type: "type_cast",
                         cast_to: t,
                         expression: exp
                     });
                 },
                 peg$c288 = function(t, exp) {
-                    return new node({
+                    return new node({ location: location(),
                         type: "type_cast",
                         cast_to: t,
                         expression: exp
                     });
                 },
                 peg$c289 = function(index) {
-                    return new node({
+                    return new node({ location: location(),
                         type: "accessor",
                         index: index
                     });
                 },
                 peg$c290 = function(id) {
-                    return new node({
+                    return new node({ location: location(),
                         type: "field_selector",
                         selection: id.name
                     })
@@ -798,7 +798,7 @@ module.exports = /*
                 peg$c291 = function(head, tail) {
                     var result = head;
                     for (var i = 0; i < tail.length; i++) {
-                        result = new node({
+                        result = new node({ location: location(),
                             type: "postfix",
                             operator: tail[i],
                             expression: result
@@ -809,9 +809,9 @@ module.exports = /*
                 peg$c292 = function(head, tail, rest) {
                     var result = head;
                     if(tail) {
-                        result = new node({
+                        result = new node({ location: location(),
                             type: "postfix",
-                            operator: new node({
+                            operator: new node({ location: location(),
                                 id: next_id++,
                                 type: "operator",
                                 operator: tail
@@ -820,7 +820,7 @@ module.exports = /*
                         })
                     }
                     for (var i = 0; i < rest.length; i++) {
-                        result = new node({
+                        result = new node({ location: location(),
                             type: "postfix",
                             operator: rest[i],
                             expression: result
@@ -830,7 +830,7 @@ module.exports = /*
                 },
                 peg$c293 = function() {return []; },
                 peg$c294 = function(function_name, parameters) {
-                    var result = new node({
+                    var result = new node({ location: location(),
                         type: "function_call",
                         function_name: function_name,
                         parameters: parameters
@@ -844,10 +844,10 @@ module.exports = /*
                 peg$c296 = function(head, tail) {
                     var result = tail
                     if (head) {
-                        result = new node({
+                        result = new node({ location: location(),
                             type: "unary",
                             expression: result,
-                            operator: new node({
+                            operator: new node({ location: location(),
                                 type: "operator",
                                 operator: head
                             })
@@ -862,7 +862,7 @@ module.exports = /*
                 peg$c301 = "%",
                 peg$c302 = peg$literalExpectation("%", false),
                 peg$c303 = function(operator) {
-                    return new node({
+                    return new node({ location: location(),
                         type: "operator",
                         operator: operator
                     });
@@ -871,13 +871,13 @@ module.exports = /*
                     return daisy_chain(head, tail);
                 },
                 peg$c305 = function() {
-                    return new node({
+                    return new node({ location: location(),
                         type: "operator",
                         operator: "+"
                     });
                 },
                 peg$c306 = function() {
-                    return new node({
+                    return new node({ location: location(),
                         type: "operator",
                         operator: "-"
                     });
@@ -889,7 +889,7 @@ module.exports = /*
                 peg$c311 = "<",
                 peg$c312 = peg$literalExpectation("<", false),
                 peg$c313 = function(equal) {
-                    return new node({
+                    return new node({ location: location(),
                         type: "operator",
                         operator: "<" + (equal ? equal : '')
                     });
@@ -897,7 +897,7 @@ module.exports = /*
                 peg$c314 = ">",
                 peg$c315 = peg$literalExpectation(">", false),
                 peg$c316 = function(equal) {
-                    return new node({
+                    return new node({ location: location(),
                         type: "operator",
                         operator: ">" + (equal ? equal : '')
                     });
@@ -907,7 +907,7 @@ module.exports = /*
                 peg$c319 = "!=",
                 peg$c320 = peg$literalExpectation("!=", false),
                 peg$c321 = function(operator) {
-                    return new node({
+                    return new node({ location: location(),
                         type: "operator",
                         operator: operator
                     });
@@ -915,7 +915,7 @@ module.exports = /*
                 peg$c322 = "&",
                 peg$c323 = peg$literalExpectation("&", false),
                 peg$c324 = function() {
-                    return new node({
+                    return new node({ location: location(),
                         type: "operator",
                         operator: "&"
                     });
@@ -923,7 +923,7 @@ module.exports = /*
                 peg$c325 = "^",
                 peg$c326 = peg$literalExpectation("^", false),
                 peg$c327 = function() {
-                    return new node({
+                    return new node({ location: location(),
                         type: "operator",
                         operator: "^"
                     });
@@ -931,7 +931,7 @@ module.exports = /*
                 peg$c328 = "|",
                 peg$c329 = peg$literalExpectation("|", false),
                 peg$c330 = function() {
-                    return new node({
+                    return new node({ location: location(),
                         type: "operator",
                         operator: "|"
                     });
@@ -939,7 +939,7 @@ module.exports = /*
                 peg$c331 = "&&",
                 peg$c332 = peg$literalExpectation("&&", false),
                 peg$c333 = function() {
-                    return new node({
+                    return new node({ location: location(),
                         type: "operator",
                         operator: "&&"
                     });
@@ -947,7 +947,7 @@ module.exports = /*
                 peg$c334 = "^^",
                 peg$c335 = peg$literalExpectation("^^", false),
                 peg$c336 = function() {
-                    return new node({
+                    return new node({ location: location(),
                         type: "operator",
                         operator: "^^"
                     });
@@ -955,7 +955,7 @@ module.exports = /*
                 peg$c337 = "||",
                 peg$c338 = peg$literalExpectation("||", false),
                 peg$c339 = function() {
-                    return new node({
+                    return new node({ location: location(),
                         type: "operator",
                         operator: "||"
                     });
@@ -967,7 +967,7 @@ module.exports = /*
                 peg$c344 = function(head, tail) {
                     var result = head;
                     if (tail) {
-                        result = new node({
+                        result = new node({ location: location(),
                             type: "ternary",
                             condition: head,
                             is_true: tail[3],
@@ -997,9 +997,9 @@ module.exports = /*
                 peg$c363 = "|=",
                 peg$c364 = peg$literalExpectation("|=", false),
                 peg$c365 = function(variable, operator, expression) {
-                    return new node({
+                    return new node({ location: location(),
                         type: "binary",
-                        operator: new node({
+                        operator: new node({ location: location(),
                             type: "operator",
                             operator: operator
                         }),
@@ -9243,7 +9243,7 @@ module.exports = /*
             function daisy_chain(head, tail) {
                 var result = head;
                 for (var i = 0; i < tail.length; i++) {
-                    result = new node({
+                    result = new node({ location: location(),
                         type: "binary",
                         operator: tail[i][1],
                         left: result,

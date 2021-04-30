@@ -4,19 +4,16 @@ import Type from "./Types/Type";
 
 export default class Function
 {
-    private _scope: Scope;
-    private _name: string;
     private _labelName: string;
 
-    private _parameters: Array<Variable>;
-    private _returnType: Type;
-
-    constructor(name: string, parameters: Array<Variable>, returnType: Type, scope: Scope)
+    constructor(
+        private _name: string,
+        private _parameters: Array<Variable>,
+        private _returnType: Type,
+        private _scope: Scope
+    )
     {
-        this._name = name;
-        this._parameters = parameters;
-        this._returnType = returnType;
-        this._scope = scope;
+        this._labelName = `${_scope.name}_fn_${this._name}`;
     }
 
     get scope(): Scope { return this._scope; }

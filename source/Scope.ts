@@ -1,8 +1,10 @@
 import Variable from "./Variable";
 import Function from "./Function"
 import TypeStruct from "./Types/TypeStruct";
+import Emittable from "./Emittable";
+import Compiler from "./Compiler";
 
-export default class Scope
+export default class Scope implements Emittable
 {
     private _name: string;
     private _variables: Array<Variable>;
@@ -10,7 +12,7 @@ export default class Scope
     private _scope: Scope | undefined;
     private _function: Function | undefined;
 
-    constructor(name?: string, scope?: Scope, functionIn?: Function)
+    constructor(private _compiler: Compiler, name?: string, scope?: Scope, functionIn?: Function)
     {
         this._name = name || "";
 
@@ -68,4 +70,32 @@ export default class Scope
     }
 
     get name() { return this._name; }
+
+    emit(): void
+    {
+        this._variables.forEach((variable) =>
+        {
+            if (variable.size > 1)
+            {
+                for (let i = 0; i < variable.size; i++)
+                {
+                    this._compiler.emitToVariables(
+                        `${variable.labelName}_${i}:\n` +
+                        `${variable.initialValue}\n` +
+
+                        variable.shouldRead ? `.read ${variable.labelName}_${i} ${variable.labelName}_${i}\n` : ``
+                    );
+                }
+            }
+            else
+            {
+                this._compiler.emitToVariables(
+                    `${variable.labelName}:\n` +
+                    `${variable.initialValue}\n` +
+                    variable.shouldRead ? `.read ${variable.labelName} ${variable.labelName}\n` : ``
+                );
+            }
+
+        });
+    }
 }

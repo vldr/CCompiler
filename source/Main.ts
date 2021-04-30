@@ -11,6 +11,7 @@ class Main
             return a * 2.2 + 2;
         }
         
+        int b = 12;
         const int a = hello();
         int a[2];
         

@@ -43,7 +43,7 @@
   function daisy_chain(head, tail) {
     var result = head;
     for (var i = 0; i < tail.length; i++) {
-      result = new node({
+      result = new node({ location: location(), 
         type: "binary",
         operator: tail[i][1],
         left: result,
@@ -124,7 +124,7 @@ right_brace   = _? "}" _?
 external_statement_list
   = statements:external_statement* {
       // Skip blank statements.  These were either whitespace or
-      var result = new node({
+      var result = new node({ location: location(), 
         type: "root",
         statements: []
       });
@@ -165,7 +165,7 @@ preprocessor_operator
                    "version"/ "error" / "extension" /
                    "line" / "include")
     _ value:(defname:[^\n]* {return defname.join("")}) (newLine/EOF) {
-    return new node({
+    return new node({ location: location(), 
       type: "preprocessor",
       directive: "#" + directive,
       value: value
@@ -174,7 +174,7 @@ preprocessor_operator
 
 macro_identifier
   = head:[A-Za-z_] tail:[A-Za-z_0-9]* {
-     return new node({
+     return new node({ location: location(), 
        type: "identifier",
        name: head + tail.join("")
      });
@@ -213,7 +213,7 @@ macro_call
     // Explicitly use "")" at the end of the line as to not eat any whitespace
     // after the macro call.
     parameters:(parameter_list?) ")" {
-      var result = new node({
+      var result = new node({ location: location(), 
         type: "macro_call",
         macro_name: macro_name,
         parameters: parameters
@@ -237,7 +237,7 @@ preprocessor_define
     parameters:preprocessor_parameter_list?
     [ \t]* token_string:(defname:[^\n]* {return defname.join("")})
     (newLine/EOF) {
-    return new node({
+    return new node({ location: location(), 
          type: "preprocessor",
          directive: "#define",
          identifier: identifier.name,
@@ -249,7 +249,7 @@ preprocessor_define
 preprocessor_if
   = "#" _? directive:("ifdef" / "ifndef"/ "if")
      _ value:(defname:[^\n]* {return defname.join("")}) (newLine/EOF) {
-       return new node({
+       return new node({ location: location(), 
          type: "preprocessor",
          directive: "#" + directive,
          value: value
@@ -259,7 +259,7 @@ preprocessor_if
 preprocessor_else_if
   = "#" _? "elif" _ value:(defname:[^\n]* {return defname.join("")})
     (newLine/EOF) {
-      return new node({
+      return new node({ location: location(), 
         type: "preprocessor",
         directive: "#elif",
         value: value
@@ -268,7 +268,7 @@ preprocessor_else_if
 
 preprocessor_else
   = "#" _? "else" noNewlineWhitespace? newLine {
-    return new node({
+    return new node({ location: location(), 
       type: "preprocessor",
       directive: "#else"
     });
@@ -295,7 +295,7 @@ preprocessor_statement_branch
 
 function_definition
   = prototype:function_prototype body:compound_statement {
-      var result = new node({
+      var result = new node({ location: location(), 
         type: "function_declaration",
         name: prototype.name,
         returnType: prototype.returnType,
@@ -307,7 +307,7 @@ function_definition
 
 compound_statement
   = left_brace statements:statement_list? right_brace {
-      var result = new node({
+      var result = new node({ location: location(), 
         type: "scope",
         statements: []
       });
@@ -344,7 +344,7 @@ selection_statement
   = "if" left_paren condition:expression right_paren
      if_body:statement_with_scope
      else_body:("else" (_)? statement_with_scope)? {
-       var result = new node({
+       var result = new node({ location: location(), 
          type:"if_statement",
          condition:condition,
          body:if_body
@@ -361,7 +361,7 @@ for_loop
       condition:condition? semicolon
       increment:expression? right_paren
       body:statement_no_new_scope {
-        return new node({
+        return new node({ location: location(), 
           type:"for_statement",
           initializer:initializer,
           condition:condition,
@@ -379,7 +379,7 @@ while_statement
 
 while_loop
   = w:while_statement body:statement_no_new_scope  {
-      return new node({
+      return new node({ location: location(), 
         type: "while_statement",
         condition: w.condition,
         body: body
@@ -388,7 +388,7 @@ while_loop
 
 do_while
   = "do" body:statement_with_scope w:while_statement {
-       return new node({
+       return new node({ location: location(), 
          type: "do_statement",
          condition: w.condition,
          body: body
@@ -402,7 +402,7 @@ iteration_statement
 
 jump_statement
   = "return" head:("++" / "--" / "!" / "~" / "+" / "-")? _? expression:expression semicolon {
-      return new node({
+      return new node({ location: location(), 
         type: "return",
         value: expression
       });
@@ -410,14 +410,14 @@ jump_statement
   / type:("continue" semicolon
           / "break" semicolon
           / "return" semicolon) {
-            return new node({
+            return new node({ location: location(), 
               type:type[0]
             });
           }
 
 expression_statement
   = e:expression? semicolon {
-      return new node({
+      return new node({ location: location(), 
         type: "expression",
         expression: e
       });
@@ -425,7 +425,7 @@ expression_statement
 
 sequence_expression
   = head:assignment_expression tail:(comma assignment_expression)* {
-      return new node({
+      return new node({ location: location(), 
         type: "sequence",
         expressions: [ head ].concat(tail.map(function(item) { return item[1] }))
       })
@@ -436,7 +436,7 @@ declaration "declaration"
       return function_prototype;
     }
   / type:locally_specified_type _ declarators:init_declarator_list semicolon {
-      return new node({
+      return new node({ location: location(), 
         type: "declarator",
         typeAttribute: type,
         declarators: declarators
@@ -447,14 +447,14 @@ declaration "declaration"
 global_declaration
   = declaration
   / type:fully_specified_type _ declarators:init_declarator_list semicolon {
-    return new node({
+    return new node({ location: location(), 
       type: "declarator",
       typeAttribute: type,
       declarators: declarators
     });
   }
   / type:attribute_type _ declarators:declarator_list_no_array semicolon {
-    return new node({
+    return new node({ location: location(), 
       type: "declarator",
       typeAttribute: type,
       declarators: declarators
@@ -473,7 +473,7 @@ function_prototype
   = type:(void_type/precision_type) _
     identifier:identifier left_paren
     parameters:function_prototype_parameter_list? right_paren {
-      var result = new node({
+      var result = new node({ location: location(), 
         type:"function_prototype",
         name: identifier.name,
         returnType: type,
@@ -497,7 +497,7 @@ parameter_declaration
                                       constant_expression
                                       right_bracket)?
   {
-    var result = new node({
+    var result = new node({ location: location(), 
       type: "parameter",
       type_name: type_name,
       name: identifier.name
@@ -538,7 +538,7 @@ declarator_list_arrays_have_size
 
 declarator_no_array
   = name:identifier {
-      return new node({
+      return new node({ location: location(), 
         type: "declarator_item",
         name:name
       });
@@ -548,7 +548,7 @@ declarator_array_with_size
   = name:identifier left_bracket arraySize:constant_expression right_bracket
     list:(equals left_brace (init_list?) right_brace)?
   {
-      let newNode = new node({
+      let newNode = new node({ location: location(), 
          type: "declarator_item",
          name: name,
          arraySize: arraySize,
@@ -573,7 +573,7 @@ declarator
   = name:identifier left_bracket right_bracket
         equals left_brace initList:(init_list) right_brace
         {
-          return new node({
+          return new node({ location: location(), 
             type: "declarator_item",
             name: name,
             isArray: true,
@@ -590,7 +590,7 @@ declarator
 
 init_declarator
   = name:identifier equals initializer:constant_expression {
-      return new node({
+      return new node({ location: location(), 
         type: "declarator_item",
         name: name,
         initializer:initializer
@@ -603,7 +603,7 @@ member_list
                  declarator_list_arrays_have_size
                  semicolon)+ {
      return declarators.map(function(item) {
-       return new node({
+       return new node({ location: location(), 
          type: "declarator",
          typeAttribute: item[0],
          declarators: item[2]
@@ -616,7 +616,7 @@ struct_definition
     identifier:(_ identifier)? left_brace
     members:member_list
     right_brace declarators:declarator_list? semicolon? {
-      var result = new node({
+      var result = new node({ location: location(), 
         type: "struct_definition",
         members:members
       });
@@ -638,7 +638,7 @@ constant_expression
 
 precision_type
   = precision:(precision_qualifier _)? name:type_name {
-    var result = new node({
+    var result = new node({ location: location(), 
       type: "type",
       name: name
     });
@@ -686,7 +686,7 @@ type_qualifier "type qualifier"
 
 void_type "void"
   = "void" {
-    return new node({
+    return new node({ location: location(), 
       type: "type",
       name: "void"
     })
@@ -706,7 +706,7 @@ type_name "type name"
 
 identifier "identifier"
   = !(keyword [^A-Za-z_0-9]) head:[\$A-Za-z_] tail:[\$A-Za-z_0-9]* {
-     return new node({
+     return new node({ location: location(), 
        type: "identifier",
        name: head + tail.join("")
      });
@@ -753,7 +753,7 @@ single_underscore_identifier
 
 int_constant
   = head:[\-1-9] tail:[0-9]* unsigned:[Uu]? {
-      return new node({
+      return new node({ location: location(), 
         type: "int",
         format: "number",
         value_base10: parseInt([head].concat(tail).join(""), 10),
@@ -761,7 +761,7 @@ int_constant
       });
     }
   / "0"[Xx] digits:[0-9A-Fa-f]+ unsigned:[Uu]? {
-      return new node({
+      return new node({ location: location(), 
         type: "int",
         format: "hex",
         value_base10: parseInt(digits.join(""), 16),
@@ -769,7 +769,7 @@ int_constant
       });
     }
   / "0" digits:[0-7]+ unsigned:[Uu]? {
-      return new node({
+      return new node({ location: location(), 
         type: "int",
         format: "octal",
         value_base10: parseInt(digits.join(""), 8),
@@ -777,7 +777,7 @@ int_constant
       });
     }
   / "0" unsigned:[Uu]? {
-      return new node({
+      return new node({ location: location(), 
         type: "int",
         format: "number",
         value_base10: 0,
@@ -790,14 +790,14 @@ float_constant
     {
       digits[0] = digits[0].join("");
       digits[2] = digits[2].join("");
-      return new node({
+      return new node({ location: location(), 
         type: "float",
         value_base10: parseFloat(digits.join("")),
         value: digits.join("") + (suffix ? suffix : '')
       });
     }
   / digits:([\-0-9]+float_exponent) suffix:[f]? {
-      return new node({
+      return new node({ location: location(), 
         type: "float",
         value_base10: parseFloat(digits[0].join("") + digits[1]),
         value: digits.join("") + (suffix ? suffix : '')
@@ -816,7 +816,7 @@ paren_expression
 
 bool_constant
   = value:("true" / "false") {
-    return new node({
+    return new node({ location: location(), 
       type: "bool",
       value: value == "true"
     });
@@ -833,14 +833,14 @@ primary_expression
   
 type_cast
   = left_paren t:primitive_type_name right_paren exp:unary_expression {
-        return new node({
+        return new node({ location: location(), 
            type: "type_cast",
            cast_to: t,
            expression: exp
         });
       }
   / left_paren t:primitive_type_name right_paren exp:primary_expression {
-      return new node({
+      return new node({ location: location(), 
          type: "type_cast",
          cast_to: t,
          expression: exp
@@ -849,7 +849,7 @@ type_cast
 
 index_accessor
   = left_bracket index:expression right_bracket {
-    return new node({
+    return new node({ location: location(), 
       type: "accessor",
       index: index
     });
@@ -857,7 +857,7 @@ index_accessor
 
 field_selector
   = "." id:identifier {
-    return new node({
+    return new node({ location: location(), 
       type: "field_selector",
       selection: id.name
     })
@@ -869,7 +869,7 @@ postfix_expression
     {
       var result = head;
       for (var i = 0; i < tail.length; i++) {
-        result = new node({
+        result = new node({ location: location(), 
           type: "postfix",
           operator: tail[i],
           expression: result
@@ -884,9 +884,9 @@ postfix_expression_no_repeat
     rest:(field_selector / index_accessor)* {
       var result = head;
       if(tail) {
-        result = new node({
+        result = new node({ location: location(), 
           type: "postfix",
-          operator: new node({
+          operator: new node({ location: location(), 
             id: next_id++,
             type: "operator",
             operator: tail
@@ -895,7 +895,7 @@ postfix_expression_no_repeat
         })
       }
       for (var i = 0; i < rest.length; i++) {
-        result = new node({
+        result = new node({ location: location(), 
           type: "postfix",
           operator: rest[i],
           expression: result
@@ -913,7 +913,7 @@ parameter_list
 function_call
   = function_name:function_identifier left_paren
     parameters:(parameter_list?) right_paren {
-      var result = new node({
+      var result = new node({ location: location(), 
         type: "function_call",
         function_name: function_name,
         parameters: parameters
@@ -932,10 +932,10 @@ unary_expression
     tail:postfix_expression_no_repeat {
       var result = tail
       if (head) {
-        result = new node({
+        result = new node({ location: location(), 
           type: "unary",
           expression: result,
-          operator: new node({
+          operator: new node({ location: location(), 
             type: "operator",
             operator: head
           })
@@ -946,7 +946,7 @@ unary_expression
 
 multiplicative_operator
   = operator:("*" / "/" / "%") !"=" {
-    return new node({
+    return new node({ location: location(), 
       type: "operator",
       operator: operator
     });
@@ -960,13 +960,13 @@ multiplicative_expression
 
 additive_operator
   = "+" !("+" / "=") {
-    return new node({
+    return new node({ location: location(), 
       type: "operator",
       operator: "+"
     });
   }
   / "-" !("-" / "=") {
-    return new node({
+    return new node({ location: location(), 
       type: "operator",
       operator: "-"
     });
@@ -980,7 +980,7 @@ additive_expression
 
 shift_operator
   = operator:("<<" / ">>") !"=" {
-    return new node({
+    return new node({ location: location(), 
       type: "operator",
       operator: operator
     });
@@ -994,13 +994,13 @@ shift_expression
 
 relational_operator
   = "<" !("<") equal:("=")? {
-    return new node({
+    return new node({ location: location(), 
       type: "operator",
       operator: "<" + (equal ? equal : '')
     });
   }
   / ">" !(">") equal:("=")? {
-    return new node({
+    return new node({ location: location(), 
       type: "operator",
       operator: ">" + (equal ? equal : '')
     });
@@ -1014,7 +1014,7 @@ relational_expression
 
 equality_operator
  = operator:("==" / "!=") {
-     return new node({
+     return new node({ location: location(), 
        type: "operator",
        operator: operator
      });
@@ -1028,7 +1028,7 @@ equality_expression
 
 bitwise_and_operator
   = "&" !("="/"&") {
-     return new node({
+     return new node({ location: location(), 
        type: "operator",
        operator: "&"
      });
@@ -1042,7 +1042,7 @@ bitwise_and_expression
 
 bitwise_xor_operator
   = "^" !("="/"^") {
-     return new node({
+     return new node({ location: location(), 
        type: "operator",
        operator: "^"
      });
@@ -1056,7 +1056,7 @@ bitwise_xor_expression
 
 bitwise_or_operator
   = "|" !("="/"|") {
-     return new node({
+     return new node({ location: location(), 
        type: "operator",
        operator: "|"
      });
@@ -1070,7 +1070,7 @@ bitwise_or_expression
 
 logical_and_operator
  = "&&" {
-     return new node({
+     return new node({ location: location(), 
        type: "operator",
        operator: "&&"
      });
@@ -1084,7 +1084,7 @@ logical_and_expression
 
 logical_xor_operator
  = "^^" {
-     return new node({
+     return new node({ location: location(), 
        type: "operator",
        operator: "^^"
      });
@@ -1098,7 +1098,7 @@ logical_xor_expression
 
 logical_or_operator
  = "||" {
-     return new node({
+     return new node({ location: location(), 
        type: "operator",
        operator: "||"
      });
@@ -1115,7 +1115,7 @@ conditional_expression
     tail:(_? "?" _? expression _? ":" _? assignment_expression)? {
       var result = head;
       if (tail) {
-        result = new node({
+        result = new node({ location: location(), 
           type: "ternary",
           condition: head,
           is_true: tail[3],
@@ -1131,9 +1131,9 @@ assignment_expression
               "+=" / "-=" / "<<=" / ">>=" /
               "&=" / "^=" / "|=") _?
     expression:assignment_expression {
-      return new node({
+      return new node({ location: location(), 
         type: "binary",
-        operator: new node({
+        operator: new node({ location: location(), 
           type: "operator",
           operator: operator
         }),
