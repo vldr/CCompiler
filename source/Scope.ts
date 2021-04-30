@@ -77,6 +77,8 @@ export default class Scope implements Emittable
         {
             if (variable.size > 1)
             {
+                this._compiler.emitToVariables(`${variable.labelName}:\n`);
+
                 for (let i = 0; i < variable.size; i++)
                 {
                     this._compiler.emitToVariables(

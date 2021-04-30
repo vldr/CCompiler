@@ -1,6 +1,6 @@
 import Compiler from "../Compiler";
 import Scope from "../Scope";
-import Errors from "../Errors";
+import ExternalErrors from "../Errors/ExternalErrors";
 import Expression from "./Expression";
 import Destination from "../Destinations/Destination";
 
@@ -17,7 +17,7 @@ export default class ExpressionGenerator
     {
         switch (node.type) {
             default:
-                throw Errors.UNIMPLEMENTED_EXPRESSION_TYPE(node.type);
+                throw ExternalErrors.UNIMPLEMENTED_EXPRESSION_TYPE(node.type, node);
         }
     }
 }

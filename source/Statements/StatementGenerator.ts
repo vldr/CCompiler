@@ -2,7 +2,6 @@ import Compiler from "../Compiler";
 import Scope from "../Scope";
 import Statement from "./Statement";
 import StatementDeclarator from "./StatementDeclarator";
-import Errors from "../Errors";
 
 export default class StatementGenerator
 {

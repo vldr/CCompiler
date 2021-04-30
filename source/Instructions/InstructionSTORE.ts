@@ -1,7 +1,7 @@
 import Instruction from "./Instruction";
 import DestinationVariable from "../Destinations/DestinationVariable";
 import Type from "../Types/Type";
-import Errors from "../Errors";
+import InternalErrors from "../Errors/InternalErrors";
 import TypeFloat from "../Types/TypeFloat";
 import TypeInteger from "../Types/TypeInteger";
 import TypeUnsignedInteger from "../Types/TypeUnsignedInteger";
@@ -31,7 +31,9 @@ export default class InstructionSTORE extends Instruction
                 stringValue = this._value + "f";
                 break;
             default:
-                throw Errors.UNSUPPORTED_VALUE_TYPE(this._type.constructor);
+                throw InternalErrors.generateError(
+                    `Cannot generate instruction because unsupported type ${this._type.constructor}`
+                );
         }
 
         return `STORE ${stringValue} ${this._destinationVariable.variable.labelName}`;

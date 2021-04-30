@@ -1,14 +1,13 @@
 import Compiler from "../Compiler";
 import Statement from "./Statement";
 import Instruction from "../Instructions/Instruction";
-import type = Mocha.utils.type;
 import Type from "../Types/Type";
 import TypeInteger from "../Types/TypeInteger";
 import Qualifier from "../Qualifiers/Qualifier";
 import QualifierConst from "../Qualifiers/QualifierConst";
 import TypeUnsignedInteger from "../Types/TypeUnsignedInteger";
 import TypeFloat from "../Types/TypeFloat";
-import Errors from "../Errors";
+import ExternalErrors from "../Errors/ExternalErrors";
 
 export default class StatementDeclarator extends Statement
 {
@@ -38,7 +37,7 @@ export default class StatementDeclarator extends Statement
                     qualifier = new QualifierConst();
                     break;
                 default:
-                    throw Errors.UNKNOWN_QUALIFIER(typeQualifier);
+                    throw ExternalErrors.UNKNOWN_QUALIFIER(typeQualifier, typeAttribute);
             }
         }
 
@@ -70,7 +69,7 @@ export default class StatementDeclarator extends Statement
                 }
                 else
                 {
-                    throw Errors.UNKNOWN_TYPE(typeName);
+                    throw ExternalErrors.UNKNOWN_TYPE(typeName, typeAttribute);
                 }
 
                 break;
@@ -79,9 +78,14 @@ export default class StatementDeclarator extends Statement
 
         //////////////////////////////////////////////
 
+        declarators.forEach((item: any) =>
+        {
+
+        });
+
         this._compiler.log(type);
         this._compiler.log(qualifier);
-        console.log();
+        this._compiler.log(node);
     }
 
     public emit()
