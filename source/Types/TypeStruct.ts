@@ -9,4 +9,9 @@ export default class TypeStruct extends Type
 
     get members(): Map<string, Type> { return this.members; }
     get name() { return this._name }
+
+    public toString(): string
+    {
+        return this._name;
+    }
 }

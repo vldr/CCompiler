@@ -117,6 +117,17 @@ export default class StatementDeclarator extends Statement
                     this._scope,
                     initializerNode
                 );
+
+                const data = expressionResult.write();
+
+                if (this._scope.isRoot)
+                {
+                    this._compiler.emitToRoot(data);
+                }
+                else
+                {
+                    this._compiler.emitToFunctions(data);
+                }
             }
             else if (qualifier instanceof QualifierConst)
             {

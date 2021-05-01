@@ -82,13 +82,13 @@ export default class Scope
                 for (let i = 0; i < variable.size; i++)
                 {
                     this._compiler.emitToVariables(`${variable.labelName}_${i}:\n`);
-                    this._compiler.emitToVariables(`${variable.initialValue}\n`);
+                    this._compiler.emitToVariables(`.data ${variable.initialValues[i]}\n`);
                     this._compiler.emitToVariables(variable.shouldRead ? `.read ${variable.labelName}_${i} ${variable.labelName}_${i}\n` : ``);
                 }
             }
             else
             {
-                this._compiler.emitToVariables(`${variable.initialValue}\n`);
+                this._compiler.emitToVariables(`.data ${variable.initialValues}\n`);
                 this._compiler.emitToVariables(variable.shouldRead ? `.read ${variable.labelName} ${variable.labelName}\n` : ``);
             }
         });

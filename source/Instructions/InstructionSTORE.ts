@@ -36,6 +36,6 @@ export default class InstructionSTORE extends Instruction
                 );
         }
 
-        return `STORE ${stringValue} ${this._destinationVariable.variable.labelName}`;
+        return `STORE ${stringValue} ${this._destinationVariable.variable.labelName}\n`;
     }
 }

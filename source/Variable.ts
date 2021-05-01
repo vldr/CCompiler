@@ -13,12 +13,15 @@ export default class Variable
         private _scope: Scope,
         private _qualifier: Qualifier,
         private _size: number,
-        private _initialValue = "0",
+        private _initialValues = new Array(_size).fill(0),
         private _shouldRead = true
     )
     {
         this._labelName = `${_scope.name}_var_${this._name}`;
+
     }
+
+
 
     get scope() { return this._scope };
     get name() { return this._name };
@@ -26,8 +29,8 @@ export default class Variable
     get type() { return this._type };
     get qualifier() { return this._qualifier };
 
-    get initialValue() { return this._initialValue };
-    set initialValue(value: string) { this._initialValue = value; };
+    get initialValues() { return this._initialValues };
+    set initialValues(value: string[]) { this._initialValues = value; };
 
     get labelName() { return this._labelName };
     get shouldRead() { return this._shouldRead };

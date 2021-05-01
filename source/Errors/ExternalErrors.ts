@@ -37,6 +37,14 @@ export default abstract class ExternalErrors
         return this.generateError(`The name '${variableName}' is already used by either a struct declaration or another variable.`, node);
     }
 
+    static CANNOT_CONVERT_TYPE(srcType: any, destType: any, node: any)
+    {
+        return this.generateError(
+            `The type '${srcType}' is not compatible with '${destType}'. (are you missing a cast?)`,
+            node
+        );
+    }
+
     static ARRAY_TOO_SMALL(node: any)
     {
         return this.generateError(`The size of an array cannot be zero or negative.`, node);

@@ -37,7 +37,15 @@ export default class Compiler
             this.generateAndEmitStatement(this._rootScope, node);
         })
 
-        const compiledOutput = this._root.concat(this._functions).concat(this._variables);
+        this._scopes.forEach((scope) =>
+        {
+            scope.emit();
+        })
+
+        this._root.push("\n");
+        this._functions.push("\n");
+
+        const compiledOutput = this._root.concat(this._functions).concat(this._variables).join("");
 
         console.log(compiledOutput);
     }
