@@ -1,5 +1,4 @@
 import Expression from "./Expression";
-import Destination from "../Destinations/Destination";
 import TypeInteger from "../Types/TypeInteger";
 import ExpressionResult from "./ExpressionResult";
 import InternalErrors from "../Errors/InternalErrors";
@@ -10,7 +9,11 @@ import ExternalErrors from "../Errors/ExternalErrors";
 import DestinationRegisterA from "../Destinations/DestinationRegisterA";
 import DestinationVariable from "../Destinations/DestinationVariable";
 import InstructionSTORE from "../Instructions/InstructionSTORE";
-import type = Mocha.utils.type;
+import DestinationRegisterB from "../Destinations/DestinationRegisterB";
+import InstructoinSTOREPUSH from "../Instructions/InstructionSTOREPUSH";
+import DestinationStack from "../Destinations/DestinationStack";
+import InstructoinGETPOPA from "../Instructions/InstructionGETPOPA";
+import InstructoinGETPOPB from "../Instructions/InstructionGETPOPB";
 
 export default class ExpressionConstant extends Expression
 {
@@ -55,12 +58,44 @@ export default class ExpressionConstant extends Expression
                 expressionResult.pushInstruction(new InstructionSTORE(destinationType, value, destination));
             }
         }
+        else if (
+            destination instanceof DestinationRegisterA ||
+            destination instanceof DestinationRegisterB ||
+            destination instanceof DestinationStack
+        )
+        {
+            expressionResult.pushInstruction(new InstructoinSTOREPUSH(destinationType, value));
+
+            if (destination instanceof DestinationRegisterA)
+            {
+                expressionResult.pushInstruction(new InstructoinGETPOPA());
+            }
+            else if (destination instanceof DestinationRegisterB)
+            {
+                expressionResult.pushInstruction(new InstructoinGETPOPB());
+            }
+        }
         else
         {
             throw InternalErrors.generateError("Unknown destination type.");
         }
 
         return expressionResult;
+    }
+
+    private isInlinable(type: Type, value: number): boolean
+    {
+        let result = false;
+
+        if (type instanceof TypeInteger || type instanceof TypeUnsignedInteger)
+        {
+            if (Number.isInteger(value) && value >= 0 && value <= 4095)
+            {
+                result = true;
+            }
+        }
+
+        return result;
     }
 
 }
