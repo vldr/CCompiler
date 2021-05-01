@@ -2,9 +2,8 @@ import Compiler from "../Compiler";
 import Scope from "../Scope";
 import ExpressionResult from "./ExpressionResult";
 import Destination from "../Destinations/Destination";
-import Emittable from "../Emittable";
 
-export default abstract class Expression implements Emittable
+export default abstract class Expression
 {
     constructor(
         protected _node: any,
@@ -15,6 +14,5 @@ export default abstract class Expression implements Emittable
     {
     }
 
-    public abstract generate(destination: Destination): ExpressionResult;
-    public abstract emit(): void;
+    public abstract generate(): ExpressionResult;
 }

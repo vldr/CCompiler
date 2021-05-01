@@ -1,8 +1,7 @@
 import Compiler from "../Compiler";
 import Scope from "../Scope";
-import Emittable from "../Emittable";
 
-export default abstract class Statement implements Emittable
+export default abstract class Statement
 {
     constructor(
         protected _node: any,
@@ -13,5 +12,4 @@ export default abstract class Statement implements Emittable
     }
 
     public abstract generate(): void;
-    public abstract emit(): void;
 }

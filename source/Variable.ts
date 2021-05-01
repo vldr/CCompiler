@@ -25,7 +25,10 @@ export default class Variable
     get size() { return this._size };
     get type() { return this._type };
     get qualifier() { return this._qualifier };
+
     get initialValue() { return this._initialValue };
+    set initialValue(value: string) { this._initialValue = value; };
+
     get labelName() { return this._labelName };
     get shouldRead() { return this._shouldRead };
 

@@ -6,21 +6,11 @@ class Main
     static start(): void
     {
         new Compiler().compile(`
-        int hello(int a)
-        {
-            return a * 2.2 + 2;
-        }
-        
         int b = 12;
-        const int a = hello();
+        uint ayy = 12;
+        const float r = 9.458469f;
         int a[2];
-        
-        float cool()
-        {
-            return 1.f;
-        }
-        
-        float c = cool();    
+        int c[] = { 3, 4 };
         `);
     }
 }

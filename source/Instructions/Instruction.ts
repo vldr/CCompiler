@@ -1,4 +1,4 @@
 export default abstract class Instruction
 {
-    public abstract emit(): string;
+    public abstract write(): string;
 }

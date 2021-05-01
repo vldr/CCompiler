@@ -1,19 +1,18 @@
 import Parser from "./Parser";
-import Instruction from "./Instructions/Instruction";
 import Logger from "./Logger";
 import Statement from "./Statements/Statement";
 import Scope from "./Scope";
 import StatementGenerator from "./Statements/StatementGenerator";
 import ExpressionGenerator from "./Expressions/ExpressionGenerator";
-import Expression from "./Expressions/Expression";
 import Destination from "./Destinations/Destination";
+import ExpressionResult from "./Expressions/ExpressionResult";
 
 export default class Compiler
 {
     private _logger: Logger = new Logger();
     private _parser: Parser = new Parser();
-    private _root: Array<Instruction> = new Array<Instruction>();
-    private _functions: Array<Instruction> = new Array<Instruction>();
+    private _root: Array<string> = new Array<string>();
+    private _functions: Array<string> = new Array<string>();
     private _variables: Array<string> = new Array<string>();
 
     private _rootScope: Scope;
@@ -27,16 +26,18 @@ export default class Compiler
         const parsedCode = this._parser.parse(code);
 
         this._rootScope = new Scope(this);
+
         this._statementGenerator = new StatementGenerator(this, this._rootScope);
         this._expressionGenerator = new ExpressionGenerator(this, this._rootScope);
+
         this._scopes = [ this._rootScope ];
 
         parsedCode.statements.forEach((node: any) =>
         {
-            this.generateStatement(node)?.generate();
+            this.generateStatement(this._rootScope, node)?.generate();
         })
 
-        const compiledOutput = (this._root.concat(this._functions)).map(s => s.emit()).concat(this._variables);
+        const compiledOutput = this._root.concat(this._functions).concat(this._variables);
 
         console.log(compiledOutput);
     }
@@ -46,14 +47,14 @@ export default class Compiler
         this._scopes.push(scope);
     }
 
-    public generateStatement(node: any): Statement | undefined
+    public generateStatement(scope: Scope, node: any): Statement
     {
-        return this._statementGenerator.generate(node);
+        return this._statementGenerator.generate(scope, node);
     }
 
-    public generateExpression(destination: Destination, node: any): Expression
+    public generateExpression(destination: Destination, scope: Scope, node: any): ExpressionResult
     {
-        return this._expressionGenerator.generate(destination, node);
+        return this._expressionGenerator.generate(destination, scope, node);
     }
 
     public log(message: any)
@@ -61,14 +62,14 @@ export default class Compiler
         this._logger.log(message);
     }
 
-    public emitToRoot(instruction: Instruction)
+    public emitToRoot(value: string)
     {
-        this._root.push(instruction);
+        this._root.push(value);
     }
 
-    public emitToFunctions(instruction: Instruction)
+    public emitToFunctions(value: string)
     {
-        this._functions.push(instruction);
+        this._functions.push(value);
     }
 
     public emitToVariables(value: string)

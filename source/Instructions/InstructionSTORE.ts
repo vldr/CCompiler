@@ -17,7 +17,7 @@ export default class InstructionSTORE extends Instruction
         super();
     }
 
-    public emit(): string
+    public write(): string
     {
         let stringValue: string;
 

@@ -42,4 +42,19 @@ export default abstract class ExternalErrors
     {
         return this.generateError(`Unknown qualifier '${qualifier}'.`, node);
     }
+
+    static VARIABLE_NAME_TAKEN(variableName: any, node: any)
+    {
+        return this.generateError(`The name '${variableName}' is already used by either a struct declaration or another variable.`, node);
+    }
+
+    static ARRAY_TOO_SMALL(node: any)
+    {
+        return this.generateError(`The size of an array cannot be zero or negative.`, node);
+    }
+
+    static CONST_VARIABLES_MUST_BE_INIT(node: any)
+    {
+        return this.generateError(`Constant variables must be initialized.`, node);
+    }
 }
