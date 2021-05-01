@@ -12,6 +12,8 @@ export default class ExpressionConstant extends Expression
 {
     generate(): ExpressionResult
     {
+        //type: Type, expression: ExpressionConstant, public readonly value: string
+
         const node = this._node;
         const destinationType = this._destination.type;
 
@@ -33,6 +35,8 @@ export default class ExpressionConstant extends Expression
         }
 
         this._compiler.log(node);
+
+        //const expressionResult = new ExpressionResultConstant();
 
         return new ExpressionResultConstant(new TypeInteger(), this, "0");
     }

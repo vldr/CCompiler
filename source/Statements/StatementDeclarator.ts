@@ -15,9 +15,7 @@ import DestinationVariable from "../Destinations/DestinationVariable";
 
 export default class StatementDeclarator extends Statement
 {
-    private _generatedCode: Array<string>;
-
-    public generate(): void
+    public generateAndEmit(): void
     {
         const node = this._node;
         const typeAttributeNode = node.typeAttribute;
@@ -130,12 +128,4 @@ export default class StatementDeclarator extends Statement
         // this._compiler.log(qualifier);
         // this._compiler.log(node);
     }
-
-    public emit()
-    {
-        this._generatedCode.forEach((instruction) => {
-            super._compiler.emitToRoot(instruction)
-        });
-    }
-
 }

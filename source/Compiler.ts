@@ -34,7 +34,7 @@ export default class Compiler
 
         parsedCode.statements.forEach((node: any) =>
         {
-            this.generateStatement(this._rootScope, node)?.generate();
+            this.generateAndEmitStatement(this._rootScope, node);
         })
 
         const compiledOutput = this._root.concat(this._functions).concat(this._variables);
@@ -47,9 +47,9 @@ export default class Compiler
         this._scopes.push(scope);
     }
 
-    public generateStatement(scope: Scope, node: any): Statement
+    public generateAndEmitStatement(scope: Scope, node: any): void
     {
-        return this._statementGenerator.generate(scope, node);
+        this._statementGenerator.generateAndEmit(scope, node);
     }
 
     public generateExpression(destination: Destination, scope: Scope, node: any): ExpressionResult

@@ -12,11 +12,6 @@ export default abstract class ExternalErrors
         );
     }
 
-    static UNIMPLEMENTED_EMITTER(node: any)
-    {
-        return this.generateError(`Unimplemented emitter.`, node);
-    }
-
     static UNIMPLEMENTED_EXPRESSION_TYPE(node: any, expressionType: string)
     {
         return this.generateError(`Unimplemented expression type, '${expressionType}'.`, node);
@@ -26,12 +21,6 @@ export default abstract class ExternalErrors
     {
         return this.generateError(`Unimplemented statement type, '${statementType}'.`, node);
     }
-
-    static UNSUPPORTED_VALUE_TYPE(node: any, valueType: Function)
-    {
-        return this.generateError(`Unsupported value type, '${valueType}'.`, node);
-    }
-
 
     static UNKNOWN_TYPE(node: any, type: string)
     {

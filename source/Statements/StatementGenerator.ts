@@ -10,11 +10,12 @@ export default class StatementGenerator
     {
     }
 
-    public generate(scope: Scope, node: any): Statement
+    public generateAndEmit(scope: Scope, node: any): void
     {
         switch (node.type) {
             case "declarator":
-                return new StatementDeclarator(node, this._compiler, scope);
+                new StatementDeclarator(node, this._compiler, scope).generateAndEmit();
+                break;
             default:
                 throw ExternalErrors.UNIMPLEMENTED_STATEMENT_TYPE(node, node.type);
         }
