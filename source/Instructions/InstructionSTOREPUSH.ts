@@ -6,11 +6,10 @@ import TypeFloat from "../Types/TypeFloat";
 import TypeInteger from "../Types/TypeInteger";
 import TypeUnsignedInteger from "../Types/TypeUnsignedInteger";
 
-export default class InstructoinSTOREPUSH extends Instruction
+export default class InstructionSTOREPUSH extends Instruction
 {
     constructor(
-        private _type: Type,
-        private _value: number,
+        private _value: string,
     )
     {
         super();
@@ -18,23 +17,6 @@ export default class InstructoinSTOREPUSH extends Instruction
 
     public write(): string
     {
-        let stringValue: string;
-
-        switch (this._type.constructor)
-        {
-            case TypeInteger:
-            case TypeUnsignedInteger:
-                stringValue = this._value.toString();
-                break;
-            case TypeFloat:
-                stringValue = this._value + "f";
-                break;
-            default:
-                throw InternalErrors.generateError(
-                    `Cannot generate instruction because unsupported type ${this._type.constructor}`
-                );
-        }
-
-        return `STOREPUSH ${stringValue}\n`;
+        return `STOREPUSH ${this._value}\n`;
     }
 }

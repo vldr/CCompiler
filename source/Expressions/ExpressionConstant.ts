@@ -8,12 +8,16 @@ import TypeUnsignedInteger from "../Types/TypeUnsignedInteger";
 import ExternalErrors from "../Errors/ExternalErrors";
 import DestinationRegisterA from "../Destinations/DestinationRegisterA";
 import DestinationVariable from "../Destinations/DestinationVariable";
-import InstructionSTORE from "../Instructions/InstructionSTORE";
 import DestinationRegisterB from "../Destinations/DestinationRegisterB";
-import InstructoinSTOREPUSH from "../Instructions/InstructionSTOREPUSH";
 import DestinationStack from "../Destinations/DestinationStack";
-import InstructoinGETPOPA from "../Instructions/InstructionGETPOPA";
-import InstructoinGETPOPB from "../Instructions/InstructionGETPOPB";
+import InstructionQSTORE from "../Instructions/InstructionQSTORE";
+import InstructionSTORE from "../Instructions/InstructionSTORE";
+import InstructionGETPOPA from "../Instructions/InstructionGETPOPA";
+import InstructionGETPOPB from "../Instructions/InstructionGETPOPB";
+import InstructionSTOREPUSH from "../Instructions/InstructionSTOREPUSH";
+import InstructionVPUSH from "../Instructions/InstructionVPUSH";
+import InstructionVGETA from "../Instructions/InstructionVGETA";
+import InstructionVGETB from "../Instructions/InstructionVGETB";
 
 export default class ExpressionConstant extends Expression
 {
@@ -25,6 +29,7 @@ export default class ExpressionConstant extends Expression
         const typeName: string = node.type;
 
         let value: number = node.value_base10;
+        let stringValue: string = value.toString();
 
         switch (typeName)
         {
@@ -34,6 +39,8 @@ export default class ExpressionConstant extends Expression
             case "float":
                 if (!(destinationType instanceof TypeFloat))
                     throw ExternalErrors.CANNOT_CONVERT_TYPE(typeName, destinationType.toString(), node);
+
+                stringValue += "f";
 
                 break;
             default:
@@ -46,16 +53,15 @@ export default class ExpressionConstant extends Expression
         {
             if (destination.variable.isConst)
             {
-                destination.variable.initialValues[0] = value.toString();
-
-                if (destinationType instanceof TypeFloat)
-                {
-                    destination.variable.initialValues[0] += "f";
-                }
+                destination.variable.initialValues[0] = stringValue;
+            }
+            else if (this.isInlinable(destinationType, value))
+            {
+                expressionResult.pushInstruction(new InstructionQSTORE(stringValue, destination));
             }
             else
             {
-                expressionResult.pushInstruction(new InstructionSTORE(destinationType, value, destination));
+                expressionResult.pushInstruction(new InstructionSTORE(stringValue, destination));
             }
         }
         else if (
@@ -64,15 +70,33 @@ export default class ExpressionConstant extends Expression
             destination instanceof DestinationStack
         )
         {
-            expressionResult.pushInstruction(new InstructoinSTOREPUSH(destinationType, value));
-
-            if (destination instanceof DestinationRegisterA)
+            if (this.isInlinable(destinationType, value))
             {
-                expressionResult.pushInstruction(new InstructoinGETPOPA());
+                if (destination instanceof DestinationRegisterA)
+                {
+                    expressionResult.pushInstruction(new InstructionVGETA(stringValue));
+                }
+                else if (destination instanceof DestinationRegisterB)
+                {
+                    expressionResult.pushInstruction(new InstructionVGETB(stringValue));
+                }
+                else
+                {
+                    expressionResult.pushInstruction(new InstructionVPUSH(stringValue));
+                }
             }
-            else if (destination instanceof DestinationRegisterB)
+            else
             {
-                expressionResult.pushInstruction(new InstructoinGETPOPB());
+                expressionResult.pushInstruction(new InstructionSTOREPUSH(stringValue));
+
+                if (destination instanceof DestinationRegisterA)
+                {
+                    expressionResult.pushInstruction(new InstructionGETPOPA());
+                }
+                else if (destination instanceof DestinationRegisterB)
+                {
+                    expressionResult.pushInstruction(new InstructionGETPOPB());
+                }
             }
         }
         else

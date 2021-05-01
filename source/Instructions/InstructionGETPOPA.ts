@@ -6,7 +6,7 @@ import TypeFloat from "../Types/TypeFloat";
 import TypeInteger from "../Types/TypeInteger";
 import TypeUnsignedInteger from "../Types/TypeUnsignedInteger";
 
-export default class InstructoinGETPOPA extends Instruction
+export default class InstructionGETPOPA extends Instruction
 {
     constructor()
     {

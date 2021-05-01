@@ -9,8 +9,7 @@ import TypeUnsignedInteger from "../Types/TypeUnsignedInteger";
 export default class InstructionSTORE extends Instruction
 {
     constructor(
-        private _type: Type,
-        private _value: number,
+        private _value: string,
         private _destinationVariable: DestinationVariable
     )
     {
@@ -19,23 +18,6 @@ export default class InstructionSTORE extends Instruction
 
     public write(): string
     {
-        let stringValue: string;
-
-        switch (this._type.constructor)
-        {
-            case TypeInteger:
-            case TypeUnsignedInteger:
-                stringValue = this._value.toString();
-                break;
-            case TypeFloat:
-                stringValue = this._value + "f";
-                break;
-            default:
-                throw InternalErrors.generateError(
-                    `Cannot generate instruction because unsupported type ${this._type.constructor}`
-                );
-        }
-
-        return `STORE ${stringValue} ${this._destinationVariable.variable.labelName}\n`;
+        return `STORE ${this._value} ${this._destinationVariable.variable.labelName}\n`;
     }
 }

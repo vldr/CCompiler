@@ -6,7 +6,7 @@ import TypeFloat from "../Types/TypeFloat";
 import TypeInteger from "../Types/TypeInteger";
 import TypeUnsignedInteger from "../Types/TypeUnsignedInteger";
 
-export default class InstructoinGETA extends Instruction
+export default class InstructionGETA extends Instruction
 {
     constructor()
     {

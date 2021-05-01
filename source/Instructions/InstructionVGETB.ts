@@ -6,15 +6,15 @@ import TypeFloat from "../Types/TypeFloat";
 import TypeInteger from "../Types/TypeInteger";
 import TypeUnsignedInteger from "../Types/TypeUnsignedInteger";
 
-export default class InstructionGETPOPB extends Instruction
+export default class InstructionVGETB extends Instruction
 {
-    constructor()
+    constructor(private _value: string)
     {
         super();
     }
 
     public write(): string
     {
-        return `GETPOPB\n`;
+        return `VGETA ${this._value}\n`;
     }
 }

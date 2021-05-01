@@ -6,15 +6,18 @@ import TypeFloat from "../Types/TypeFloat";
 import TypeInteger from "../Types/TypeInteger";
 import TypeUnsignedInteger from "../Types/TypeUnsignedInteger";
 
-export default class InstructionGETPOPB extends Instruction
+export default class InstructionQSTORE extends Instruction
 {
-    constructor()
+    constructor(
+        private _value: string,
+        private _destinationVariable: DestinationVariable
+    )
     {
         super();
     }
 
     public write(): string
     {
-        return `GETPOPB\n`;
+        return `QSTORE ${this._value} ${this._destinationVariable.variable.labelName}\n`;
     }
 }
