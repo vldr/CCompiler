@@ -42,8 +42,7 @@ export default class Compiler
             scope.emit();
         })
 
-        if (this._root.length > 0)
-            this._root.push("\n");
+        this._root.push("HALT\n\n");
 
         if (this._functions.length > 0)
             this._functions.push("\n");
