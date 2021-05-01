@@ -13,7 +13,7 @@ export default class Function
         private _scope: Scope
     )
     {
-        this._labelName = `${_scope.name}_fn_${this._name}`;
+        this._labelName = `${_scope.name.length > 0 ? _scope.name + "_" : ""}fn_${this._name}`;
     }
 
     get scope(): Scope { return this._scope; }

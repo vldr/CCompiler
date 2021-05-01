@@ -134,9 +134,5 @@ export default class StatementDeclarator extends Statement
                 throw ExternalErrors.CONST_VARIABLES_MUST_BE_INIT(node);
             }
         });
-
-        // this._compiler.log(type);
-        // this._compiler.log(qualifier);
-        // this._compiler.log(node);
     }
 }

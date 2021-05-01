@@ -17,11 +17,8 @@ export default class Variable
         private _shouldRead = true
     )
     {
-        this._labelName = `${_scope.name}_var_${this._name}`;
-
+        this._labelName = `${_scope.name.length > 0 ? _scope.name + "_" : ""}var_${this._name}`;
     }
-
-
 
     get scope() { return this._scope };
     get name() { return this._name };

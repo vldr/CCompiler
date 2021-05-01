@@ -42,8 +42,11 @@ export default class Compiler
             scope.emit();
         })
 
-        this._root.push("\n");
-        this._functions.push("\n");
+        if (this._root.length > 0)
+            this._root.push("\n");
+
+        if (this._functions.length > 0)
+            this._functions.push("\n");
 
         const compiledOutput = this._root.concat(this._functions).concat(this._variables).join("");
 
