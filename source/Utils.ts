@@ -50,7 +50,7 @@ export default class Utils
         return type;
     }
 
-    public static getQualifer(node: Node, qualifierName: string): Qualifier
+    public static getQualifer(node: Node, qualifierName?: string): Qualifier
     {
         let qualifier = new QualifierNone();
 
