@@ -13,8 +13,6 @@ export default abstract class Variable
         protected _type: Type,
         protected _scope: Scope,
         protected _compiler: Compiler,
-        protected _size: number,
-        protected _initialValues = new Array(_size).fill(0),
         protected _shouldRead = true
     )
     {
@@ -25,11 +23,7 @@ export default abstract class Variable
 
     get scope() { return this._scope };
     get name() { return this._name };
-    get size() { return this._size };
     get type() { return this._type };
-
-    get initialValues() { return this._initialValues };
-    set initialValues(value: string[]) { this._initialValues = value; };
 
     get labelName() { return this._labelName };
     get shouldRead() { return this._shouldRead };

@@ -12,22 +12,22 @@ import Node from "./Nodes/Node"
 
 export default class Utils
 {
-    public static getType(node: Node, typeName: string, qualifier: Qualifier, scope: Scope): Type
+    public static getType(node: Node, typeName: string, size: number, qualifier: Qualifier, scope: Scope): Type
     {
         let type: Type;
 
         switch (typeName)
         {
             case "int":
-                type = new TypeInteger(qualifier);
+                type = new TypeInteger(qualifier, size);
                 break;
 
             case "uint":
-                type = new TypeUnsignedInteger(qualifier);
+                type = new TypeUnsignedInteger(qualifier, size);
                 break;
 
             case "float":
-                type = new TypeFloat(qualifier);
+                type = new TypeFloat(qualifier, size);
                 break;
 
             default:
@@ -36,7 +36,7 @@ export default class Utils
 
                 if (struct)
                 {
-                    type = new TypeStruct(qualifier, struct.name, struct.members);
+                    type = new TypeStruct(qualifier, struct.name, size, struct.members);
                 }
                 else
                 {

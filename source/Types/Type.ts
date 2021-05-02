@@ -3,14 +3,14 @@ import QualifierConst from "../Qualifiers/QualifierConst";
 
 export default abstract class Type
 {
-    constructor(public readonly qualifer: Qualifier)
+    constructor(
+        public readonly qualifer: Qualifier,
+        public readonly size: number
+    )
     {
     }
 
     public abstract toString(): string;
 
-    get isConstant()
-    {
-        return this.qualifer instanceof QualifierConst;
-    }
+    get isConstant()  { return this.qualifer instanceof QualifierConst; }
 }

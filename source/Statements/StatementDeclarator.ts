@@ -16,6 +16,7 @@ import Utils from "../Utils";
 import NodeDeclarator from "../Nodes/NodeDeclarator";
 import Variable from "../Variables/Variable";
 import VariablePrimitive from "../Variables/VariablePrimitive";
+import VariableStruct from "../Variables/VariableStruct";
 
 export default class StatementDeclarator extends Statement
 {
@@ -31,9 +32,10 @@ export default class StatementDeclarator extends Statement
         //////////////////////////////////////////////
 
         let qualifier = Utils.getQualifer(typeAttributeNode, qualifierName);
-        let type = Utils.getType(typeAttributeNode, typeName, qualifier, this._scope);
 
         //////////////////////////////////////////////
+
+
 
         declaratorsNode.forEach((declaratorNode: any) =>
         {
@@ -57,14 +59,21 @@ export default class StatementDeclarator extends Statement
                 throw ExternalErrors.ARRAY_TOO_SMALL(arraySizeNode);
             }
 
+            //////////////////////////////////////////////
+
+            let type = Utils.getType(typeAttributeNode, typeName, size, qualifier, this._scope);
+
             if (type instanceof TypeStruct)
             {
+                const structVariable = new VariableStruct(variableName, type, this._scope, this._compiler);
 
-
+                this._scope.addVariable(
+                    structVariable
+                );
             }
             else
             {
-                const variable = new VariablePrimitive(variableName, type, this._scope, this._compiler, size);
+                const variable = new VariablePrimitive(variableName, type, this._scope, this._compiler);
 
                 this._scope.addVariable(
                     variable

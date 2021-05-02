@@ -3,6 +3,7 @@ import Scope from "../Scope";
 import Statement from "./Statement";
 import StatementDeclarator from "./StatementDeclarator";
 import ExternalErrors from "../Errors/ExternalErrors";
+import StatementStructDefinition from "./StatementStructDefinition";
 
 export default class StatementGenerator
 {
@@ -18,6 +19,9 @@ export default class StatementGenerator
         {
             case "declarator":
                 statement = new StatementDeclarator(node, this._compiler, scope);
+                break;
+            case "struct_definition":
+                statement = new StatementStructDefinition(node, this._compiler, scope);
                 break;
             default:
                 throw ExternalErrors.UNIMPLEMENTED_STATEMENT_TYPE(node, node.type);

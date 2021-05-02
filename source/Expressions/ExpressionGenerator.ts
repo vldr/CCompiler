@@ -24,12 +24,15 @@ export default class ExpressionGenerator
             case "uint":
             case "float":
                 expression = new ExpressionConstant(node, destination, this._compiler, scope);
+                break;
             default:
                 throw ExternalErrors.UNIMPLEMENTED_EXPRESSION_TYPE(node, node.type);
         }
 
         this._compiler.pushExpressionStack(expression);
-        expression.generate();
+        const expressionResult = expression.generate();
         this._compiler.popExpressionStack();
+
+        return expressionResult;
     }
 }

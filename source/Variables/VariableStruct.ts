@@ -2,34 +2,42 @@ import Scope from "../Scope";
 import Variable from "./Variable";
 import Compiler from "../Compiler";
 import TypeStruct from "../Types/TypeStruct";
+import Type from "../Types/Type";
+import VariablePrimitive from "./VariablePrimitive";
 
 export default class VariableStruct extends Variable
 {
+    private _members = new Map<string, Variable>();
+
     constructor(
-        private _members: Map<string, Variable>,
         name: string,
         type: TypeStruct,
         scope: Scope,
         compiler: Compiler,
-        size: number,
-        initialValues = new Array(size).fill(0),
         shouldRead = true
     )
     {
-        super(name, type, scope, compiler, size, initialValues, shouldRead);
+        super(name, type, scope, compiler, shouldRead);
 
-        this._members.forEach((variable) =>
+        type.members.forEach((variableType, variableName) =>
         {
-            variable._labelName = this.labelName + "__" + variable._labelName;
+            this._members.set(`${name}__${variableName}`,
+                variableType instanceof TypeStruct
+                    ? new VariablePrimitive(name, type, scope, compiler, shouldRead) :
+                    new VariableStruct(name, type, scope, compiler, shouldRead)
+            )
         });
     }
 
     emit(): void
     {
-        this._compiler.emitToVariables(`${this.labelName}:\n`);
-        this._members.forEach((variable) =>
+        if (this._shouldRead)
         {
-            variable.emit();
-        });
+            this._compiler.emitToVariables(`${this.labelName}:\n`);
+            this._members.forEach((variable) =>
+            {
+                variable.emit();
+            });
+        }
     }
 }

@@ -19,6 +19,7 @@ import InstructionVPUSH from "../Instructions/InstructionVPUSH";
 import InstructionVGETA from "../Instructions/InstructionVGETA";
 import InstructionVGETB from "../Instructions/InstructionVGETB";
 import NodeConstant from "../Nodes/NodeConstant";
+import VariablePrimitive from "../Variables/VariablePrimitive";
 
 export default class ExpressionConstant extends Expression
 {
@@ -32,27 +33,42 @@ export default class ExpressionConstant extends Expression
         const value: number = node.value_base10;
         let stringValue: string = value.toString();
 
-        switch (typeName)
+        if (typeName === "int")
         {
-            case "int":
-            case "uint":
-                break;
-            case "float":
-                if (!(destinationType instanceof TypeFloat))
-                    throw ExternalErrors.CANNOT_CONVERT_TYPE(node, typeName, destinationType.toString(), );
-
-                stringValue += "f";
-
-                break;
-            default:
-                throw InternalErrors.generateError(`Unknown constant type, ${typeName}.`);
+            if (destinationType instanceof TypeFloat) { stringValue += "f"; }
+            else if (destinationType instanceof TypeInteger) {}
+            else if (destinationType instanceof TypeUnsignedInteger) {}
+            else
+            {
+                throw ExternalErrors.CANNOT_CONVERT_TYPE(node, typeName, destinationType.toString());
+            }
         }
+        else if (typeName === "uint")
+        {
+            if (destinationType instanceof TypeFloat) { stringValue += "f"; }
+            else if (destinationType instanceof TypeInteger) {}
+            else if (destinationType instanceof TypeUnsignedInteger) {}
+            else
+            {
+                throw ExternalErrors.CANNOT_CONVERT_TYPE(node, typeName, destinationType.toString());
+            }
+        }
+        else if (typeName === "float")
+        {
+            if (destinationType instanceof TypeFloat) {}
+            else
+            {
+                throw ExternalErrors.CANNOT_CONVERT_TYPE(node, typeName, destinationType.toString());
+            }
+        }
+
+        ///////////////////////////////////////////////
 
         const expressionResult = new ExpressionResult(destinationType, this);
 
         if (destination instanceof DestinationVariable)
         {
-            if (destination.variable.type.isConstant)
+            if (destination.variable.type.isConstant && destination.variable instanceof  VariablePrimitive)
             {
                 destination.variable.initialValues[0] = stringValue;
             }

@@ -6,14 +6,13 @@ class Main
     static start(): void
     {
         new Compiler().compile(`
-        // struct Node {
-        //     int data;
-        //     Node next;
-        // };
+        const struct {
+            int data;
+        };
         //
         // Node node;
         
-        int f;
+        const float f = 328748;
         // uint d = 4096;
         // float ayy = 17.38947;
         //
