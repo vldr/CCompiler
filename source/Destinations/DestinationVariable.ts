@@ -1,6 +1,6 @@
 import Destination from "./Destination";
-import Variable from "../Variable";
 import Type from "../Types/Type";
+import Variable from "../Variables/Variable";
 
 export default class DestinationVariable extends Destination
 {

@@ -1,5 +1,4 @@
 import Type from "./Type";
-import Variable from "../Variable";
 import Qualifier from "../Qualifiers/Qualifier";
 
 export default class TypeStruct extends Type

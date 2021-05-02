@@ -1,6 +1,6 @@
-import Variable from "./Variable";
 import Scope from "./Scope";
 import Type from "./Types/Type";
+import Variable from "./Variables/Variable";
 
 export default class Function
 {

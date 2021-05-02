@@ -9,12 +9,13 @@ import TypeUnsignedInteger from "../Types/TypeUnsignedInteger";
 import TypeFloat from "../Types/TypeFloat";
 import ExternalErrors from "../Errors/ExternalErrors";
 import InternalErrors from "../Errors/InternalErrors";
-import Variable from "../Variable";
 import QualifierNone from "../Qualifiers/QualifierNone";
 import DestinationVariable from "../Destinations/DestinationVariable";
 import TypeStruct from "../Types/TypeStruct";
 import Utils from "../Utils";
 import NodeDeclarator from "../Nodes/NodeDeclarator";
+import Variable from "../Variables/Variable";
+import VariablePrimitive from "../Variables/VariablePrimitive";
 
 export default class StatementDeclarator extends Statement
 {
@@ -58,34 +59,12 @@ export default class StatementDeclarator extends Statement
 
             if (type instanceof TypeStruct)
             {
-                const structMembers = type.members;
 
-                structMembers.forEach((memberType, memberName) =>
-                {
-                    if (size > 1)
-                    {
-                        for (let i = 0; i < size; i++)
-                        {
-                            const variableMember = new Variable(`${variableName}__${memberName}_${i}`, type, this._scope, size);
-                            this._scope.addVariable(
-                                variableMember
-                            );
-                        }
-                    }
-                    else
-                    {
-                        const variableMember = new Variable(`${variableName}__${memberName}`, type, this._scope, size);
-                        this._scope.addVariable(
-                            variableMember
-                        );
-                    }
-
-                });
 
             }
             else
             {
-                const variable = new Variable(variableName, type, this._scope, size);
+                const variable = new VariablePrimitive(variableName, type, this._scope, this._compiler, size);
 
                 this._scope.addVariable(
                     variable

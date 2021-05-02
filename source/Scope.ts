@@ -1,7 +1,7 @@
-import Variable from "./Variable";
 import Function from "./Function"
 import TypeStruct from "./Types/TypeStruct";
 import Compiler from "./Compiler";
+import Variable from "./Variables/Variable";
 
 export default class Scope
 {
@@ -75,22 +75,7 @@ export default class Scope
     {
         this._variables.forEach((variable) =>
         {
-            this._compiler.emitToVariables(`${variable.labelName}:\n`);
-
-            if (variable.size > 1)
-            {
-                for (let i = 0; i < variable.size; i++)
-                {
-                    this._compiler.emitToVariables(`${variable.labelName}_${i}:\n`);
-                    this._compiler.emitToVariables(`.data ${variable.initialValues[i]}\n`);
-                    this._compiler.emitToVariables(variable.shouldRead ? `.read ${variable.labelName}_${i} ${variable.labelName}_${i}\n` : ``);
-                }
-            }
-            else
-            {
-                this._compiler.emitToVariables(`.data ${variable.initialValues}\n`);
-                this._compiler.emitToVariables(variable.shouldRead ? `.read ${variable.labelName} ${variable.labelName}\n` : ``);
-            }
+            variable.emit();
         });
     }
 }
