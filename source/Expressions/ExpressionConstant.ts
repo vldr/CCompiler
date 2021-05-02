@@ -18,17 +18,18 @@ import InstructionSTOREPUSH from "../Instructions/InstructionSTOREPUSH";
 import InstructionVPUSH from "../Instructions/InstructionVPUSH";
 import InstructionVGETA from "../Instructions/InstructionVGETA";
 import InstructionVGETB from "../Instructions/InstructionVGETB";
+import NodeConstant from "../Nodes/NodeConstant";
 
 export default class ExpressionConstant extends Expression
 {
     generate(): ExpressionResult
     {
-        const node = this._node;
+        const node = this._node as NodeConstant;
         const destination = this._destination;
         const destinationType = this._destination.type;
         const typeName: string = node.type;
 
-        let value: number = node.value_base10;
+        const value: number = node.value_base10;
         let stringValue: string = value.toString();
 
         switch (typeName)
@@ -38,7 +39,7 @@ export default class ExpressionConstant extends Expression
                 break;
             case "float":
                 if (!(destinationType instanceof TypeFloat))
-                    throw ExternalErrors.CANNOT_CONVERT_TYPE(typeName, destinationType.toString(), node);
+                    throw ExternalErrors.CANNOT_CONVERT_TYPE(node, typeName, destinationType.toString(), );
 
                 stringValue += "f";
 
@@ -51,7 +52,7 @@ export default class ExpressionConstant extends Expression
 
         if (destination instanceof DestinationVariable)
         {
-            if (destination.variable.isConst)
+            if (destination.variable.type.isConstant)
             {
                 destination.variable.initialValues[0] = stringValue;
             }
@@ -101,7 +102,7 @@ export default class ExpressionConstant extends Expression
         }
         else
         {
-            throw InternalErrors.generateError("Unknown destination type.");
+            throw InternalErrors.generateError(`Unknown destination type, ${destinationType.constructor}.`);
         }
 
         return expressionResult;

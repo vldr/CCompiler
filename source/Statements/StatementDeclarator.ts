@@ -12,127 +12,116 @@ import InternalErrors from "../Errors/InternalErrors";
 import Variable from "../Variable";
 import QualifierNone from "../Qualifiers/QualifierNone";
 import DestinationVariable from "../Destinations/DestinationVariable";
+import TypeStruct from "../Types/TypeStruct";
+import Utils from "../Utils";
+import type = Mocha.utils.type;
+import NodeDeclarator from "../Nodes/NodeDeclarator";
 
 export default class StatementDeclarator extends Statement
 {
     public generateAndEmit(): void
     {
-        const node = this._node;
-        const typeAttributeNode = node.typeAttribute;
-        const declaratorsNode = node.declarators;
+        const node = this._node as NodeDeclarator;
 
-        if (typeAttributeNode === undefined || declaratorsNode === undefined)
-            throw InternalErrors.generateError("Invalid declarator provided.");
-
-        const typeName = typeAttributeNode.name;
-        const typeQualifier = typeAttributeNode.qualifier;
-
-        //////////////////////////////////////////////
-
-        let qualifier = new QualifierNone();
-
-        if (typeQualifier)
-        {
-            switch (typeQualifier)
-            {
-                case "const":
-                    qualifier = new QualifierConst();
-                    break;
-                default:
-                    throw ExternalErrors.UNKNOWN_QUALIFIER(typeQualifier, typeAttributeNode);
-            }
-        }
-
-        //////////////////////////////////////////////
-
-        let type: Type;
-
-        switch (typeName)
-        {
-            case "int":
-                type = new TypeInteger();
-                break;
-
-            case "uint":
-                type = new TypeUnsignedInteger();
-                break;
-
-            case "float":
-                type = new TypeFloat();
-                break;
-
-            default:
-            {
-                const struct = this._scope.getStructByName(typeName);
-
-                if (struct)
-                {
-                    type = struct;
-                }
-                else
-                {
-                    throw ExternalErrors.UNKNOWN_TYPE(typeName, typeAttributeNode);
-                }
-
-                break;
-            }
-        }
-
-        //////////////////////////////////////////////
-
-        declaratorsNode.forEach((declaratorNode: any) =>
-        {
-            const identifierNode = declaratorNode.name;
-            const variableName = identifierNode.name;
-
-            if (this._scope.getVariableByName(variableName) !== undefined ||
-                this._scope.getStructByName(variableName) !== undefined)
-            {
-                throw ExternalErrors.VARIABLE_NAME_TAKEN(variableName, identifierNode);
-            }
-
-            //////////////////////////////////////////////
-
-            const arraySizeNode = declaratorNode.arraySize;
-            const initializerNode = declaratorNode.initializer;
-            const size = arraySizeNode?.value_base10 || 1;
-
-            if (size < 1)
-            {
-                throw ExternalErrors.ARRAY_TOO_SMALL(arraySizeNode);
-            }
-
-            const variable = new Variable(variableName, type, this._scope, qualifier, size);
-
-            this._scope.addVariable(
-                variable
-            );
-
-            //////////////////////////////////////////////
-
-            if (initializerNode)
-            {
-                const expressionResult = this._compiler.generateExpression(
-                    new DestinationVariable(type, variable),
-                    this._scope,
-                    initializerNode
-                );
-
-                const data = expressionResult.write();
-
-                if (this._scope.isRoot)
-                {
-                    this._compiler.emitToRoot(data);
-                }
-                else
-                {
-                    this._compiler.emitToFunctions(data);
-                }
-            }
-            else if (qualifier instanceof QualifierConst)
-            {
-                throw ExternalErrors.CONST_VARIABLES_MUST_BE_INIT(node);
-            }
-        });
+        this._compiler.log(node);
+        //
+        // const typeAttributeNode = node.typeAttribute;
+        // const declaratorsNode = node.declarators;
+        //
+        // if (typeAttributeNode === undefined || declaratorsNode === undefined)
+        //     throw InternalErrors.generateError("Invalid declarator provided.");
+        //
+        // const typeName = typeAttributeNode.name;
+        // const qualifierName = typeAttributeNode.qualifier;
+        //
+        // //////////////////////////////////////////////
+        //
+        // let qualifier = StatementTools.getQualifer(typeAttributeNode, qualifierName);
+        // let type = StatementTools.getType(typeAttributeNode, typeName, qualifier, this._scope);
+        //
+        // //////////////////////////////////////////////
+        //
+        // declaratorsNode.forEach((declaratorNode: any) =>
+        // {
+        //     const identifierNode = declaratorNode.name;
+        //     const variableName = identifierNode.name;
+        //
+        //     if (this._scope.getVariableByName(variableName) !== undefined ||
+        //         this._scope.getStructByName(variableName) !== undefined)
+        //     {
+        //         throw ExternalErrors.VARIABLE_NAME_TAKEN(variableName, identifierNode);
+        //     }
+        //
+        //     //////////////////////////////////////////////
+        //
+        //     const arraySizeNode = declaratorNode.arraySize;
+        //     const initializerNode = declaratorNode.initializer;
+        //     const size = arraySizeNode?.value_base10 || 1;
+        //
+        //     if (size < 1)
+        //     {
+        //         throw ExternalErrors.ARRAY_TOO_SMALL(arraySizeNode);
+        //     }
+        //
+        //     if (type instanceof TypeStruct)
+        //     {
+        //         const structMembers = type.members;
+        //
+        //         structMembers.forEach((memberType, memberName) =>
+        //         {
+        //             if (size > 1)
+        //             {
+        //                 for (let i = 0; i < size; i++)
+        //                 {
+        //                     const variableMember = new Variable(`${variableName}__${memberName}_${i}`, type, this._scope, size);
+        //                     this._scope.addVariable(
+        //                         variableMember
+        //                     );
+        //                 }
+        //             }
+        //             else
+        //             {
+        //                 const variableMember = new Variable(`${variableName}__${memberName}`, type, this._scope, size);
+        //                 this._scope.addVariable(
+        //                     variableMember
+        //                 );
+        //             }
+        //
+        //         });
+        //
+        //     }
+        //     else
+        //     {
+        //         const variable = new Variable(variableName, type, this._scope, size);
+        //
+        //         this._scope.addVariable(
+        //             variable
+        //         );
+        //
+        //         if (initializerNode)
+        //         {
+        //             const expressionResult = this._compiler.generateExpression(
+        //                 new DestinationVariable(type, variable),
+        //                 this._scope,
+        //                 initializerNode
+        //             );
+        //
+        //             const data = expressionResult.write();
+        //
+        //             if (this._scope.isRoot)
+        //             {
+        //                 this._compiler.emitToRoot(data);
+        //             }
+        //             else
+        //             {
+        //                 this._compiler.emitToFunctions(data);
+        //             }
+        //         }
+        //         else if (qualifier instanceof QualifierConst)
+        //         {
+        //             throw ExternalErrors.CONST_VARIABLES_MUST_BE_INIT(node);
+        //         }
+        //     }
+        // });
     }
 }

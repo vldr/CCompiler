@@ -1,11 +1,10 @@
-import ErrorLocation from "./ErrorLocation";
+import NodeLocation from "../Nodes/NodeLocation";
 
 export default class CompilerError
 {
     constructor(
         public readonly message: string,
-        public readonly start: ErrorLocation,
-        public readonly end: ErrorLocation
+        public readonly location: NodeLocation,
     )
     {
     }
