@@ -6,6 +6,7 @@ import StatementGenerator from "./Statements/StatementGenerator";
 import ExpressionGenerator from "./Expressions/ExpressionGenerator";
 import Destination from "./Destinations/Destination";
 import ExpressionResult from "./Expressions/ExpressionResult";
+import Expression from "./Expressions/Expression";
 
 export default class Compiler
 {
@@ -14,6 +15,9 @@ export default class Compiler
     private _root: Array<string> = new Array<string>();
     private _functions: Array<string> = new Array<string>();
     private _variables: Array<string> = new Array<string>();
+
+    private _statementStack = new Array<Statement>();
+    private _expressionStack = new Array<Expression>();
 
     private _rootScope: Scope;
     private _scopes: Array<Scope>;
@@ -70,6 +74,57 @@ export default class Compiler
     public log(message: any)
     {
         this._logger.log(message);
+    }
+
+    public checkStatementStack(classType: Function): boolean
+    {
+        for (let i = this._statementStack.length - 2; i >= 0; i--)
+        {
+            if (this._statementStack[i].constructor == classType.constructor)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public checkExpressionStack(classType: Function): boolean
+    {
+        for (let i = this._expressionStack.length - 2; i >= 0; i--)
+        {
+            if (this._expressionStack[i].constructor == classType.constructor)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public pushExpressionStack(expression: Expression)
+    {
+        this._expressionStack.push(expression);
+    }
+
+    public popExpressionStack()
+    {
+        this._expressionStack.pop();
+    }
+
+    public pushStatementStack(statement: Statement)
+    {
+        this._statementStack.push(statement);
+    }
+
+    public popStatementStack()
+    {
+        this._statementStack.pop();
+    }
+
+    public previousExpression(): Statement | undefined
+    {
+        return this._statementStack[this._statementStack.length - 2];
     }
 
     public emitToRoot(value: string)

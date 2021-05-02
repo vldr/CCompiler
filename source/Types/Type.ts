@@ -3,7 +3,9 @@ import QualifierConst from "../Qualifiers/QualifierConst";
 
 export default abstract class Type
 {
-    constructor(public readonly qualifer: Qualifier) {}
+    constructor(public readonly qualifer: Qualifier)
+    {
+    }
 
     public abstract toString(): string;
 

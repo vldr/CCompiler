@@ -22,14 +22,8 @@ export default class StatementDeclarator extends Statement
     {
         const node = this._node as NodeDeclarator;
 
-        this._compiler.log(node);
-
         const typeAttributeNode = node.typeAttribute;
         const declaratorsNode = node.declarators;
-
-        if (typeAttributeNode === undefined || declaratorsNode === undefined)
-            throw InternalErrors.generateError("Invalid declarator provided.");
-
         const typeName = typeAttributeNode.name;
         const qualifierName = typeAttributeNode.qualifier;
 

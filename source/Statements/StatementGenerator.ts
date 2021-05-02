@@ -12,12 +12,19 @@ export default class StatementGenerator
 
     public generateAndEmit(scope: Scope, node: any): void
     {
-        switch (node.type) {
+        let statement: Statement;
+
+        switch (node.type)
+        {
             case "declarator":
-                new StatementDeclarator(node, this._compiler, scope).generateAndEmit();
+                statement = new StatementDeclarator(node, this._compiler, scope);
                 break;
             default:
                 throw ExternalErrors.UNIMPLEMENTED_STATEMENT_TYPE(node, node.type);
         }
+
+        this._compiler.pushStatementStack(statement);
+        statement.generateAndEmit();
+        this._compiler.popStatementStack();
     }
 }

@@ -13,9 +13,9 @@ class Main
         //
         // Node node;
         
-        const int f = 23;
-        uint d = 4096;
-        float ayy = 17.38947;
+        int f;
+        // uint d = 4096;
+        // float ayy = 17.38947;
         //
         // const float r = 9.458469f;
         //
