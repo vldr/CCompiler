@@ -53,4 +53,9 @@ export default abstract class ExternalErrors
     {
         return this.generateError(`Constant variables must be initialized.`, node);
     }
+
+    static STRUCT_MUST_BE_NAMED(node: Node)
+    {
+        return this.generateError(`Structs must be named.`, node);
+    }
 }

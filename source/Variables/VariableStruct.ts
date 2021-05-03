@@ -7,7 +7,7 @@ import VariablePrimitive from "./VariablePrimitive";
 
 export default class VariableStruct extends Variable
 {
-    private _members = new Map<string, Variable>();
+    private _members = new Array<Variable>();
 
     constructor(
         name: string,
@@ -21,10 +21,10 @@ export default class VariableStruct extends Variable
 
         type.members.forEach((variableType, variableName) =>
         {
-            this._members.set(`${name}__${variableName}`,
+            this._members.push(
                 variableType instanceof TypeStruct
-                    ? new VariablePrimitive(name, type, scope, compiler, shouldRead) :
-                    new VariableStruct(name, type, scope, compiler, shouldRead)
+                    ? new VariableStruct(`${name}__${variableName}`, variableType, scope, compiler, shouldRead) :
+                    new VariablePrimitive(`${name}__${variableName}`, variableType, scope, compiler, shouldRead)
             )
         });
     }
@@ -34,6 +34,7 @@ export default class VariableStruct extends Variable
         if (this._shouldRead)
         {
             this._compiler.emitToVariables(`${this.labelName}:\n`);
+
             this._members.forEach((variable) =>
             {
                 variable.emit();

@@ -27,84 +27,65 @@ export default class StatementStructDefinition extends Statement
 
         this._compiler.log(node);
 
+        if (!node.name)
+            throw ExternalErrors.STRUCT_MUST_BE_NAMED(node);
 
-        // const typeAttributeNode = node.typeAttribute;
-        // const declaratorsNode = node.declarators;
-        // const typeName = typeAttributeNode.name;
-        // const qualifierName = typeAttributeNode.qualifier;
-        //
-        // //////////////////////////////////////////////
-        //
-        // let qualifier = Utils.getQualifer(typeAttributeNode, qualifierName);
-        //
-        // //////////////////////////////////////////////
-        //
-        // declaratorsNode.forEach((declaratorNode: any) =>
-        // {
-        //     const identifierNode = declaratorNode.name;
-        //     const variableName = identifierNode.name;
-        //
-        //     if (this._scope.getVariableByName(variableName) !== undefined ||
-        //         this._scope.getStructByName(variableName) !== undefined)
-        //     {
-        //         throw ExternalErrors.VARIABLE_NAME_TAKEN(variableName, identifierNode);
-        //     }
-        //
-        //     //////////////////////////////////////////////
-        //
-        //     const arraySizeNode = declaratorNode.arraySize;
-        //     const initializerNode = declaratorNode.initializer;
-        //     const size = arraySizeNode?.value_base10 || 1;
-        //
-        //     if (size < 1)
-        //     {
-        //         throw ExternalErrors.ARRAY_TOO_SMALL(arraySizeNode);
-        //     }
-        //
-        //     //////////////////////////////////////////////
-        //
-        //     let type = Utils.getType(typeAttributeNode, typeName, size, qualifier, this._scope);
-        //
-        //     if (type instanceof TypeStruct)
-        //     {
-        //         const structVariable = new VariableStruct(variableName, type, this._scope, this._compiler);
-        //
-        //         this._scope.addVariable(
-        //             structVariable
-        //         );
-        //     }
-        //     else
-        //     {
-        //         const variable = new VariablePrimitive(variableName, type, this._scope, this._compiler);
-        //
-        //         this._scope.addVariable(
-        //             variable
-        //         );
-        //
-        //         if (initializerNode)
-        //         {
-        //             const expressionResult = this._compiler.generateExpression(
-        //                 new DestinationVariable(type, variable),
-        //                 this._scope,
-        //                 initializerNode
-        //             );
-        //
-        //             const data = expressionResult.write();
-        //
-        //             if (this._scope.isRoot)
-        //             {
-        //                 this._compiler.emitToRoot(data);
-        //             }
-        //             else
-        //             {
-        //                 this._compiler.emitToFunctions(data);
-        //             }
-        //         }
-        //         else if (qualifier instanceof QualifierConst)
-        //         {
-        //             throw ExternalErrors.CONST_VARIABLES_MUST_BE_INIT(node);
-        //         }
-        //     }
-        // });
+        const nameStruct = node.name;
+        const qualifierStruct = Utils.getQualifer(node, node.qualifier);
+
+        if (this._scope.getVariableByName(nameStruct) !== undefined ||
+            this._scope.getFunctionByName(nameStruct) !== undefined ||
+            this._scope.getStructByName(nameStruct) !== undefined
+        )
+        {
+            throw ExternalErrors.VARIABLE_NAME_TAKEN(node, nameStruct);
+        }
+
+        //////////////////////////////////////////////////////////////////
+
+        let members = new Map<string, Type>();
+
+        node.members.forEach((nodeDeclarator) =>
+        {
+            const typeAttributeNode = nodeDeclarator.typeAttribute;
+            const declaratorsNode = nodeDeclarator.declarators;
+            const typeName = typeAttributeNode.name;
+            const qualifierName = typeAttributeNode.qualifier;
+
+            //////////////////////////////////////////////
+
+            let qualifier = Utils.getQualifer(typeAttributeNode, qualifierName);
+
+            //////////////////////////////////////////////
+
+            declaratorsNode.forEach((declaratorNode: any) =>
+            {
+                const identifierNode = declaratorNode.name;
+                const variableName = identifierNode.name;
+
+                if (members.has(variableName))
+                {
+                    throw ExternalErrors.VARIABLE_NAME_TAKEN(variableName, identifierNode);
+                }
+
+                //////////////////////////////////////////////
+
+                const arraySizeNode = declaratorNode.arraySize;
+                const size = arraySizeNode?.value_base10 || 1;
+
+                if (size < 1)
+                {
+                    throw ExternalErrors.ARRAY_TOO_SMALL(arraySizeNode);
+                }
+
+                //////////////////////////////////////////////
+
+                let type = Utils.getType(typeAttributeNode, typeName, size, qualifier, this._scope);
+
+                members.set(variableName, type);
+            });
+        });
+
+        this._scope.addStruct(new TypeStruct(qualifierStruct, nameStruct, 1, members))
     }
 }

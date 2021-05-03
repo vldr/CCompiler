@@ -2,12 +2,14 @@ import Function from "./Function"
 import TypeStruct from "./Types/TypeStruct";
 import Compiler from "./Compiler";
 import Variable from "./Variables/Variable";
+import {Func} from "mocha";
 
 export default class Scope
 {
     private _name: string;
     private _variables: Array<Variable>;
     private _structs: Array<TypeStruct>;
+    private _functions: Array<Function>;
     private _scope: Scope | undefined;
     private _function: Function | undefined;
 
@@ -22,6 +24,7 @@ export default class Scope
         this._function = functionIn;
         this._variables = new Array<Variable>();
         this._structs = new Array<TypeStruct>();
+        this._functions = new Array<Function>();
     }
 
     addStruct(struct: TypeStruct)
@@ -56,6 +59,18 @@ export default class Scope
         }
 
         return struct;
+    }
+
+    getFunctionByName(name: string): Function | undefined
+    {
+        const theFunction = this._functions.find(s => s.name === name);
+
+        if (theFunction === undefined && this._scope)
+        {
+            return this._scope.getFunctionByName(name);
+        }
+
+        return theFunction;
     }
 
     getFunction(): Function | undefined

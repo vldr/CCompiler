@@ -6,13 +6,20 @@ class Main
     static start(): void
     {
         new Compiler().compile(`
-        const struct {
-            int data;
+        struct Munchies {
+            uint muscle;
         };
-        //
-        // Node node;
+        
+        struct Hello {
+            int data;
+            Munchies cookie;
+        };
+        
+        Hello node;
         
         const float f = 328748;
+        
+        
         // uint d = 4096;
         // float ayy = 17.38947;
         //

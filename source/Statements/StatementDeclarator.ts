@@ -35,8 +35,6 @@ export default class StatementDeclarator extends Statement
 
         //////////////////////////////////////////////
 
-
-
         declaratorsNode.forEach((declaratorNode: any) =>
         {
             const identifierNode = declaratorNode.name;
