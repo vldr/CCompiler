@@ -61,15 +61,17 @@ export default class StatementDeclarator extends Statement
 
             let type = Utils.getType(typeAttributeNode, typeName, size, qualifier, this._scope);
 
+            this._compiler.log(type.size);
+
             let variable: Variable;
 
             if (type instanceof TypeStruct)
             {
-                variable = new VariableStruct(variableName, type, this._scope, this._compiler, false);
+                variable = new VariableStruct(variableName, type, this._scope, this._compiler);
             }
             else
             {
-                variable = new VariablePrimitive(variableName, type, this._scope, this._compiler, false);
+                variable = new VariablePrimitive(variableName, type, this._scope, this._compiler);
             }
 
             this._scope.addVariable(

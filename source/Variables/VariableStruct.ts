@@ -13,32 +13,43 @@ export default class VariableStruct extends Variable
         type: TypeStruct,
         scope: Scope,
         compiler: Compiler,
-        isPointer: boolean,
         shouldRead = true
     )
     {
         super(name, type, scope, compiler, shouldRead);
 
-        type.members.forEach((variableType, variableName) =>
+        if (type.size > 1)
         {
-            this._members.push(
-                variableType instanceof TypeStruct
-                    ? new VariableStruct(`${name}__${variableName}`, variableType, scope, compiler, false, shouldRead) :
-                    new VariablePrimitive(`${name}__${variableName}`, variableType, scope, compiler, false, shouldRead)
-            )
-        });
+            for (let i = 0; i < type.size; i++)
+            {
+                type.members.forEach((variableType, variableName) =>
+                {
+                    this._members.push(
+                        variableType instanceof TypeStruct
+                            ? new VariableStruct(`${name}__${variableName}_${i}`, variableType, scope, compiler, shouldRead) :
+                            new VariablePrimitive(`${name}__${variableName}_${i}`, variableType, scope, compiler, shouldRead)
+                    )
+                });
+            }
+        }
+        else {
+            type.members.forEach((variableType, variableName) => {
+                this._members.push(
+                    variableType instanceof TypeStruct
+                        ? new VariableStruct(`${name}__${variableName}`, variableType, scope, compiler, shouldRead) :
+                        new VariablePrimitive(`${name}__${variableName}`, variableType, scope, compiler, shouldRead)
+                )
+            });
+        }
     }
 
     emit(): void
     {
-        if (this._shouldRead)
-        {
-            this._compiler.emitToVariables(`${this.labelName}:\n`);
+        this._compiler.emitToVariables(`${this.labelName}:\n`);
 
-            this._members.forEach((variable) =>
-            {
-                variable.emit();
-            });
-        }
+        this._members.forEach((variable) =>
+        {
+            variable.emit();
+        });
     }
 }

@@ -13,7 +13,6 @@ export default abstract class Variable
         protected _type: Type,
         protected _scope: Scope,
         protected _compiler: Compiler,
-        protected _isPointer: boolean,
         protected _shouldRead = true
     )
     {

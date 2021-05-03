@@ -15,7 +15,7 @@ class Main
             Munchies cookie;
         };
         
-        Hello node;
+        Hello node[2];
         
         float f = 328.748;
         int ii = 1 + 2;
