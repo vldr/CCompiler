@@ -6,4 +6,9 @@ export default class TypeFloat extends Type
     {
         return "float";
     }
+
+    public equals(type: Type): boolean
+    {
+        return type.constructor === this.constructor;
+    }
 }

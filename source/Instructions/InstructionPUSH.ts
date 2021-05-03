@@ -7,7 +7,7 @@ import TypeInteger from "../Types/TypeInteger";
 import TypeUnsignedInteger from "../Types/TypeUnsignedInteger";
 import Variable from "../Variables/Variable";
 
-export default class InstructionGETB extends Instruction
+export default class InstructionPUSH extends Instruction
 {
     constructor(private _variable: Variable)
     {
@@ -16,6 +16,6 @@ export default class InstructionGETB extends Instruction
 
     public write(): string
     {
-        return `GETB ${this._variable.labelName}\n`;
+        return `PUSH ${this._variable.labelName}\n`;
     }
 }

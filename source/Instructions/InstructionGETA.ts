@@ -5,16 +5,17 @@ import InternalErrors from "../Errors/InternalErrors";
 import TypeFloat from "../Types/TypeFloat";
 import TypeInteger from "../Types/TypeInteger";
 import TypeUnsignedInteger from "../Types/TypeUnsignedInteger";
+import Variable from "../Variables/Variable";
 
 export default class InstructionGETA extends Instruction
 {
-    constructor()
+    constructor(private _variable: Variable)
     {
         super();
     }
 
     public write(): string
     {
-        return `GETA\n`;
+        return `GETA ${this._variable.labelName}\n`;
     }
 }

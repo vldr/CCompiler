@@ -6,4 +6,9 @@ export default class TypeInteger extends Type
     {
         return "int";
     }
+
+    public equals(type: Type): boolean
+    {
+        return type.constructor === this.constructor;
+    }
 }

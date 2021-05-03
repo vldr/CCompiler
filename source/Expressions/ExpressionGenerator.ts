@@ -6,6 +6,7 @@ import ExpressionConstant from "./ExpressionConstant";
 import Destination from "../Destinations/Destination";
 import ExpressionResult from "./ExpressionResult";
 import ExpressionBinary from "./ExpressionBinary";
+import ExpressionIdentifier from "./ExpressionIdentifier";
 
 export default class ExpressionGenerator
 {
@@ -28,6 +29,9 @@ export default class ExpressionGenerator
                 break;
             case "binary":
                 expression = new ExpressionBinary(node, destination, this._compiler, scope);
+                break;
+            case "identifier":
+                expression = new ExpressionIdentifier(node, destination, this._compiler, scope);
                 break;
             default:
                 throw ExternalErrors.UNIMPLEMENTED_EXPRESSION_TYPE(node, node.type);

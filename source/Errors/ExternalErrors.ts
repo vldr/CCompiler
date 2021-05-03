@@ -58,4 +58,9 @@ export default abstract class ExternalErrors
     {
         return this.generateError(`Structs must be named.`, node);
     }
+
+    static CANNOT_FIND_NAME(node: Node, name: string)
+    {
+        return this.generateError(`Cannot find name '${name}'.`, node);
+    }
 }

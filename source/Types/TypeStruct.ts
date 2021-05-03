@@ -13,6 +13,29 @@ export default class TypeStruct extends Type
         super(qualifer, size);
     }
 
+    public equals(type: Type): boolean
+    {
+        if (type instanceof TypeStruct)
+        {
+            const otherStruct: TypeStruct = type;
+            otherStruct.members.forEach((type, name) =>
+            {
+                const ourType = this.members.get(name);
+                if (ourType === undefined || !ourType.equals(type))
+                {
+                    return false;
+                }
+            })
+
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+
+    }
+
     public toString(): string
     {
         return this.name;
