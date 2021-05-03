@@ -24,8 +24,6 @@ export default class StatementDeclarator extends Statement
     {
         const node = this._node as NodeDeclarator;
 
-        this._compiler.log(node);
-
         const typeAttributeNode = node.typeAttribute;
         const declaratorsNode = node.declarators;
         const typeName = typeAttributeNode.name;

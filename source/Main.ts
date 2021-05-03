@@ -7,7 +7,7 @@ class Main
     {
         new Compiler().compile(`
         struct Munchies {
-            uint muscle;
+            float cookieness;
         };
         
         struct Hello {
@@ -17,7 +17,9 @@ class Main
         
         Hello node;
         
-        const float f = 328748;
+        float f = 328.748;
+        int ii = 1 + 2;
+        
         
         
         // uint d = 4096;

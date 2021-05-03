@@ -20,6 +20,7 @@ import InstructionVGETA from "../Instructions/InstructionVGETA";
 import InstructionVGETB from "../Instructions/InstructionVGETB";
 import NodeConstant from "../Nodes/NodeConstant";
 import VariablePrimitive from "../Variables/VariablePrimitive";
+import Utils from "../Utils";
 
 export default class ExpressionConstant extends Expression
 {
@@ -55,7 +56,7 @@ export default class ExpressionConstant extends Expression
         }
         else if (typeName === "float")
         {
-            if (destinationType instanceof TypeFloat) {}
+            if (destinationType instanceof TypeFloat) { stringValue += "f"; }
             else
             {
                 throw ExternalErrors.CANNOT_CONVERT_TYPE(node, typeName, destinationType.toString());
@@ -72,7 +73,7 @@ export default class ExpressionConstant extends Expression
             {
                 destination.variable.initialValues[0] = stringValue;
             }
-            else if (this.isInlinable(destinationType, value))
+            else if (Utils.isInlinable(destinationType, value))
             {
                 expressionResult.pushInstruction(new InstructionQSTORE(stringValue, destination));
             }
@@ -87,7 +88,7 @@ export default class ExpressionConstant extends Expression
             destination instanceof DestinationStack
         )
         {
-            if (this.isInlinable(destinationType, value))
+            if (Utils.isInlinable(destinationType, value))
             {
                 if (destination instanceof DestinationRegisterA)
                 {
@@ -123,20 +124,4 @@ export default class ExpressionConstant extends Expression
 
         return expressionResult;
     }
-
-    private isInlinable(type: Type, value: number): boolean
-    {
-        let result = false;
-
-        if (type instanceof TypeInteger || type instanceof TypeUnsignedInteger)
-        {
-            if (Number.isInteger(value) && value >= 0 && value <= 4095)
-            {
-                result = true;
-            }
-        }
-
-        return result;
-    }
-
 }

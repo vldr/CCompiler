@@ -12,6 +12,21 @@ import Node from "./Nodes/Node"
 
 export default class Utils
 {
+    public static isInlinable(type: Type, value: number): boolean
+    {
+        let result = false;
+
+        if (type instanceof TypeInteger || type instanceof TypeUnsignedInteger)
+        {
+            if (Number.isInteger(value) && value >= 0 && value <= 4095)
+            {
+                result = true;
+            }
+        }
+
+        return result;
+    }
+
     public static getType(node: Node, typeName: string, size: number, qualifier: Qualifier, scope: Scope): Type
     {
         let type: Type;
