@@ -10,11 +10,12 @@ export default class VariablePrimitive extends Variable
         type: Type,
         scope: Scope,
         compiler: Compiler,
+        isPointer: boolean,
         shouldRead = true,
         public initialValues: string[] = new Array(type.size).fill(0)
     )
     {
-        super(name, type, scope, compiler, shouldRead);
+        super(name, type, scope, compiler, isPointer, shouldRead);
     }
 
     emit(): void

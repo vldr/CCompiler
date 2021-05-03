@@ -2,7 +2,6 @@ import Scope from "../Scope";
 import Variable from "./Variable";
 import Compiler from "../Compiler";
 import TypeStruct from "../Types/TypeStruct";
-import Type from "../Types/Type";
 import VariablePrimitive from "./VariablePrimitive";
 
 export default class VariableStruct extends Variable
@@ -14,6 +13,7 @@ export default class VariableStruct extends Variable
         type: TypeStruct,
         scope: Scope,
         compiler: Compiler,
+        isPointer: boolean,
         shouldRead = true
     )
     {
@@ -23,8 +23,8 @@ export default class VariableStruct extends Variable
         {
             this._members.push(
                 variableType instanceof TypeStruct
-                    ? new VariableStruct(`${name}__${variableName}`, variableType, scope, compiler, shouldRead) :
-                    new VariablePrimitive(`${name}__${variableName}`, variableType, scope, compiler, shouldRead)
+                    ? new VariableStruct(`${name}__${variableName}`, variableType, scope, compiler, false, shouldRead) :
+                    new VariablePrimitive(`${name}__${variableName}`, variableType, scope, compiler, false, shouldRead)
             )
         });
     }

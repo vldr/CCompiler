@@ -546,7 +546,7 @@ module.exports = /*
                 },
                 peg$c153 = "struct",
                 peg$c154 = peg$literalExpectation("struct", false),
-                peg$c155 = function(qualifier, identifier, members, declarators) {
+                peg$c155 = function(qualifier, identifier, members) {
                     var result = new node({ location: location(),
                         type: "struct_definition",
                         members:members
@@ -557,9 +557,6 @@ module.exports = /*
                     if (identifier) {
                         result.name = identifier[1].name;
                         typeNames[result.name] = result;
-                    }
-                    if (declarators) {
-                        result.declarators = declarators;
                     }
                     return result;
                 },
@@ -4860,7 +4857,7 @@ module.exports = /*
             }
 
             function peg$parsestruct_definition() {
-                var s0, s1, s2, s3, s4, s5, s6, s7, s8;
+                var s0, s1, s2, s3, s4, s5, s6, s7;
 
                 s0 = peg$currPos;
                 s1 = peg$currPos;
@@ -4918,23 +4915,14 @@ module.exports = /*
                                 if (s5 !== peg$FAILED) {
                                     s6 = peg$parseright_brace();
                                     if (s6 !== peg$FAILED) {
-                                        s7 = peg$parsedeclarator_list();
+                                        s7 = peg$parsesemicolon();
                                         if (s7 === peg$FAILED) {
                                             s7 = null;
                                         }
                                         if (s7 !== peg$FAILED) {
-                                            s8 = peg$parsesemicolon();
-                                            if (s8 === peg$FAILED) {
-                                                s8 = null;
-                                            }
-                                            if (s8 !== peg$FAILED) {
-                                                peg$savedPos = s0;
-                                                s1 = peg$c155(s1, s3, s5, s7);
-                                                s0 = s1;
-                                            } else {
-                                                peg$currPos = s0;
-                                                s0 = peg$FAILED;
-                                            }
+                                            peg$savedPos = s0;
+                                            s1 = peg$c155(s1, s3, s5);
+                                            s0 = s1;
                                         } else {
                                             peg$currPos = s0;
                                             s0 = peg$FAILED;

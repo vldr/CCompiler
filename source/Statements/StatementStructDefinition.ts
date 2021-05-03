@@ -25,8 +25,6 @@ export default class StatementStructDefinition extends Statement
     {
         const node = this._node as NodeStructDefinition;
 
-        this._compiler.log(node);
-
         if (!node.name)
             throw ExternalErrors.STRUCT_MUST_BE_NAMED(node);
 

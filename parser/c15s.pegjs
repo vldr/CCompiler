@@ -615,7 +615,7 @@ struct_definition
   = qualifier:((type_qualifier/attribute_qualifier) _)? "struct"
     identifier:(_ identifier)? left_brace
     members:member_list
-    right_brace declarators:declarator_list? semicolon? {
+    right_brace semicolon? {
       var result = new node({ location: location(), 
         type: "struct_definition",
         members:members
@@ -626,9 +626,6 @@ struct_definition
       if (identifier) {
         result.name = identifier[1].name;
         typeNames[result.name] = result;
-      }
-      if (declarators) {
-        result.declarators = declarators;
       }
       return result;
     }

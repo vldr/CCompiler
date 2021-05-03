@@ -24,6 +24,8 @@ export default class StatementDeclarator extends Statement
     {
         const node = this._node as NodeDeclarator;
 
+        this._compiler.log(node);
+
         const typeAttributeNode = node.typeAttribute;
         const declaratorsNode = node.declarators;
         const typeName = typeAttributeNode.name;
@@ -61,45 +63,43 @@ export default class StatementDeclarator extends Statement
 
             let type = Utils.getType(typeAttributeNode, typeName, size, qualifier, this._scope);
 
+            let variable: Variable;
+
             if (type instanceof TypeStruct)
             {
-                const structVariable = new VariableStruct(variableName, type, this._scope, this._compiler);
-
-                this._scope.addVariable(
-                    structVariable
-                );
+                variable = new VariableStruct(variableName, type, this._scope, this._compiler, false);
             }
             else
             {
-                const variable = new VariablePrimitive(variableName, type, this._scope, this._compiler);
+                variable = new VariablePrimitive(variableName, type, this._scope, this._compiler, false);
+            }
 
-                this._scope.addVariable(
-                    variable
+            this._scope.addVariable(
+                variable
+            );
+
+            if (initializerNode)
+            {
+                const expressionResult = this._compiler.generateExpression(
+                    new DestinationVariable(type, variable),
+                    this._scope,
+                    initializerNode
                 );
 
-                if (initializerNode)
-                {
-                    const expressionResult = this._compiler.generateExpression(
-                        new DestinationVariable(type, variable),
-                        this._scope,
-                        initializerNode
-                    );
+                const data = expressionResult.write();
 
-                    const data = expressionResult.write();
-
-                    if (this._scope.isRoot)
-                    {
-                        this._compiler.emitToRoot(data);
-                    }
-                    else
-                    {
-                        this._compiler.emitToFunctions(data);
-                    }
-                }
-                else if (qualifier instanceof QualifierConst)
+                if (this._scope.isRoot)
                 {
-                    throw ExternalErrors.CONST_VARIABLES_MUST_BE_INIT(node);
+                    this._compiler.emitToRoot(data);
                 }
+                else
+                {
+                    this._compiler.emitToFunctions(data);
+                }
+            }
+            else if (qualifier instanceof QualifierConst)
+            {
+                throw ExternalErrors.CONST_VARIABLES_MUST_BE_INIT(node);
             }
         });
     }
