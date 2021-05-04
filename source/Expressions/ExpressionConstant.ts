@@ -21,6 +21,7 @@ import InstructionVGETB from "../Instructions/InstructionVGETB";
 import NodeConstant from "../Nodes/NodeConstant";
 import VariablePrimitive from "../Variables/VariablePrimitive";
 import Utils from "../Utils";
+import DestinationNone from "../Destinations/DestinationNone";
 
 export default class ExpressionConstant extends Expression
 {
@@ -116,6 +117,10 @@ export default class ExpressionConstant extends Expression
                     expressionResult.pushInstruction(new InstructionGETPOPB());
                 }
             }
+        }
+        else if (destination instanceof DestinationNone)
+        {
+
         }
         else
         {

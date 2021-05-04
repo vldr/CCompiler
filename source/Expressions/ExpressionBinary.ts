@@ -29,8 +29,15 @@ export default class ExpressionBinary extends Expression
     {
         const node = this._node as NodeBinary;
         const operator = node.operator.operator;
+        const destination = this._destination;
+        const destinationType = destination.type;
 
-        this._compiler.log(operator);
+        const left = node.left;
+        const right = node.right;
+
+        if (left.type === "idenitifer")
+
+        this._compiler.log(destinationType.toString());
 
 
 

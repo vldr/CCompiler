@@ -28,6 +28,7 @@ import InstructionMOV from "../Instructions/InstructionMOV";
 import InstructionGETA from "../Instructions/InstructionGETA";
 import InstructionGETB from "../Instructions/InstructionGETB";
 import InstructionPUSH from "../Instructions/InstructionPUSH";
+import DestinationNone from "../Destinations/DestinationNone";
 
 export default class ExpressionIdentifier extends Expression
 {
@@ -63,11 +64,13 @@ export default class ExpressionIdentifier extends Expression
         {
             expressionResult.pushInstruction(new InstructionPUSH(variable));
         }
+        else if (destination instanceof DestinationNone)
+        {
+        }
         else
         {
             throw InternalErrors.generateError(`Unknown destination type, ${destination.constructor}.`);
         }
-
 
         return expressionResult;
     }

@@ -18,7 +18,8 @@ class Main
         Hello node;
         float f = 328.748;
         int a = 222;
-        int ii = a;
+        int ii = 1 + 2.f;
+        int iihuhu = 1 + a;
         
         
         
