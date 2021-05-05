@@ -116,7 +116,12 @@ export default class ExpressionUnary extends Expression
                     throw ExternalErrors.OPERATOR_EXPECTS_VARIABLE(node, operator);
                 }
 
-                expressionResult = new ExpressionResultVariable(destinationType, this, targetExpressionResult.variable);
+                if (targetExpressionResult.variable.type.isConstant)
+                {
+                    throw ExternalErrors.CANNOT_MODIFY_VARIABLE_READONLY(node, targetExpressionResult.variable.name);
+                }
+
+                expressionResult = new ExpressionResult(destinationType, this);
                 expressionResult.pushExpressionResult(targetExpressionResult);
 
                 switch (destinationType.constructor)

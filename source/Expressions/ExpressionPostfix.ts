@@ -76,7 +76,12 @@ export default class ExpressionPostfix extends Expression
                         throw ExternalErrors.OPERATOR_EXPECTS_VARIABLE(node, operatorSymbol);
                     }
 
-                    expressionResult = new ExpressionResultVariable(destinationType, this, targetExpressionResult.variable);
+                    if (targetExpressionResult.variable.type.isConstant)
+                    {
+                        throw ExternalErrors.CANNOT_MODIFY_VARIABLE_READONLY(node, targetExpressionResult.variable.name);
+                    }
+
+                    expressionResult = new ExpressionResult(destinationType, this);
 
                     if (destination instanceof DestinationVariable)
                     {
@@ -144,8 +149,6 @@ export default class ExpressionPostfix extends Expression
         {
             expressionResult = new ExpressionResult(destinationType, this);
         }
-
-
 
         return expressionResult;
     }

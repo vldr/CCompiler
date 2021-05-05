@@ -11,7 +11,11 @@ export default abstract class Type
     }
 
     public abstract toString(): string;
-    public abstract equals(type: Type): boolean;
+
+    public equals(type: Type): boolean
+    {
+        return type.constructor === this.constructor && type.size === this.size;
+    }
 
     get isConstant()  { return this.qualifer instanceof QualifierConst; }
 }

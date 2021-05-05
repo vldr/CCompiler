@@ -6,9 +6,4 @@ export default class TypeUnsignedInteger extends Type
     {
         return "uint";
     }
-
-    public equals(type: Type): boolean
-    {
-        return type.constructor === this.constructor;
-    }
 }

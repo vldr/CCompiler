@@ -18,9 +18,14 @@ class Main
         // const float f = 328.748;
         // const float ii = 1.52 - (2 + f);
         
-        const float af = 40;
-        float afff = 1 + af--;
+        float af = 40;
+        float afff = 1 + (af-- + af);
         
+        int test(int fff)
+        {
+            return 0;
+        }
+
      
         
         

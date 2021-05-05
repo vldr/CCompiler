@@ -72,7 +72,12 @@ export default abstract class ExternalErrors
 
     static OPERATOR_EXPECTS_VARIABLE(node: Node, operator: string)
     {
-        return this.generateError(`The operator '${operator}' can only be used on variables.`, node);
+        return this.generateError(`The operator '${operator}' can only be used on lvalues.`, node);
+    }
+
+    static CANNOT_MODIFY_VARIABLE_READONLY(node: Node, variableName: string)
+    {
+        return this.generateError(`The variable '${variableName}' cannot be modified, it is read-only.`, node);
     }
 
     static UNSUPPORTED_TYPE_FOR_UNARY_OPERATOR(node: Node, operator: string, typeName: string)

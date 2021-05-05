@@ -4,6 +4,7 @@ import Statement from "./Statement";
 import StatementDeclarator from "./StatementDeclarator";
 import ExternalErrors from "../Errors/ExternalErrors";
 import StatementStructDefinition from "./StatementStructDefinition";
+import StatementFunctionDeclaration from "./StatementFunctionDeclaration";
 
 export default class StatementGenerator
 {
@@ -22,6 +23,9 @@ export default class StatementGenerator
                 break;
             case "struct_definition":
                 statement = new StatementStructDefinition(node, this._compiler, scope);
+                break;
+            case "function_declaration":
+                statement = new StatementFunctionDeclaration(node, this._compiler, scope);
                 break;
             default:
                 throw ExternalErrors.UNIMPLEMENTED_STATEMENT_TYPE(node, node.type);
