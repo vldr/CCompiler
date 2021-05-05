@@ -15,6 +15,6 @@ export default class InstructionVGETB extends Instruction
 
     public write(): string
     {
-        return `VGETA ${this._value}\n`;
+        return `VGETB ${this._value}\n`;
     }
 }

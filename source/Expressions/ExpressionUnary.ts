@@ -30,21 +30,20 @@ import InstructionGETPOPB from "../Instructions/InstructionGETPOPB";
 import InstructionGETPOPA from "../Instructions/InstructionGETPOPA";
 import TypeFloat from "../Types/TypeFloat";
 import ExternalErrors from "../Errors/ExternalErrors";
+import QualifierNone from "../Qualifiers/QualifierNone";
+import NodeUnary from "../Nodes/NodeUnary";
+import InstructionNEG from "../Instructions/InstructionNEG";
+import InstructionVGETA from "../Instructions/InstructionVGETA";
 
-export default class ExpressionBinary extends Expression
+export default class ExpressionUnary extends Expression
 {
     generate(): ExpressionResult
     {
-        const node = this._node as NodeBinary;
+        const node = this._node as NodeUnary;
         const operator = node.operator.operator;
         const destination = this._destination;
         const destinationType = destination.type;
-
-        const left = node.left;
-        const right = node.right;
-
-        const leftExpressionResult = this._compiler.generateExpression(new DestinationStack(destinationType), this._scope, left);
-        const rightExpressionResult = this._compiler.generateExpression(new DestinationStack(destinationType), this._scope, right);
+        const expression = node.expression;
 
         const expressionResult = new ExpressionResult(destinationType, this);
 
@@ -53,56 +52,31 @@ export default class ExpressionBinary extends Expression
             return expressionResult;
         }
 
-        expressionResult.pushExpressionResult(leftExpressionResult);
-        expressionResult.pushExpressionResult(rightExpressionResult);
-
-        expressionResult.pushInstruction(new InstructionGETPOPB());
-        expressionResult.pushInstruction(new InstructionGETPOPA());
-
         switch (operator)
         {
-            case "+":
-                expressionResult.pushInstruction(new InstructionADD(destinationType));
-                break;
-            case "-":
-                expressionResult.pushInstruction(new InstructionSUB(destinationType));
-                break;
-            case "/":
-                expressionResult.pushInstruction(new InstructionDIV(destinationType));
-                break;
-            case "*":
-                expressionResult.pushInstruction(new InstructionMULT(destinationType));
-                break;
-            case "%":
-                expressionResult.pushInstruction(new InstructionREM());
-                break;
-            case "<<":
-                expressionResult.pushInstruction(new InstructionSHIFTL());
-                break;
-            case ">>":
-                expressionResult.pushInstruction(new InstructionSHIFTR());
-                break;
-            case "|":
-                expressionResult.pushInstruction(new InstructionOR());
-                break;
-            case "&":
-                expressionResult.pushInstruction(new InstructionAND());
-                break;
-            case "^":
-                expressionResult.pushInstruction(new InstructionXOR());
-                break;
-            case "<":
-            case "<=":
-            case ">":
-            case ">=":
-            case "==":
-            case "!=":
+            case "~":
+            case "!":
                 if (destinationType instanceof TypeFloat)
                 {
                     throw ExternalErrors.CANNOT_CONVERT_TYPE(node, destinationType.toString(), "int | uint");
                 }
 
-                expressionResult.pushInstruction(new InstructionCMP(destinationType, operator));
+                expressionResult.pushExpressionResult(
+                    this._compiler.generateExpression(
+                        new DestinationRegisterA(destinationType), this._scope, expression
+                    )
+                );
+
+                expressionResult.pushInstruction(new InstructionNEG());
+                break;
+            case "-":
+                expressionResult.pushInstruction(new InstructionVGETA("0" + (destinationType instanceof TypeFloat ? "f" : "")));
+                expressionResult.pushExpressionResult(
+                    this._compiler.generateExpression(
+                        new DestinationRegisterB(destinationType), this._scope, expression
+                    )
+                );
+                expressionResult.pushInstruction(new InstructionSUB(destinationType));
                 break;
             default:
                 throw InternalErrors.generateError("Unsupported binary operator.");
@@ -131,4 +105,5 @@ export default class ExpressionBinary extends Expression
 
         return expressionResult;
     }
+
 }

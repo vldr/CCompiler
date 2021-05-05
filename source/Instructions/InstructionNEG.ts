@@ -8,23 +8,13 @@ import TypeUnsignedInteger from "../Types/TypeUnsignedInteger";
 
 export default class InstructionNEG extends Instruction
 {
-    constructor(public readonly type: Type)
+    constructor()
     {
         super();
     }
 
     public write(): string
     {
-        switch (this.type.constructor)
-        {
-            case TypeInteger:
-                return `SNEG\n`;
-            case TypeUnsignedInteger:
-                return `NEG\n`;
-            case TypeFloat:
-                return `FNEG\n`;
-            default:
-                throw InternalErrors.generateError("Invalid type for NEG instruction.");
-        }
+       return `NEG\n`;
     }
 }

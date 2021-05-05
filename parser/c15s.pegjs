@@ -710,7 +710,7 @@ identifier "identifier"
   }
 
 keyword "keyword"
-  = "bool" / "float" / "double" / "int" / "uint"
+  = "float" / "double" / "int" / "uint"
   / "break" / "continue" / "do" / "else" / "for" / "if"
   / "return" / "const" / "struct" / "void"
   / "while" / "true" / "false"
@@ -814,8 +814,10 @@ paren_expression
 bool_constant
   = value:("true" / "false") {
     return new node({ location: location(), 
-      type: "bool",
-      value: value == "true"
+      type: "int",
+      format: "number",
+      value: value == "true" ? "1" : "0",
+      value_base10: value == "true" ? 1 : 0
     });
   }
 

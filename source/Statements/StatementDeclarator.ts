@@ -35,26 +35,26 @@ export default class StatementDeclarator extends Statement
 
         //////////////////////////////////////////////
 
-        declaratorsNode.forEach((declaratorNode: any) =>
+        declaratorsNode.forEach((declaratorNode) =>
         {
+
             const identifierNode = declaratorNode.name;
             const variableName = identifierNode.name;
 
             if (this._scope.getVariableByName(variableName) !== undefined ||
                 this._scope.getStructByName(variableName) !== undefined)
             {
-                throw ExternalErrors.VARIABLE_NAME_TAKEN(variableName, identifierNode);
+                throw ExternalErrors.VARIABLE_NAME_TAKEN(identifierNode, variableName);
             }
 
             //////////////////////////////////////////////
 
-            const arraySizeNode = declaratorNode.arraySize;
+            const size = declaratorNode.arraySize || 1;
             const initializerNode = declaratorNode.initializer;
-            const size = arraySizeNode?.value_base10 || 1;
 
             if (size < 1)
             {
-                throw ExternalErrors.ARRAY_TOO_SMALL(arraySizeNode);
+                throw ExternalErrors.ARRAY_TOO_SMALL(declaratorNode);
             }
 
             //////////////////////////////////////////////
