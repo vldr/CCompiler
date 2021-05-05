@@ -27,6 +27,11 @@ export default class Utils
         return result;
     }
 
+    public static isSingleOperand(node: Node)
+    {
+        return (node.type === "identifier" || node.type === "int" || node.type === "float" || node.type === "uint");
+    }
+
     public static getType(node: Node, typeName: string, size: number, qualifier: Qualifier, scope: Scope): Type
     {
         let type: Type;

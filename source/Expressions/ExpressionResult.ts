@@ -14,6 +14,11 @@ export default class ExpressionResult
         this.instructions = new Array<Instruction>();
     }
 
+    public pushExpressionResult(other: ExpressionResult)
+    {
+        other.instructions.forEach((instruction) => this.instructions.push(instruction));
+    }
+
     public pushInstruction(instruction: Instruction)
     {
         this.instructions.push(instruction);
@@ -26,6 +31,6 @@ export default class ExpressionResult
 
     public write(): string
     {
-        return this.instructions.map(s => s.write()).join();
+        return this.instructions.map(s => s.write()).join("");
     }
 }

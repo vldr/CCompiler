@@ -23,7 +23,7 @@ export default class InstructionCMP extends Instruction
                 instruction = "S";
                 break;
             case TypeFloat:
-                instruction = "A";
+                instruction = "F";
                 break;
             case TypeUnsignedInteger:
                 instruction = String();
