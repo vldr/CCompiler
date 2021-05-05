@@ -34,17 +34,8 @@ import QualifierNone from "../Qualifiers/QualifierNone";
 import NodeUnary from "../Nodes/NodeUnary";
 import InstructionNEG from "../Instructions/InstructionNEG";
 import InstructionVGETA from "../Instructions/InstructionVGETA";
-import ExpressionIdentifier from "./ExpressionIdentifier";
-import InstructionINC from "../Instructions/InstructionINC";
-import InstructionFINC from "../Instructions/InstructionFINC";
-import InstructionSNEG from "../Instructions/InstructionSNEG";
-import InstructionFNEG from "../Instructions/InstructionFNEG";
-import InstructionNOT from "../Instructions/InstructionNOT";
-import InstructionFDEC from "../Instructions/InstructionFDEC";
-import InstructionDEC from "../Instructions/InstructionDEC";
-import ExpressionResultIdentifier from "./ExpressionResultIdentifier";
 
-export default class ExpressionUnary extends Expression
+export default class ExpressionPostfix extends Expression
 {
     generate(): ExpressionResult
     {
@@ -70,7 +61,7 @@ export default class ExpressionUnary extends Expression
                     )
                 );
 
-                expressionResult.pushInstruction(new InstructionNOT());
+                expressionResult.pushInstruction(new InstructionNEG());
                 break;
             case "!":
                 if (destinationType instanceof TypeFloat)
@@ -87,66 +78,16 @@ export default class ExpressionUnary extends Expression
                 expressionResult.pushInstruction(new InstructionNEG());
                 break;
             case "-":
-                if (destinationType instanceof TypeUnsignedInteger)
-                {
-                    throw ExternalErrors.CANNOT_CONVERT_TYPE(node, destinationType.toString(), "float | int");
-                }
-
+                expressionResult.pushInstruction(new InstructionVGETA("0" + (destinationType instanceof TypeFloat ? "f" : "")));
                 expressionResult.pushExpressionResult(
                     this._compiler.generateExpression(
-                        new DestinationRegisterA(destinationType), this._scope, expression
+                        new DestinationRegisterB(destinationType), this._scope, expression
                     )
                 );
-
-                switch (destinationType.constructor)
-                {
-                    case TypeFloat:
-                        expressionResult.pushInstruction(new InstructionSNEG());
-                        break;
-                    case TypeInteger:
-                        expressionResult.pushInstruction(new InstructionFNEG());
-                        break;
-                    default:
-                        throw ExternalErrors.UNSUPPORTED_TYPE_FOR_UNARY_OPERATOR(node, operator, destinationType.toString());
-                }
-                break;
-            case "++":
-            case "--":
-                const targetExpressionResult = this._compiler.generateExpression(
-                    new DestinationRegisterA(destinationType), this._scope, expression
-                ) as ExpressionResultIdentifier;
-
-                if (!(targetExpressionResult instanceof ExpressionResultIdentifier))
-                {
-                    throw ExternalErrors.UNARY_OPERATOR_EXPECTS_VARIABLE(node, operator);
-                }
-
-                expressionResult.pushExpressionResult(targetExpressionResult);
-
-                switch (destinationType.constructor)
-                {
-                    case TypeFloat:
-                        if (operator === "++")
-                            expressionResult.pushInstruction(new InstructionFINC());
-                        else
-                            expressionResult.pushInstruction(new InstructionFDEC());
-                        break;
-                    case TypeInteger:
-                    case TypeUnsignedInteger:
-                        if (operator === "++")
-                            expressionResult.pushInstruction(new InstructionINC());
-                        else
-                            expressionResult.pushInstruction(new InstructionDEC());
-                        break;
-                    default:
-                        throw ExternalErrors.UNSUPPORTED_TYPE_FOR_UNARY_OPERATOR(node, operator, destinationType.toString());
-                }
-
-                expressionResult.pushInstruction(new InstructionSAVE(targetExpressionResult.variable));
-
+                expressionResult.pushInstruction(new InstructionSUB(destinationType));
                 break;
             default:
-                throw InternalErrors.generateError(`Unsupported unary operator, '${operator}'.`);
+                throw InternalErrors.generateError("Unsupported binary operator.");
         }
 
         if (destination instanceof DestinationVariable)

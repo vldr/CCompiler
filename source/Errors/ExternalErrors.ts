@@ -1,5 +1,6 @@
 import CompilerError from "./CompilerError";
 import Node from "../Nodes/Node";
+import type = Mocha.utils.type;
 
 export default abstract class ExternalErrors
 {
@@ -62,5 +63,20 @@ export default abstract class ExternalErrors
     static CANNOT_FIND_NAME(node: Node, name: string)
     {
         return this.generateError(`Cannot find name '${name}'.`, node);
+    }
+
+    static NOT_SUPPORTED_OPERATOR(node: Node, operator: string)
+    {
+        return this.generateError(`The operator '${operator}' is not supported by the backend.`, node);
+    }
+
+    static UNARY_OPERATOR_EXPECTS_VARIABLE(node: Node, operator: string)
+    {
+        return this.generateError(`The operator '${operator}' can only be used on variables.`, node);
+    }
+
+    static UNSUPPORTED_TYPE_FOR_UNARY_OPERATOR(node: Node, operator: string, typeName: string)
+    {
+        return this.generateError(`The unary operator '${operator}' is not supported for '${typeName}'.`, node);
     }
 }

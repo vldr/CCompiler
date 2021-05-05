@@ -20,7 +20,7 @@ class Main
         
         int a = !0;
         const float af = 40;
-        float afff = -af + af;
+        float afff = (--af) + 1;
         
      
         
