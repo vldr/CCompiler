@@ -7,18 +7,15 @@ import TypeInteger from "../Types/TypeInteger";
 import TypeUnsignedInteger from "../Types/TypeUnsignedInteger";
 import Variable from "../Variables/Variable";
 
-export default class InstructionMOV extends Instruction
+export default class InstructionPOP extends Instruction
 {
-    constructor(
-        private _srcVariable: Variable,
-        private _dstVariable: Variable
-    )
+    constructor(private _variable: Variable)
     {
         super();
     }
 
     public write(): string
     {
-        return `MOV ${this._srcVariable.labelName} ${this._dstVariable.labelName}\n`;
+        return `POP ${this._variable.labelName}\n`;
     }
 }

@@ -70,7 +70,7 @@ export default abstract class ExternalErrors
         return this.generateError(`The operator '${operator}' is not supported by the backend.`, node);
     }
 
-    static UNARY_OPERATOR_EXPECTS_VARIABLE(node: Node, operator: string)
+    static OPERATOR_EXPECTS_VARIABLE(node: Node, operator: string)
     {
         return this.generateError(`The operator '${operator}' can only be used on variables.`, node);
     }

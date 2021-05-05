@@ -34,82 +34,118 @@ import QualifierNone from "../Qualifiers/QualifierNone";
 import NodeUnary from "../Nodes/NodeUnary";
 import InstructionNEG from "../Instructions/InstructionNEG";
 import InstructionVGETA from "../Instructions/InstructionVGETA";
+import ExpressionResultVariable from "./ExpressionResultVariable";
+import InstructionFINC from "../Instructions/InstructionFINC";
+import InstructionFDEC from "../Instructions/InstructionFDEC";
+import InstructionINC from "../Instructions/InstructionINC";
+import InstructionDEC from "../Instructions/InstructionDEC";
+import NodeOperator from "../Nodes/NodeOperator";
+import InstructionPUSH from "../Instructions/InstructionPUSH";
+import InstructionPOP from "../Instructions/InstructionPOP";
+import InstructionMOV from "../Instructions/InstructionMOV";
+import InstructionGETB from "../Instructions/InstructionGETB";
 
 export default class ExpressionPostfix extends Expression
 {
     generate(): ExpressionResult
     {
         const node = this._node as NodeUnary;
-        const operator = node.operator.operator;
+
+        const operator = node.operator;
         const destination = this._destination;
         const destinationType = destination.type;
         const expression = node.expression;
 
-        const expressionResult = new ExpressionResult(destinationType, this);
+        let expressionResult: ExpressionResult;
 
-        if (destination instanceof DestinationNone)
+        if (operator.type === "operator")
         {
-            return expressionResult;
-        }
+            const operatorNode: NodeOperator = operator;
+            const operatorSymbol = operatorNode.operator;
 
-        switch (operator)
-        {
-            case "~":
-                expressionResult.pushExpressionResult(
-                    this._compiler.generateExpression(
+            switch (operatorSymbol)
+            {
+                case "++":
+                case "--":
+                    const targetExpressionResult = this._compiler.generateExpression(
                         new DestinationRegisterA(destinationType), this._scope, expression
-                    )
-                );
+                    ) as ExpressionResultVariable;
 
-                expressionResult.pushInstruction(new InstructionNEG());
-                break;
-            case "!":
-                if (destinationType instanceof TypeFloat)
-                {
-                    throw ExternalErrors.CANNOT_CONVERT_TYPE(node, destinationType.toString(), "int | uint");
-                }
+                    if (!(targetExpressionResult instanceof ExpressionResultVariable))
+                    {
+                        throw ExternalErrors.OPERATOR_EXPECTS_VARIABLE(node, operatorSymbol);
+                    }
 
-                expressionResult.pushExpressionResult(
-                    this._compiler.generateExpression(
-                        new DestinationRegisterA(destinationType), this._scope, expression
-                    )
-                );
+                    expressionResult = new ExpressionResultVariable(destinationType, this, targetExpressionResult.variable);
 
-                expressionResult.pushInstruction(new InstructionNEG());
-                break;
-            case "-":
-                expressionResult.pushInstruction(new InstructionVGETA("0" + (destinationType instanceof TypeFloat ? "f" : "")));
-                expressionResult.pushExpressionResult(
-                    this._compiler.generateExpression(
-                        new DestinationRegisterB(destinationType), this._scope, expression
-                    )
-                );
-                expressionResult.pushInstruction(new InstructionSUB(destinationType));
-                break;
-            default:
-                throw InternalErrors.generateError("Unsupported binary operator.");
-        }
+                    if (destination instanceof DestinationVariable)
+                    {
+                        expressionResult.pushInstruction(new InstructionMOV(targetExpressionResult.variable, destination.variable));
+                    }
+                    else if (destination instanceof DestinationRegisterB)
+                    {
+                        expressionResult.pushInstruction(new InstructionGETB(targetExpressionResult.variable));
+                    }
+                    else if (destination instanceof DestinationRegisterA || destination instanceof DestinationStack)
+                    {
+                        expressionResult.pushInstruction(new InstructionPUSH(targetExpressionResult.variable));
+                    }
 
-        if (destination instanceof DestinationVariable)
-        {
-            expressionResult.pushInstruction(new InstructionSAVE(destination.variable));
-        }
-        else if (destination instanceof DestinationRegisterA)
-        {
-            expressionResult.pushInstruction(new InstructionSAVETOA());
-        }
-        else if (destination instanceof DestinationRegisterB)
-        {
-            expressionResult.pushInstruction(new InstructionSAVETOB());
-        }
-        else if (destination instanceof DestinationStack)
-        {
-            expressionResult.pushInstruction(new InstructionSAVEPUSH());
+                    expressionResult.pushExpressionResult(targetExpressionResult);
+
+                    switch (destinationType.constructor)
+                    {
+                        case TypeFloat:
+                            if (operatorSymbol === "++")
+                                expressionResult.pushInstruction(new InstructionFINC());
+                            else
+                                expressionResult.pushInstruction(new InstructionFDEC());
+                            break;
+                        case TypeInteger:
+                        case TypeUnsignedInteger:
+                            if (operatorSymbol === "++")
+                                expressionResult.pushInstruction(new InstructionINC());
+                            else
+                                expressionResult.pushInstruction(new InstructionDEC());
+                            break;
+                        default:
+                            throw ExternalErrors.UNSUPPORTED_TYPE_FOR_UNARY_OPERATOR(node, operatorSymbol, destinationType.toString());
+                    }
+
+                    expressionResult.pushInstruction(new InstructionSAVE(targetExpressionResult.variable));
+
+                    if (destination instanceof DestinationRegisterA)
+                    {
+                        expressionResult.pushInstruction(new InstructionGETPOPA());
+                    }
+                    else if (destination instanceof DestinationVariable)
+                    {
+                    }
+                    else if (destination instanceof DestinationRegisterB)
+                    {
+                    }
+                    else if (destination instanceof DestinationStack)
+                    {
+                    }
+                    else if (destination instanceof DestinationNone)
+                    {
+                    }
+                    else
+                    {
+                        throw InternalErrors.generateError(`Unknown destination type, ${destination.constructor}.`);
+                    }
+
+                    break;
+                default:
+                    throw InternalErrors.generateError("Unsupported binary operator.");
+            }
         }
         else
         {
-            throw InternalErrors.generateError(`Unknown destination type, ${destination.constructor}.`);
+            expressionResult = new ExpressionResult(destinationType, this);
         }
+
+
 
         return expressionResult;
     }

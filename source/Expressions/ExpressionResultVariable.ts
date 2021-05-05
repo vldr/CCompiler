@@ -4,7 +4,7 @@ import Instruction from "../Instructions/Instruction";
 import ExpressionResult from "./ExpressionResult";
 import Variable from "../Variables/Variable";
 
-export default class ExpressionResultIdentifier extends ExpressionResult
+export default class ExpressionResultVariable extends ExpressionResult
 {
     constructor(
         type: Type,

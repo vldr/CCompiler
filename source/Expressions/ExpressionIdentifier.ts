@@ -29,7 +29,7 @@ import InstructionGETA from "../Instructions/InstructionGETA";
 import InstructionGETB from "../Instructions/InstructionGETB";
 import InstructionPUSH from "../Instructions/InstructionPUSH";
 import DestinationNone from "../Destinations/DestinationNone";
-import ExpressionResultIdentifier from "./ExpressionResultIdentifier";
+import ExpressionResultVariable from "./ExpressionResultVariable";
 
 export default class ExpressionIdentifier extends Expression
 {
@@ -47,11 +47,11 @@ export default class ExpressionIdentifier extends Expression
         if (!destination.type.equals(variable.type))
             throw ExternalErrors.CANNOT_CONVERT_TYPE(node, variable.type.toString(), destination.type.toString());
 
-        const expressionResult = new ExpressionResultIdentifier(destination.type, this, variable);
+        const expressionResult = new ExpressionResultVariable(destination.type, this, variable);
 
         if (destination instanceof DestinationVariable)
         {
-            expressionResult.pushInstruction(new InstructionMOV(variable, destination));
+            expressionResult.pushInstruction(new InstructionMOV(variable, destination.variable));
         }
         else if (destination instanceof DestinationRegisterA)
         {

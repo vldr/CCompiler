@@ -42,7 +42,7 @@ import InstructionFNEG from "../Instructions/InstructionFNEG";
 import InstructionNOT from "../Instructions/InstructionNOT";
 import InstructionFDEC from "../Instructions/InstructionFDEC";
 import InstructionDEC from "../Instructions/InstructionDEC";
-import ExpressionResultIdentifier from "./ExpressionResultIdentifier";
+import ExpressionResultVariable from "./ExpressionResultVariable";
 
 export default class ExpressionUnary extends Expression
 {
@@ -54,12 +54,7 @@ export default class ExpressionUnary extends Expression
         const destinationType = destination.type;
         const expression = node.expression;
 
-        const expressionResult = new ExpressionResult(destinationType, this);
-
-        if (destination instanceof DestinationNone)
-        {
-            return expressionResult;
-        }
+        let expressionResult = new ExpressionResult(destinationType, this);
 
         switch (operator)
         {
@@ -114,13 +109,14 @@ export default class ExpressionUnary extends Expression
             case "--":
                 const targetExpressionResult = this._compiler.generateExpression(
                     new DestinationRegisterA(destinationType), this._scope, expression
-                ) as ExpressionResultIdentifier;
+                ) as ExpressionResultVariable;
 
-                if (!(targetExpressionResult instanceof ExpressionResultIdentifier))
+                if (!(targetExpressionResult instanceof ExpressionResultVariable))
                 {
-                    throw ExternalErrors.UNARY_OPERATOR_EXPECTS_VARIABLE(node, operator);
+                    throw ExternalErrors.OPERATOR_EXPECTS_VARIABLE(node, operator);
                 }
 
+                expressionResult = new ExpressionResultVariable(destinationType, this, targetExpressionResult.variable);
                 expressionResult.pushExpressionResult(targetExpressionResult);
 
                 switch (destinationType.constructor)
@@ -164,6 +160,9 @@ export default class ExpressionUnary extends Expression
         else if (destination instanceof DestinationStack)
         {
             expressionResult.pushInstruction(new InstructionSAVEPUSH());
+        }
+        else if (destination instanceof DestinationNone)
+        {
         }
         else
         {

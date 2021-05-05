@@ -8,6 +8,7 @@ import ExpressionResult from "./ExpressionResult";
 import ExpressionBinary from "./ExpressionBinary";
 import ExpressionIdentifier from "./ExpressionIdentifier";
 import ExpressionUnary from "./ExpressionUnary";
+import ExpressionPostfix from "./ExpressionPostfix";
 
 export default class ExpressionGenerator
 {
@@ -36,6 +37,9 @@ export default class ExpressionGenerator
                 break;
             case "unary":
                 expression = new ExpressionUnary(node, destination, this._compiler, scope);
+                break;
+            case "postfix":
+                expression = new ExpressionPostfix(node, destination, this._compiler, scope);
                 break;
             default:
                 throw ExternalErrors.UNIMPLEMENTED_EXPRESSION_TYPE(node, node.type);
