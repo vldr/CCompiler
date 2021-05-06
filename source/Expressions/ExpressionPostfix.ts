@@ -44,12 +44,20 @@ import InstructionPUSH from "../Instructions/InstructionPUSH";
 import InstructionPOP from "../Instructions/InstructionPOP";
 import InstructionMOV from "../Instructions/InstructionMOV";
 import InstructionGETB from "../Instructions/InstructionGETB";
+import NodeAccessor from "../Nodes/NodeAccessor";
+import NodePostfix from "../Nodes/NodePostfix";
+import InstructionVGETB from "../Instructions/InstructionVGETB";
+import InstructionMOVOUTPUSH from "../Instructions/InstructionMOVOUTPUSH";
+import InstructionMOVOUT from "../Instructions/InstructionMOVOUT";
+import VariablePrimitive from "../Variables/VariablePrimitive";
+import ExpressionResultWritable from "./ExpressionResultWritable";
+import InstructionMOVINPOP from "../Instructions/InstructionMOVINPOP";
 
 export default class ExpressionPostfix extends Expression
 {
     generate(): ExpressionResult
     {
-        const node = this._node as NodeUnary;
+        const node = this._node as NodePostfix;
 
         const operator = node.operator;
         const destination = this._destination;
@@ -60,43 +68,70 @@ export default class ExpressionPostfix extends Expression
 
         if (operator.type === "operator")
         {
-            const operatorNode: NodeOperator = operator;
+            const operatorNode = operator as NodeOperator;
             const operatorSymbol = operatorNode.operator;
 
             switch (operatorSymbol)
             {
                 case "++":
                 case "--":
-                    const targetExpressionResult = this._compiler.generateExpression(
+                    let expResult = this._compiler.generateExpression(
                         new DestinationRegisterA(destinationType), this._scope, expression
-                    ) as ExpressionResultVariable;
+                    );
 
-                    if (!(targetExpressionResult instanceof ExpressionResultVariable))
+                    if (expResult instanceof ExpressionResultVariable)
+                    {
+                        if ((expResult as ExpressionResultVariable).variable.type.isConstant)
+                        {
+                            throw ExternalErrors.CANNOT_MODIFY_VARIABLE_READONLY(node, expResult.variable.name);
+                        }
+                    }
+                    else if (expResult instanceof ExpressionResultWritable)
+                    {
+                        if ((expResult as ExpressionResultWritable).variable.type.isConstant)
+                        {
+                            throw ExternalErrors.CANNOT_MODIFY_VARIABLE_READONLY(node, (expResult as ExpressionResultWritable).variable.name);
+                        }
+                    }
+                    else
                     {
                         throw ExternalErrors.OPERATOR_EXPECTS_VARIABLE(node, operatorSymbol);
                     }
 
-                    if (targetExpressionResult.variable.type.isConstant)
-                    {
-                        throw ExternalErrors.CANNOT_MODIFY_VARIABLE_READONLY(node, targetExpressionResult.variable.name);
-                    }
+                    ///////////////////////////////////////////////////////
 
                     expressionResult = new ExpressionResult(destinationType, this);
 
-                    if (destination instanceof DestinationVariable)
+                    if (expResult instanceof ExpressionResultVariable)
                     {
-                        expressionResult.pushInstruction(new InstructionMOV(targetExpressionResult.variable, destination.variable));
+                        if (destination instanceof DestinationVariable)
+                        {
+                            expressionResult.pushInstruction(new InstructionMOV(expResult.variable, destination.variable));
+                        }
+                        else if (
+                            destination instanceof DestinationRegisterA ||
+                            destination instanceof DestinationRegisterB ||
+                            destination instanceof DestinationStack
+                        )
+                        {
+                            expressionResult.pushInstruction(new InstructionPUSH(expResult.variable));
+                        }
+
+                        expressionResult.pushExpressionResult(expResult);
                     }
-                    else if (destination instanceof DestinationRegisterB)
+                    else if (expResult instanceof ExpressionResultWritable)
                     {
-                        expressionResult.pushInstruction(new InstructionGETB(targetExpressionResult.variable));
-                    }
-                    else if (destination instanceof DestinationRegisterA || destination instanceof DestinationStack)
-                    {
-                        expressionResult.pushInstruction(new InstructionPUSH(targetExpressionResult.variable));
+                        expressionResult.pushExpressionResult(expResult);
+
+                        if (!(destination instanceof DestinationNone))
+                        {
+                            expressionResult.pushInstruction(new InstructionMOVOUTPUSH());
+                        }
+
+                        expressionResult.pushInstruction(new InstructionSAVEPUSH());
                     }
 
-                    expressionResult.pushExpressionResult(targetExpressionResult);
+                    ///////////////////////////////////////////////////////
 
                     switch (destinationType.constructor)
                     {
@@ -117,37 +152,149 @@ export default class ExpressionPostfix extends Expression
                             throw ExternalErrors.UNSUPPORTED_TYPE_FOR_UNARY_OPERATOR(node, operatorSymbol, destinationType.toString());
                     }
 
-                    expressionResult.pushInstruction(new InstructionSAVE(targetExpressionResult.variable));
+                    ///////////////////////////////////////////////////////
 
-                    if (destination instanceof DestinationRegisterA)
+                    if (expResult instanceof ExpressionResultVariable)
                     {
-                        expressionResult.pushInstruction(new InstructionGETPOPA());
+                        expressionResult.pushInstruction(new InstructionSAVE(expResult.variable));
+
+                        if (destination instanceof DestinationRegisterA)
+                        {
+                            expressionResult.pushInstruction(new InstructionGETPOPA());
+                        }
+                        else if (destination instanceof DestinationRegisterB)
+                        {
+                            expressionResult.pushInstruction(new InstructionGETPOPB());
+                        }
+                        else if (destination instanceof DestinationVariable)
+                        {
+                        }
+                        else if (destination instanceof DestinationStack)
+                        {
+                        }
+                        else if (destination instanceof DestinationNone)
+                        {
+                        }
+                        else
+                        {
+                            throw InternalErrors.generateError(`Unknown destination type, ${destination.constructor}.`);
+                        }
                     }
-                    else if (destination instanceof DestinationVariable)
+                    else if (expResult instanceof ExpressionResultWritable)
                     {
-                    }
-                    else if (destination instanceof DestinationRegisterB)
-                    {
-                    }
-                    else if (destination instanceof DestinationStack)
-                    {
-                    }
-                    else if (destination instanceof DestinationNone)
-                    {
-                    }
-                    else
-                    {
-                        throw InternalErrors.generateError(`Unknown destination type, ${destination.constructor}.`);
+                        expressionResult.pushInstruction(new InstructionMOVINPOP());
+
+                        if (destination instanceof DestinationRegisterA)
+                        {
+                            expressionResult.pushInstruction(new InstructionGETPOPA());
+                        }
+                        else if (destination instanceof DestinationRegisterB)
+                        {
+                            expressionResult.pushInstruction(new InstructionGETPOPB());
+                        }
+                        else if (destination instanceof DestinationVariable)
+                        {
+                            expressionResult.pushInstruction(new InstructionPOP(destination.variable));
+                        }
+                        else if (destination instanceof DestinationStack)
+                        {
+                        }
+                        else if (destination instanceof DestinationNone)
+                        {
+                        }
+                        else
+                        {
+                            throw InternalErrors.generateError(`Unknown destination type, ${destination.constructor}.`);
+                        }
                     }
 
                     break;
                 default:
-                    throw InternalErrors.generateError("Unsupported binary operator.");
+                    throw InternalErrors.generateError("Unsupported postfix update operator.");
             }
+
+            return expressionResult;
+        }
+        else if (operator.type === "accessor")
+        {
+            return this.generateAccessor();
         }
         else
         {
-            expressionResult = new ExpressionResult(destinationType, this);
+            throw InternalErrors.generateError("Unsupported postfix operator.");
+        }
+    }
+
+    public generateAccessor(read = true, write = false): ExpressionResultWritable
+    {
+        const node = this._node as NodePostfix;
+        console.log(node);
+
+        const operator = node.operator;
+        const destination = this._destination;
+        const destinationType = destination.type;
+        const expression = node.expression;
+
+        const accessorNode = operator as NodeAccessor;
+        const targetExpressionResult = this._compiler.generateExpression(
+            new DestinationNone(destinationType), this._scope, expression
+        ) as ExpressionResultVariable;
+
+        if (!(targetExpressionResult instanceof ExpressionResultVariable))
+        {
+            throw ExternalErrors.OPERATOR_EXPECTS_VARIABLE(node, "[]");
+        }
+
+        if (targetExpressionResult.variable.type.size <= 1)
+        {
+            throw ExternalErrors.MUST_BE_ARRAY_TYPE(node, targetExpressionResult.variable.type.toString());
+        }
+
+        const indexExpressionResult = this._compiler.generateExpression(
+            new DestinationRegisterA(new TypeInteger(new QualifierNone(), 1)), this._scope, accessorNode.index
+        );
+
+        const expressionResult = new ExpressionResultWritable(
+            destinationType,
+            this,
+            targetExpressionResult.variable
+        );
+
+        if (destination instanceof DestinationNone)
+        {
+            return expressionResult;
+        }
+
+        expressionResult.pushExpressionResult(indexExpressionResult);
+        expressionResult.pushInstruction(new InstructionVGETB(targetExpressionResult.variable.labelName));
+        expressionResult.pushInstruction(new InstructionADD(new TypeInteger(new QualifierNone(), 1)));
+
+        if (destination instanceof DestinationVariable)
+        {
+            expressionResult.pushInstruction(new InstructionMOVOUT(destination.variable));
+        }
+        else
+        {
+            expressionResult.pushInstruction(new InstructionMOVOUTPUSH());
+        }
+
+        if (destination instanceof DestinationRegisterA)
+        {
+            expressionResult.pushInstruction(new InstructionGETPOPA());
+        }
+        else if (destination instanceof DestinationRegisterB)
+        {
+            expressionResult.pushInstruction(new InstructionGETPOPB());
+        }
+        else if (destination instanceof DestinationStack)
+        {
+        }
+        else if (destination instanceof DestinationVariable)
+        {
+        }
+        else
+        {
+            throw InternalErrors.generateError(`Unknown destination type, ${destination.constructor}.`);
         }
 
         return expressionResult;

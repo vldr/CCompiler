@@ -40,8 +40,7 @@ export default class StatementDeclarator extends Statement
             const identifierNode = declaratorNode.name;
             const variableName = identifierNode.name;
 
-            if (this._scope.getVariableByName(variableName) !== undefined ||
-                this._scope.getStructByName(variableName) !== undefined)
+            if (this._scope.getVariableByNameInScope(variableName) !== undefined)
             {
                 throw ExternalErrors.VARIABLE_NAME_TAKEN(identifierNode, variableName);
             }
@@ -70,10 +69,6 @@ export default class StatementDeclarator extends Statement
                 variable = new VariablePrimitive(variableName, type, this._scope, this._compiler);
             }
 
-            this._scope.addVariable(
-                variable
-            );
-
             if (initializerNode)
             {
                 const expressionResult = this._compiler.generateExpression(
@@ -97,6 +92,10 @@ export default class StatementDeclarator extends Statement
             {
                 throw ExternalErrors.CONST_VARIABLES_MUST_BE_INIT(node);
             }
+
+            this._scope.addVariable(
+                variable
+            );
         });
     }
 }

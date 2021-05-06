@@ -6,35 +6,27 @@ class Main
     static start(): void
     {
         new Compiler().compile(`
-        struct Munchies {
-            float cookieness;
-        };
-
-        struct Hello {
-            int data;
-            Munchies cookie;
-        };
-        
-        
+        // struct Munchies {
+        //     float cookieness;
+        // };
         //
-        // const float f = 328.748;
-        // const float ii = 1.52 - (2 + f);
+        // struct Hello {
+        //     int data;
+        //     Munchies cookie;
+        // };
         
-        // float af = 40;
-        // float afff = 1 + (af-- + af);
+        int a[2];   
+        int r = 1;
+        int c = r + (2 + a[r]++);
        
-        
-        int test(const int fff)
-        {
-            int af = fff + 12;
-        }
+      
 
-     
-        
-        
-        //int a = 222;
-        
-        //int iihuhu = 1 + a;
+        // void test(const int fff)
+        // {
+        //     int a = 2;
+        //    
+        //     return a;
+        // }
         
         
         `);

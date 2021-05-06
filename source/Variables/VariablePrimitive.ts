@@ -2,6 +2,7 @@ import Variable from "./Variable";
 import Scope from "../Scope";
 import Compiler from "../Compiler";
 import Type from "../Types/Type";
+import InternalErrors from "../Errors/InternalErrors";
 
 export default class VariablePrimitive extends Variable
 {

@@ -42,9 +42,14 @@ export default class Scope
         this._functions.push(fn);
     }
 
+    getVariableByNameInScope(name: string): Variable | undefined
+    {
+        return this._variables.find(s => s.name === name);
+    }
+
     getVariableByName(name: string): Variable | undefined
     {
-        const variable = this._variables.find(s => s.name === name);
+        const variable = this.getVariableByNameInScope(name);
 
         if (variable === undefined && this._scope)
         {

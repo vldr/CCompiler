@@ -4,6 +4,6 @@ export default class TypeFloat extends Type
 {
     public toString(): string
     {
-        return "float";
+        return "float" + (this.size > 1 ? `[${this.size}]` : String());;
     }
 }

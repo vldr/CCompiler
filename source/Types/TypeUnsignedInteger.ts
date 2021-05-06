@@ -4,6 +4,6 @@ export default class TypeUnsignedInteger extends Type
 {
     public toString(): string
     {
-        return "uint";
+        return "uint" + (this.size > 1 ? `[${this.size}]` : String());;
     }
 }

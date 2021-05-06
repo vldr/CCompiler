@@ -44,10 +44,12 @@ export default class ExpressionIdentifier extends Expression
         if (variable === undefined)
             throw ExternalErrors.CANNOT_FIND_NAME(node, name);
 
-        if (!destination.type.equals(variable.type))
-            throw ExternalErrors.CANNOT_CONVERT_TYPE(node, variable.type.toString(), destination.type.toString());
-
         const expressionResult = new ExpressionResultVariable(destination.type, this, variable);
+
+        if (destination instanceof DestinationNone)
+            return expressionResult;
+        else if (!destination.type.equals(variable.type))
+            throw ExternalErrors.CANNOT_CONVERT_TYPE(node, variable.type.toString(), destination.type.toString());
 
         if (destination instanceof DestinationVariable)
         {
@@ -64,9 +66,6 @@ export default class ExpressionIdentifier extends Expression
         else if (destination instanceof DestinationStack)
         {
             expressionResult.pushInstruction(new InstructionPUSH(variable));
-        }
-        else if (destination instanceof DestinationNone)
-        {
         }
         else
         {

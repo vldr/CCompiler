@@ -57,8 +57,6 @@ export default class StatementFunctionDeclaration extends Statement
             }
         }
 
-        this._compiler.log(node);
-
         const newScope = new Scope(this._compiler, functionName, this._scope);
         const newFunction = new Function(functionName, returnType, this._scope)
 
@@ -97,5 +95,7 @@ export default class StatementFunctionDeclaration extends Statement
         bodyNode.statements.forEach((statementNode) => {
             this._compiler.generateAndEmitStatement(newScope, statementNode);
         });
+
+        this._compiler.emitToFunctions(`RTN\n`);
     }
 }

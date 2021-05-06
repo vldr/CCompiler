@@ -4,6 +4,6 @@ export default class TypeInteger extends Type
 {
     public toString(): string
     {
-        return "int";
+        return "int" + (this.size > 1 ? `[${this.size}]` : String());
     }
 }

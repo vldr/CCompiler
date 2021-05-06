@@ -85,6 +85,11 @@ export default abstract class ExternalErrors
         return this.generateError(`The operator '${operator}' can only be used on lvalues.`, node);
     }
 
+    static MUST_BE_ARRAY_TYPE(node: Node, typeName: string)
+    {
+        return this.generateError(`The type '${typeName}' must be an array.`, node);
+    }
+
     static CANNOT_MODIFY_VARIABLE_READONLY(node: Node, variableName: string)
     {
         return this.generateError(`The variable '${variableName}' cannot be modified, it is read-only.`, node);
