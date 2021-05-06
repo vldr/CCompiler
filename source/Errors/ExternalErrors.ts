@@ -22,6 +22,11 @@ export default abstract class ExternalErrors
         return this.generateError(`Unimplemented statement type, '${statementType}'.`, node);
     }
 
+    static UNSUPPORTED_RETURN_TYPE(node: Node, type: string)
+    {
+        return this.generateError(`The type '${type}' is not supported as a return type for functions.`, node);
+    }
+
     static UNKNOWN_TYPE(node: Node, type: string)
     {
         return this.generateError(`Unknown type '${type}'.`, node);
@@ -35,6 +40,11 @@ export default abstract class ExternalErrors
     static VARIABLE_NAME_TAKEN(node: Node, variableName: string)
     {
         return this.generateError(`The name '${variableName}' is already used by either a struct declaration or another variable.`, node);
+    }
+
+    static FUNCTION_NAME_TAKEN(node: Node, functionName: string)
+    {
+        return this.generateError(`The name '${functionName}' is already used by another function.`, node);
     }
 
     static CANNOT_CONVERT_TYPE(node: Node, srcType: string, destType: string)

@@ -37,7 +37,6 @@ export default class StatementDeclarator extends Statement
 
         declaratorsNode.forEach((declaratorNode) =>
         {
-
             const identifierNode = declaratorNode.name;
             const variableName = identifierNode.name;
 
@@ -49,7 +48,7 @@ export default class StatementDeclarator extends Statement
 
             //////////////////////////////////////////////
 
-            const size = declaratorNode.arraySize || 1;
+            const size = declaratorNode.arraySize?.value_base10 || 1;
             const initializerNode = declaratorNode.initializer;
 
             if (size < 1)

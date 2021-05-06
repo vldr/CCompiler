@@ -11,9 +11,9 @@ export default class Scope
     private _structs: Array<TypeStruct>;
     private _functions: Array<Function>;
     private _scope: Scope | undefined;
-    private _function: Function | undefined;
+    private _function?: Function;
 
-    constructor(private _compiler: Compiler, name?: string, scope?: Scope, functionIn?: Function)
+    constructor(private _compiler: Compiler, name?: string, scope?: Scope, fn?: Function)
     {
         this._name = name || "";
 
@@ -21,10 +21,10 @@ export default class Scope
             this._name = scope.name + this._name;
 
         this._scope = scope;
-        this._function = functionIn;
         this._variables = new Array<Variable>();
         this._structs = new Array<TypeStruct>();
         this._functions = new Array<Function>();
+        this._function = fn;
     }
 
     addStruct(struct: TypeStruct)
@@ -35,6 +35,11 @@ export default class Scope
     addVariable(variable: Variable)
     {
         this._variables.push(variable);
+    }
+
+    addFunction(fn: Function)
+    {
+        this._functions.push(fn);
     }
 
     getVariableByName(name: string): Variable | undefined
@@ -81,6 +86,11 @@ export default class Scope
         }
 
         return this._function;
+    }
+
+    setFunction(fn: Function): void
+    {
+        this._function = fn;
     }
 
     get isRoot() { return this._scope === undefined; }
