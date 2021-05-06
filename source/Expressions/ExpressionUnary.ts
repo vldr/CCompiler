@@ -43,6 +43,9 @@ import InstructionNOT from "../Instructions/InstructionNOT";
 import InstructionFDEC from "../Instructions/InstructionFDEC";
 import InstructionDEC from "../Instructions/InstructionDEC";
 import ExpressionResultVariable from "./ExpressionResultVariable";
+import ExpressionResultWritable from "./ExpressionResultWritable";
+import InstructionMOVINPOP from "../Instructions/InstructionMOVINPOP";
+import InstructionSTOREPUSH from "../Instructions/InstructionSTOREPUSH";
 
 export default class ExpressionUnary extends Expression
 {
@@ -107,22 +110,36 @@ export default class ExpressionUnary extends Expression
                 break;
             case "++":
             case "--":
-                const targetExpressionResult = this._compiler.generateExpression(
+                let expResult = this._compiler.generateExpression(
                     new DestinationRegisterA(destinationType), this._scope, expression
-                ) as ExpressionResultVariable;
+                );
 
-                if (!(targetExpressionResult instanceof ExpressionResultVariable))
+                if (expResult instanceof ExpressionResultVariable)
+                {
+                    if ((expResult as ExpressionResultVariable).variable.type.isConstant)
+                    {
+                        throw ExternalErrors.CANNOT_MODIFY_VARIABLE_READONLY(node, expResult.variable.name);
+                    }
+                }
+                else if (expResult instanceof ExpressionResultWritable)
+                {
+                    if ((expResult as ExpressionResultWritable).variable.type.isConstant)
+                    {
+                        throw ExternalErrors.CANNOT_MODIFY_VARIABLE_READONLY(node, (expResult as ExpressionResultWritable).variable.name);
+                    }
+                }
+                else
                 {
                     throw ExternalErrors.OPERATOR_EXPECTS_VARIABLE(node, operator);
                 }
 
-                if (targetExpressionResult.variable.type.isConstant)
-                {
-                    throw ExternalErrors.CANNOT_MODIFY_VARIABLE_READONLY(node, targetExpressionResult.variable.name);
-                }
-
                 expressionResult = new ExpressionResult(destinationType, this);
-                expressionResult.pushExpressionResult(targetExpressionResult);
+                expressionResult.pushExpressionResult(expResult);
+
+                if (expResult instanceof ExpressionResultWritable)
+                {
+                    expressionResult.pushInstruction(new InstructionSAVEPUSH());
+                }
 
                 switch (destinationType.constructor)
                 {
@@ -143,7 +160,14 @@ export default class ExpressionUnary extends Expression
                         throw ExternalErrors.UNSUPPORTED_TYPE_FOR_UNARY_OPERATOR(node, operator, destinationType.toString());
                 }
 
-                expressionResult.pushInstruction(new InstructionSAVE(targetExpressionResult.variable));
+                if (expResult instanceof ExpressionResultVariable)
+                {
+                    expressionResult.pushInstruction(new InstructionSAVE(expResult.variable));
+                }
+                else if (expResult instanceof ExpressionResultWritable)
+                {
+                    expressionResult.pushInstruction(new InstructionMOVINPOP());
+                }
 
                 break;
             default:

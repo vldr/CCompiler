@@ -17,7 +17,7 @@ class Main
         
         int a[2];   
         int r = 1;
-        int c = r + (2 + a[r]++);
+        int c = ++a[r - 1] + (r + 2);
        
       
 
