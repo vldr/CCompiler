@@ -42,10 +42,10 @@ import InstructionFNEG from "../Instructions/InstructionFNEG";
 import InstructionNOT from "../Instructions/InstructionNOT";
 import InstructionFDEC from "../Instructions/InstructionFDEC";
 import InstructionDEC from "../Instructions/InstructionDEC";
-import ExpressionResultVariable from "./ExpressionResultVariable";
-import ExpressionResultWritable from "./ExpressionResultWritable";
 import InstructionMOVINPOP from "../Instructions/InstructionMOVINPOP";
 import InstructionSTOREPUSH from "../Instructions/InstructionSTOREPUSH";
+import ExpressionResultAccessor from "./ExpressionResultAccessor";
+import ExpressionResultVariable from "./ExpressionResultVariable";
 
 export default class ExpressionUnary extends Expression
 {
@@ -121,11 +121,11 @@ export default class ExpressionUnary extends Expression
                         throw ExternalErrors.CANNOT_MODIFY_VARIABLE_READONLY(node, expResult.variable.name);
                     }
                 }
-                else if (expResult instanceof ExpressionResultWritable)
+                else if (expResult instanceof ExpressionResultAccessor)
                 {
-                    if ((expResult as ExpressionResultWritable).variable.type.isConstant)
+                    if (expResult.variable.type.isConstant)
                     {
-                        throw ExternalErrors.CANNOT_MODIFY_VARIABLE_READONLY(node, (expResult as ExpressionResultWritable).variable.name);
+                        throw ExternalErrors.CANNOT_MODIFY_VARIABLE_READONLY(node, expResult.variable.name);
                     }
                 }
                 else
@@ -136,7 +136,7 @@ export default class ExpressionUnary extends Expression
                 expressionResult = new ExpressionResult(destinationType, this);
                 expressionResult.pushExpressionResult(expResult);
 
-                if (expResult instanceof ExpressionResultWritable)
+                if (expResult instanceof ExpressionResultAccessor)
                 {
                     expressionResult.pushInstruction(new InstructionSAVEPUSH());
                 }
@@ -164,7 +164,7 @@ export default class ExpressionUnary extends Expression
                 {
                     expressionResult.pushInstruction(new InstructionSAVE(expResult.variable));
                 }
-                else if (expResult instanceof ExpressionResultWritable)
+                else if (expResult instanceof ExpressionResultAccessor)
                 {
                     expressionResult.pushInstruction(new InstructionMOVINPOP());
                 }

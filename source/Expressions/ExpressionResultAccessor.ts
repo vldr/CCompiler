@@ -4,7 +4,7 @@ import Instruction from "../Instructions/Instruction";
 import ExpressionResult from "./ExpressionResult";
 import Variable from "../Variables/Variable";
 
-export default class ExpressionResultWritable extends ExpressionResult
+export default class ExpressionResultAccessor extends ExpressionResult
 {
     constructor(
         type: Type,
@@ -12,7 +12,6 @@ export default class ExpressionResultWritable extends ExpressionResult
         public readonly variable: Variable
     )
     {
-        super(type, expression)
-
+        super(type, expression);
     }
 }

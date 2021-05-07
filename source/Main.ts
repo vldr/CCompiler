@@ -6,18 +6,17 @@ class Main
     static start(): void
     {
         new Compiler().compile(`
-        // struct Munchies {
-        //     float cookieness;
-        // };
-        //
-        // struct Hello {
-        //     int data;
-        //     Munchies cookie;
-        // };
+        struct Munchies {
+            float cookieness;
+        };
+
+        struct Hello {
+            int data;
+            Munchies cookie;
+        };
         
-        int a[2];   
-        int r = 1;
-        int c = ++a[r - 1] + (r + 2);
+        Hello a;
+        int c = a.cookie.cookieness;
        
       
 

@@ -60,6 +60,11 @@ export default abstract class ExternalErrors
         return this.generateError(`The size of an array cannot be zero or negative.`, node);
     }
 
+    static TYPE_MUST_BE_STRUCT(node: Node)
+    {
+        return this.generateError(`The type must be a struct to be able to access fields from.`, node);
+    }
+
     static CONST_VARIABLES_MUST_BE_INIT(node: Node)
     {
         return this.generateError(`Constant variables must be initialized.`, node);
@@ -88,6 +93,11 @@ export default abstract class ExternalErrors
     static MUST_BE_ARRAY_TYPE(node: Node, typeName: string)
     {
         return this.generateError(`The type '${typeName}' must be an array.`, node);
+    }
+
+    static MUST_NOT_BE_ARRAY_TYPE(node: Node, typeName: string)
+    {
+        return this.generateError(`The type '${typeName}' must not be an array.`, node);
     }
 
     static CANNOT_MODIFY_VARIABLE_READONLY(node: Node, variableName: string)

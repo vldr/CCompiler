@@ -34,7 +34,6 @@ import QualifierNone from "../Qualifiers/QualifierNone";
 import NodeUnary from "../Nodes/NodeUnary";
 import InstructionNEG from "../Instructions/InstructionNEG";
 import InstructionVGETA from "../Instructions/InstructionVGETA";
-import ExpressionResultVariable from "./ExpressionResultVariable";
 import InstructionFINC from "../Instructions/InstructionFINC";
 import InstructionFDEC from "../Instructions/InstructionFDEC";
 import InstructionINC from "../Instructions/InstructionINC";
@@ -50,8 +49,13 @@ import InstructionVGETB from "../Instructions/InstructionVGETB";
 import InstructionMOVOUTPUSH from "../Instructions/InstructionMOVOUTPUSH";
 import InstructionMOVOUT from "../Instructions/InstructionMOVOUT";
 import VariablePrimitive from "../Variables/VariablePrimitive";
-import ExpressionResultWritable from "./ExpressionResultWritable";
+import ExpressionResultAccessor from "./ExpressionResultAccessor";
 import InstructionMOVINPOP from "../Instructions/InstructionMOVINPOP";
+import NodeFieldSelector from "../Nodes/NodeFieldSelector";
+import ExpressionResultVariable from "./ExpressionResultVariable";
+import VariableStruct from "../Variables/VariableStruct";
+import TypeStruct from "../Types/TypeStruct";
+import InstructionGETA from "../Instructions/InstructionGETA";
 
 export default class ExpressionPostfix extends Expression
 {
@@ -86,11 +90,11 @@ export default class ExpressionPostfix extends Expression
                             throw ExternalErrors.CANNOT_MODIFY_VARIABLE_READONLY(node, expResult.variable.name);
                         }
                     }
-                    else if (expResult instanceof ExpressionResultWritable)
+                    else if (expResult instanceof ExpressionResultAccessor)
                     {
-                        if ((expResult as ExpressionResultWritable).variable.type.isConstant)
+                        if ((expResult as ExpressionResultAccessor).variable.type.isConstant)
                         {
-                            throw ExternalErrors.CANNOT_MODIFY_VARIABLE_READONLY(node, (expResult as ExpressionResultWritable).variable.name);
+                            throw ExternalErrors.CANNOT_MODIFY_VARIABLE_READONLY(node, (expResult as ExpressionResultAccessor).variable.name);
                         }
                     }
                     else
@@ -119,7 +123,7 @@ export default class ExpressionPostfix extends Expression
 
                         expressionResult.pushExpressionResult(expResult);
                     }
-                    else if (expResult instanceof ExpressionResultWritable)
+                    else if (expResult instanceof ExpressionResultAccessor)
                     {
                         expressionResult.pushExpressionResult(expResult);
 
@@ -180,7 +184,7 @@ export default class ExpressionPostfix extends Expression
                             throw InternalErrors.generateError(`Unknown destination type, ${destination.constructor}.`);
                         }
                     }
-                    else if (expResult instanceof ExpressionResultWritable)
+                    else if (expResult instanceof ExpressionResultAccessor)
                     {
                         expressionResult.pushInstruction(new InstructionMOVINPOP());
 
@@ -219,16 +223,86 @@ export default class ExpressionPostfix extends Expression
         {
             return this.generateAccessor();
         }
+        else if (operator.type === "field_selector")
+        {
+            return this.generateFieldSelector();
+        }
         else
         {
             throw InternalErrors.generateError("Unsupported postfix operator.");
         }
+
     }
 
-    public generateAccessor(read = true, write = false): ExpressionResultWritable
+    public generateFieldSelector(): ExpressionResultAccessor
     {
         const node = this._node as NodePostfix;
-        console.log(node);
+
+        const operator = node.operator;
+        const destination = this._destination;
+        const destinationType = destination.type;
+        const expression = node.expression;
+
+        const fieldSelectorNode = operator as NodeFieldSelector;
+        const selection = fieldSelectorNode.selection;
+        const targetExpressionResult = this._compiler.generateExpression(
+            new DestinationNone(destinationType), this._scope, expression
+        ) as ExpressionResultVariable;
+
+        if (!(targetExpressionResult instanceof ExpressionResultVariable))
+        {
+            throw ExternalErrors.OPERATOR_EXPECTS_VARIABLE(node, ".");
+        }
+
+        if (!(targetExpressionResult.variable instanceof VariableStruct))
+        {
+            throw ExternalErrors.TYPE_MUST_BE_STRUCT(node);
+        }
+
+        const structVariable = targetExpressionResult.variable as VariableStruct;
+        const targetVariable = structVariable.members.get(selection)
+
+        if (targetVariable === undefined)
+        {
+            throw ExternalErrors.CANNOT_FIND_NAME(node, selection);
+        }
+
+        const expressionResult = new ExpressionResultVariable(
+            destinationType,
+            this,
+            targetVariable
+        );
+
+        if (destination instanceof DestinationVariable)
+        {
+            expressionResult.pushInstruction(new InstructionMOV(targetVariable, destination.variable));
+        }
+        else if (destination instanceof DestinationStack)
+        {
+            expressionResult.pushInstruction(new InstructionPUSH(targetVariable));
+        }
+        else if (destination instanceof DestinationRegisterA)
+        {
+            expressionResult.pushInstruction(new InstructionGETA(targetVariable));
+        }
+        else if (destination instanceof DestinationRegisterB)
+        {
+            expressionResult.pushInstruction(new InstructionGETB(targetVariable));
+        }
+        else if (destination instanceof DestinationNone)
+        {
+        }
+        else
+        {
+            throw InternalErrors.generateError(`Unknown destination type, ${destination.constructor}.`);
+        }
+
+        return expressionResult;
+    }
+
+    public generateAccessor(): ExpressionResultAccessor
+    {
+        const node = this._node as NodePostfix;
 
         const operator = node.operator;
         const destination = this._destination;
@@ -254,7 +328,7 @@ export default class ExpressionPostfix extends Expression
             new DestinationRegisterA(new TypeInteger(new QualifierNone(), 1)), this._scope, accessorNode.index
         );
 
-        const expressionResult = new ExpressionResultWritable(
+        const expressionResult = new ExpressionResultAccessor(
             destinationType,
             this,
             targetExpressionResult.variable
