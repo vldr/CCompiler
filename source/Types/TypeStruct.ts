@@ -36,6 +36,11 @@ export default class TypeStruct extends Type
 
     }
 
+    public clone(size: number): Type
+    {
+        return new TypeStruct(this.qualifer, this.name, size, this.members);
+    }
+
     public toString(): string
     {
         return this.name + (this.size > 1 ? `[${this.size}]` : String());;

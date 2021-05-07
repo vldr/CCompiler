@@ -89,12 +89,22 @@ export default class ExpressionPostfix extends Expression
                         {
                             throw ExternalErrors.CANNOT_MODIFY_VARIABLE_READONLY(node, expResult.variable.name);
                         }
+
+                        if (!expResult.variable.type.equals(destinationType))
+                        {
+                            throw ExternalErrors.CANNOT_CONVERT_TYPE(node, destinationType.toString(), expResult.variable.type.toString());
+                        }
                     }
                     else if (expResult instanceof ExpressionResultAccessor)
                     {
                         if ((expResult as ExpressionResultAccessor).variable.type.isConstant)
                         {
                             throw ExternalErrors.CANNOT_MODIFY_VARIABLE_READONLY(node, (expResult as ExpressionResultAccessor).variable.name);
+                        }
+
+                        if (!expResult.variable.type.equals(destinationType))
+                        {
+                            throw ExternalErrors.CANNOT_CONVERT_TYPE(node, destinationType.toString(), expResult.variable.type.toString());
                         }
                     }
                     else
@@ -237,8 +247,6 @@ export default class ExpressionPostfix extends Expression
     public generateFieldSelector(): ExpressionResultAccessor
     {
         const node = this._node as NodePostfix;
-
-
         const operator = node.operator;
         const destination = this._destination;
         const destinationType = destination.type;
@@ -247,64 +255,151 @@ export default class ExpressionPostfix extends Expression
         const fieldSelectorNode = operator as NodeFieldSelector;
         const selection = fieldSelectorNode.selection;
 
-        const targetExpressionResult = this._compiler.generateExpression(
+        let targetExpressionResult = this._compiler.generateExpression(
             new DestinationNone(destinationType), this._scope, expression
-        ) as ExpressionResultVariable;
-
-        if (!(targetExpressionResult instanceof ExpressionResultVariable))
-        {
-            throw ExternalErrors.OPERATOR_EXPECTS_VARIABLE(node, ".");
-        }
-
-        if (!(targetExpressionResult.variable instanceof VariableStruct))
-        {
-            throw ExternalErrors.TYPE_MUST_BE_STRUCT(node);
-        }
-
-        const structVariable = targetExpressionResult.variable as VariableStruct;
-        const targetVariable = structVariable.members.get(selection)
-
-        if (targetVariable === undefined)
-        {
-            throw ExternalErrors.CANNOT_FIND_NAME(node, selection);
-        }
-
-        if (!(destination instanceof DestinationNone) && !destinationType.equals(targetVariable.type))
-        {
-            throw ExternalErrors.CANNOT_CONVERT_TYPE(node, targetVariable.type.toString(), destinationType.toString());
-        }
-
-        const expressionResult = new ExpressionResultVariable(
-            targetVariable.type,
-            this,
-            targetVariable
         );
 
-        if (destination instanceof DestinationVariable)
+        if (targetExpressionResult instanceof ExpressionResultVariable)
         {
-            expressionResult.pushInstruction(new InstructionMOV(targetVariable, destination.variable));
+            if (!(targetExpressionResult.variable instanceof VariableStruct))
+            {
+                throw ExternalErrors.TYPE_MUST_BE_STRUCT(node);
+            }
+
+            const structVariable = targetExpressionResult.variable as VariableStruct;
+            const targetVariable = structVariable.members.get(selection)
+
+            if (structVariable.type.size > 1)
+            {
+                throw ExternalErrors.CANNOT_CONVERT_TYPE(node, structVariable.type.toString(), (structVariable.type as TypeStruct).name);
+            }
+
+            if (targetVariable === undefined)
+            {
+                throw ExternalErrors.CANNOT_FIND_NAME(node, selection);
+            }
+
+            if (!(destination instanceof DestinationNone) && !destinationType.equals(targetVariable.type))
+            {
+                throw ExternalErrors.CANNOT_CONVERT_TYPE(node, targetVariable.type.toString(), destinationType.toString());
+            }
+
+            const expressionResult = new ExpressionResultVariable(
+                targetVariable.type,
+                this,
+                targetVariable
+            );
+
+            if (destination instanceof DestinationVariable)
+            {
+                expressionResult.pushInstruction(new InstructionMOV(targetVariable, destination.variable));
+            }
+            else if (destination instanceof DestinationStack)
+            {
+                expressionResult.pushInstruction(new InstructionPUSH(targetVariable));
+            }
+            else if (destination instanceof DestinationRegisterA)
+            {
+                expressionResult.pushInstruction(new InstructionGETA(targetVariable));
+            }
+            else if (destination instanceof DestinationRegisterB)
+            {
+                expressionResult.pushInstruction(new InstructionGETB(targetVariable));
+            }
+            else if (destination instanceof DestinationNone)
+            {
+            }
+            else
+            {
+                throw InternalErrors.generateError(`Unknown destination type, ${destination.constructor}.`);
+            }
+
+            return expressionResult;
         }
-        else if (destination instanceof DestinationStack)
+        else if (targetExpressionResult instanceof ExpressionResultAccessor)
         {
-            expressionResult.pushInstruction(new InstructionPUSH(targetVariable));
-        }
-        else if (destination instanceof DestinationRegisterA)
-        {
-            expressionResult.pushInstruction(new InstructionGETA(targetVariable));
-        }
-        else if (destination instanceof DestinationRegisterB)
-        {
-            expressionResult.pushInstruction(new InstructionGETB(targetVariable));
-        }
-        else if (destination instanceof DestinationNone)
-        {
+            if (!(targetExpressionResult.variable instanceof VariableStruct))
+            {
+                throw ExternalErrors.TYPE_MUST_BE_STRUCT(node);
+            }
+
+            const structVariable = targetExpressionResult.variable as VariableStruct;
+            const targetVariable = structVariable.members.get(selection);
+
+            if (destinationType.size > 1)
+            {
+                throw ExternalErrors.CANNOT_CONVERT_TYPE(node, structVariable.type.toString(), (structVariable.type as TypeStruct).name);
+            }
+
+            if (targetVariable === undefined)
+            {
+                throw ExternalErrors.CANNOT_FIND_NAME(node, selection);
+            }
+
+            let targetIndex = -1;
+            let cunter = 0;
+            const targetVariableIndex = (structVariable.type as TypeStruct).members.forEach(((value, key) =>
+            {
+                if (key === selection)
+                    targetIndex = cunter;
+
+                cunter++;
+            }))
+
+            const expressionResult = new ExpressionResultAccessor(
+                targetVariable.type,
+                this,
+                targetVariable
+            );
+
+            targetExpressionResult = this._compiler.generateExpression(
+                new DestinationRegisterA(destinationType), this._scope, expression
+            );
+
+            if (destination instanceof DestinationNone)
+            {
+                return expressionResult;
+            }
+
+            expressionResult.pushExpressionResult(targetExpressionResult);
+            expressionResult.pushInstruction(new InstructionSAVETOA());
+            expressionResult.pushInstruction(new InstructionVGETB(targetIndex.toString()));
+            expressionResult.pushInstruction(new InstructionADD(new TypeInteger(new QualifierNone(), 1)));
+
+            if (destination instanceof DestinationVariable)
+            {
+                expressionResult.pushInstruction(new InstructionMOVOUT(destination.variable));
+            }
+            else
+            {
+                expressionResult.pushInstruction(new InstructionMOVOUTPUSH());
+            }
+
+            if (destination instanceof DestinationRegisterA)
+            {
+                expressionResult.pushInstruction(new InstructionGETPOPA());
+            }
+            else if (destination instanceof DestinationRegisterB)
+            {
+                expressionResult.pushInstruction(new InstructionGETPOPB());
+            }
+            else if (destination instanceof DestinationStack)
+            {
+            }
+            else if (destination instanceof DestinationVariable)
+            {
+            }
+            else
+            {
+                throw InternalErrors.generateError(`Unknown destination type, ${destination.constructor}.`);
+            }
+
+            return expressionResult;
         }
         else
         {
-            throw InternalErrors.generateError(`Unknown destination type, ${destination.constructor}.`);
+            throw ExternalErrors.OPERATOR_EXPECTS_VARIABLE(node, ".");
         }
-
-        return expressionResult;
     }
 
     public generateAccessor(): ExpressionResultAccessor
@@ -331,12 +426,14 @@ export default class ExpressionPostfix extends Expression
             throw ExternalErrors.MUST_BE_ARRAY_TYPE(node, targetExpressionResult.variable.type.toString());
         }
 
+        const newType = targetExpressionResult.variable.type.clone(1);
+
         const indexExpressionResult = this._compiler.generateExpression(
             new DestinationRegisterA(new TypeInteger(new QualifierNone(), 1)), this._scope, accessorNode.index
         );
 
         const expressionResult = new ExpressionResultAccessor(
-            destinationType,
+            newType,
             this,
             targetExpressionResult.variable
         );
@@ -346,7 +443,41 @@ export default class ExpressionPostfix extends Expression
             return expressionResult;
         }
 
-        expressionResult.pushExpressionResult(indexExpressionResult);
+        if (newType instanceof TypeStruct)
+        {
+            expressionResult.pushExpressionResult(indexExpressionResult);
+
+            const calcTotalSize = (type: TypeStruct) =>
+            {
+                let totalSize = 0;
+
+                type.members.forEach((t) =>
+                {
+                    if (t instanceof TypeStruct)
+                    {
+                        totalSize += calcTotalSize(t);
+                    }
+                    else
+                    {
+                        totalSize += 1 /* 32 bits */;
+                    }
+                });
+
+                return totalSize;
+            };
+
+
+            let totalSize = calcTotalSize(newType);
+
+            expressionResult.pushInstruction(new InstructionVGETB(totalSize.toString()));
+            expressionResult.pushInstruction(new InstructionMULT(new TypeInteger(new QualifierNone(), 1)));
+            expressionResult.pushInstruction(new InstructionSAVETOA());
+        }
+        else
+        {
+            expressionResult.pushExpressionResult(indexExpressionResult);
+        }
+
         expressionResult.pushInstruction(new InstructionVGETB(targetExpressionResult.variable.labelName));
         expressionResult.pushInstruction(new InstructionADD(new TypeInteger(new QualifierNone(), 1)));
 

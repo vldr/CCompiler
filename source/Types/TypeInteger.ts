@@ -6,4 +6,9 @@ export default class TypeInteger extends Type
     {
         return "int" + (this.size > 1 ? `[${this.size}]` : String());
     }
+
+    public clone(size: number): Type
+    {
+        return new TypeInteger(this.qualifer, size);
+    }
 }

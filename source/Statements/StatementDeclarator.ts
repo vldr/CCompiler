@@ -77,6 +77,11 @@ export default class StatementDeclarator extends Statement
                     initializerNode
                 );
 
+                if (!expressionResult.type.equals(type))
+                {
+                    throw ExternalErrors.CANNOT_CONVERT_TYPE(node, type.toString(), expressionResult.type.toString());
+                }
+
                 const data = expressionResult.write();
 
                 if (this._scope.isRoot)

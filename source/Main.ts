@@ -8,6 +8,7 @@ class Main
         new Compiler().compile(`
         struct Munchies {
             float cookieness;
+            int rookies;
         };
 
         struct Hello {
@@ -15,8 +16,9 @@ class Main
             Munchies cookie;
         };
         
-        Hello a;
-        float c = a.cookie.cookieness + a.data;
+        int c = 1;
+        Hello a[2];
+        int k = a[c].cookie.rookies;
        
       
 

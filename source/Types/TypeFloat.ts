@@ -6,4 +6,9 @@ export default class TypeFloat extends Type
     {
         return "float" + (this.size > 1 ? `[${this.size}]` : String());;
     }
+
+    public clone(size: number): Type
+    {
+        return new TypeFloat(this.qualifer, size);
+    }
 }

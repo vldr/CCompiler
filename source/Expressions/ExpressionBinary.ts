@@ -53,6 +53,12 @@ export default class ExpressionBinary extends Expression
             return expressionResult;
         }
 
+        if (!leftExpressionResult.type.equals(destinationType))
+            throw ExternalErrors.CANNOT_CONVERT_TYPE(node, leftExpressionResult.type.toString(), destinationType.toString());
+
+        if (!rightExpressionResult.type.equals(destinationType))
+            throw ExternalErrors.CANNOT_CONVERT_TYPE(node, rightExpressionResult.type.toString(), destinationType.toString());
+
         expressionResult.pushExpressionResult(leftExpressionResult);
         expressionResult.pushExpressionResult(rightExpressionResult);
 

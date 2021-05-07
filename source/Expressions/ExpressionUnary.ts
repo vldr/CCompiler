@@ -120,12 +120,22 @@ export default class ExpressionUnary extends Expression
                     {
                         throw ExternalErrors.CANNOT_MODIFY_VARIABLE_READONLY(node, expResult.variable.name);
                     }
+
+                    if (!expResult.variable.type.equals(destinationType))
+                    {
+                        throw ExternalErrors.CANNOT_CONVERT_TYPE(node, destinationType.toString(), expResult.variable.type.toString());
+                    }
                 }
                 else if (expResult instanceof ExpressionResultAccessor)
                 {
                     if (expResult.variable.type.isConstant)
                     {
                         throw ExternalErrors.CANNOT_MODIFY_VARIABLE_READONLY(node, expResult.variable.name);
+                    }
+
+                    if (!expResult.variable.type.equals(destinationType))
+                    {
+                        throw ExternalErrors.CANNOT_CONVERT_TYPE(node, destinationType.toString(), expResult.variable.type.toString());
                     }
                 }
                 else

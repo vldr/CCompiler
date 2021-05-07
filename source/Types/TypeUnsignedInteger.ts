@@ -6,4 +6,9 @@ export default class TypeUnsignedInteger extends Type
     {
         return "uint" + (this.size > 1 ? `[${this.size}]` : String());;
     }
+
+    public clone(size: number): Type
+    {
+        return new TypeUnsignedInteger(this.qualifer, size);
+    }
 }

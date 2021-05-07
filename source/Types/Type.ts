@@ -11,6 +11,7 @@ export default abstract class Type
     }
 
     public abstract toString(): string;
+    public abstract clone(size: number): Type;
 
     public equals(type: Type): boolean
     {

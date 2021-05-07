@@ -6,4 +6,9 @@ export default class TypeVoid extends Type
     {
         return "void";
     }
+
+    public clone(size: number): Type
+    {
+        return new TypeVoid(this.qualifer, size);
+    }
 }
