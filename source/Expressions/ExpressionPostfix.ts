@@ -238,6 +238,7 @@ export default class ExpressionPostfix extends Expression
     {
         const node = this._node as NodePostfix;
 
+
         const operator = node.operator;
         const destination = this._destination;
         const destinationType = destination.type;
@@ -245,6 +246,7 @@ export default class ExpressionPostfix extends Expression
 
         const fieldSelectorNode = operator as NodeFieldSelector;
         const selection = fieldSelectorNode.selection;
+
         const targetExpressionResult = this._compiler.generateExpression(
             new DestinationNone(destinationType), this._scope, expression
         ) as ExpressionResultVariable;
@@ -267,8 +269,13 @@ export default class ExpressionPostfix extends Expression
             throw ExternalErrors.CANNOT_FIND_NAME(node, selection);
         }
 
+        if (!(destination instanceof DestinationNone) && !destinationType.equals(targetVariable.type))
+        {
+            throw ExternalErrors.CANNOT_CONVERT_TYPE(node, targetVariable.type.toString(), destinationType.toString());
+        }
+
         const expressionResult = new ExpressionResultVariable(
-            destinationType,
+            targetVariable.type,
             this,
             targetVariable
         );

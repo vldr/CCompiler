@@ -11,12 +11,12 @@ class Main
         };
 
         struct Hello {
-            int data;
+            float data;
             Munchies cookie;
         };
         
         Hello a;
-        int c = a.cookie.cookieness;
+        float c = a.cookie.cookieness + a.data;
        
       
 

@@ -38,6 +38,6 @@ export default class TypeStruct extends Type
 
     public toString(): string
     {
-        return this.name;
+        return this.name + (this.size > 1 ? `[${this.size}]` : String());;
     }
 }
