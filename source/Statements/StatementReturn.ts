@@ -50,9 +50,7 @@ export default class StatementReturn extends Statement
                 throw ExternalErrors.CANNOT_CONVERT_TYPE(node, returnType.toString(), expressionResult.type.toString());
             }
 
-
             this._compiler.emitToFunctions(expressionResult.write());
-            this._compiler.emitToFunctions(new InstructionRTN().write());
         }
         else
         {
@@ -62,11 +60,6 @@ export default class StatementReturn extends Statement
             }
         }
 
-
-
-
-
-        this._compiler.log(node);
-
+        this._compiler.emitToFunctions(new InstructionRTN().write());
     }
 }
