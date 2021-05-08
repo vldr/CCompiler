@@ -56,6 +56,7 @@ import ExpressionResultVariable from "./ExpressionResultVariable";
 import VariableStruct from "../Variables/VariableStruct";
 import TypeStruct from "../Types/TypeStruct";
 import InstructionGETA from "../Instructions/InstructionGETA";
+import InstructionString from "../Instructions/InstructionString";
 
 export default class ExpressionPostfix extends Expression
 {
@@ -241,7 +242,6 @@ export default class ExpressionPostfix extends Expression
         {
             throw InternalErrors.generateError("Unsupported postfix operator.");
         }
-
     }
 
     public generateFieldSelector(): ExpressionResultAccessor
@@ -356,17 +356,15 @@ export default class ExpressionPostfix extends Expression
                 new DestinationRegisterA(destinationType), this._scope, expression
             );
 
-            if (destination instanceof DestinationNone)
-            {
-                return expressionResult;
-            }
-
             expressionResult.pushExpressionResult(targetExpressionResult);
             expressionResult.pushInstruction(new InstructionSAVETOA());
             expressionResult.pushInstruction(new InstructionVGETB(targetIndex.toString()));
             expressionResult.pushInstruction(new InstructionADD(new TypeInteger(new QualifierNone(), 1)));
 
-            if (destination instanceof DestinationVariable)
+            if (destination instanceof DestinationNone)
+            {
+            }
+            else if (destination instanceof DestinationVariable)
             {
                 expressionResult.pushInstruction(new InstructionMOVOUT(destination.variable));
             }
@@ -387,6 +385,9 @@ export default class ExpressionPostfix extends Expression
             {
             }
             else if (destination instanceof DestinationVariable)
+            {
+            }
+            else if (destination instanceof DestinationNone)
             {
             }
             else
@@ -412,11 +413,12 @@ export default class ExpressionPostfix extends Expression
         const expression = node.expression;
 
         const accessorNode = operator as NodeAccessor;
-        const targetExpressionResult = this._compiler.generateExpression(
+        let targetExpressionResult = this._compiler.generateExpression(
             new DestinationNone(destinationType), this._scope, expression
         ) as ExpressionResultVariable;
 
-        if (!(targetExpressionResult instanceof ExpressionResultVariable))
+        if (!(targetExpressionResult instanceof ExpressionResultVariable)
+            && !((targetExpressionResult as any) instanceof ExpressionResultAccessor))
         {
             throw ExternalErrors.OPERATOR_EXPECTS_VARIABLE(node, "[]");
         }
@@ -428,20 +430,21 @@ export default class ExpressionPostfix extends Expression
 
         const newType = targetExpressionResult.variable.type.clone(1);
 
-        const indexExpressionResult = this._compiler.generateExpression(
-            new DestinationRegisterA(new TypeInteger(new QualifierNone(), 1)), this._scope, accessorNode.index
-        );
-
         const expressionResult = new ExpressionResultAccessor(
             newType,
             this,
             targetExpressionResult.variable
         );
 
-        if (destination instanceof DestinationNone)
+        if (targetExpressionResult instanceof ExpressionResultAccessor)
         {
-            return expressionResult;
+            expressionResult.pushInstruction(targetExpressionResult);
+            expressionResult.pushInstruction(new InstructionSAVEPUSH());
         }
+
+        const indexExpressionResult = this._compiler.generateExpression(
+            new DestinationRegisterA(new TypeInteger(new QualifierNone(), 1)), this._scope, accessorNode.index
+        );
 
         if (newType instanceof TypeStruct)
         {
@@ -455,19 +458,18 @@ export default class ExpressionPostfix extends Expression
                 {
                     if (t instanceof TypeStruct)
                     {
-                        totalSize += calcTotalSize(t);
+                        totalSize += calcTotalSize(t) * t.size;
                     }
                     else
                     {
-                        totalSize += 1 /* 32 bits */;
+                        totalSize += t.size /* 32 bits */;
                     }
                 });
 
                 return totalSize;
             };
 
-
-            let totalSize = calcTotalSize(newType);
+            let totalSize = calcTotalSize((targetExpressionResult.variable.type as TypeStruct));
 
             expressionResult.pushInstruction(new InstructionVGETB(totalSize.toString()));
             expressionResult.pushInstruction(new InstructionMULT(new TypeInteger(new QualifierNone(), 1)));
@@ -478,10 +480,23 @@ export default class ExpressionPostfix extends Expression
             expressionResult.pushExpressionResult(indexExpressionResult);
         }
 
-        expressionResult.pushInstruction(new InstructionVGETB(targetExpressionResult.variable.labelName));
+        if (targetExpressionResult instanceof ExpressionResultAccessor)
+        {
+            expressionResult.pushInstruction(new InstructionString("# Accessor"));
+            expressionResult.pushInstruction(new InstructionGETPOPB());
+
+        }
+        else
+        {
+            expressionResult.pushInstruction(new InstructionVGETB(targetExpressionResult.variable.labelName));
+        }
+
         expressionResult.pushInstruction(new InstructionADD(new TypeInteger(new QualifierNone(), 1)));
 
-        if (destination instanceof DestinationVariable)
+        if (destination instanceof DestinationNone)
+        {
+        }
+        else if (destination instanceof DestinationVariable)
         {
             expressionResult.pushInstruction(new InstructionMOVOUT(destination.variable));
         }
@@ -502,6 +517,9 @@ export default class ExpressionPostfix extends Expression
         {
         }
         else if (destination instanceof DestinationVariable)
+        {
+        }
+        else if (destination instanceof DestinationNone)
         {
         }
         else

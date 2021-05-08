@@ -30,10 +30,15 @@ export default class ExpressionConstant extends Expression
         const node = this._node as NodeConstant;
         const destination = this._destination;
         const destinationType = this._destination.type;
-        const typeName: string = node.type;
+        let typeName: string = node.type;
 
         const value: number = node.value_base10;
         let stringValue: string = value.toString();
+
+        if (node.format === "hex")
+        {
+            typeName = "uint";
+        }
 
         if (typeName === "int")
         {
@@ -47,8 +52,7 @@ export default class ExpressionConstant extends Expression
         }
         else if (typeName === "uint")
         {
-            if (destinationType instanceof TypeFloat) { stringValue += "f"; }
-            else if (destinationType instanceof TypeInteger) {}
+            if (destinationType instanceof TypeInteger) {}
             else if (destinationType instanceof TypeUnsignedInteger) {}
             else
             {

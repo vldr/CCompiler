@@ -11,21 +11,21 @@ class Main
             int rookies;
         };
 
-        struct Hello {
-            float data;
+        struct SuperCookie {
+            Munchies superness[2];
             Munchies cookie;
         };
         
-        int c = 1;
-        Hello a[2];
-        int k = a[c].cookie.rookies;
+        int coolio = 0;
+        SuperCookie a[2];
+        int k = (a[1].superness[coolio].rookies *= 2);
        
       
 
         // void test(const int fff)
         // {
         //     int a = 2;
-        //    
+        //
         //     return a;
         // }
         
