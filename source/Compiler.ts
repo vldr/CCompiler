@@ -7,6 +7,7 @@ import ExpressionGenerator from "./Expressions/ExpressionGenerator";
 import Destination from "./Destinations/Destination";
 import ExpressionResult from "./Expressions/ExpressionResult";
 import Expression from "./Expressions/Expression";
+import Node from "./Nodes/Node";
 
 export default class Compiler
 {
@@ -66,7 +67,7 @@ export default class Compiler
         this._statementGenerator.generateAndEmit(scope, node);
     }
 
-    public generateExpression(destination: Destination, scope: Scope, node: any): ExpressionResult
+    public generateExpression(destination: Destination, scope: Scope, node: Node): ExpressionResult
     {
         return this._expressionGenerator.generate(destination, scope, node);
     }

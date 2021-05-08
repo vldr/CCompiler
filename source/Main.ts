@@ -20,10 +20,10 @@ class Main
         SuperCookie a;
         SuperCookie b;
 
-        void test(const int fff)
+        int test(const int fff)
         {
-            int a = fff;
-            return;
+            int uj = fff;
+            return a.superness[0].rookies;
         }
         
         

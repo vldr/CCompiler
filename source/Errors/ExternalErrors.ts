@@ -14,7 +14,17 @@ export default abstract class ExternalErrors
 
     static CANNOT_NO_STRUCT_ARRAY(node: Node)
     {
-        return this.generateError(`Cannot have a struct type nor array type as a parameter.`, node);
+        return this.generateError(`A struct type nor array type cannot be used here.`, node);
+    }
+
+    static RETURN_EXPECTING_NON_VOID_VALUE(node: Node)
+    {
+        return this.generateError(`The return statement expects a non-void value.`, node);
+    }
+
+    static RETURN_MUST_BE_IN_FUNCTION(node: Node)
+    {
+        return this.generateError(`The return statement can only be used within a function.`, node);
     }
 
     static CANNOT_COPY_STRUCT(node: Node)

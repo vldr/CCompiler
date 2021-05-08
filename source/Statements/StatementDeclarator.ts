@@ -13,6 +13,7 @@ import QualifierNone from "../Qualifiers/QualifierNone";
 import DestinationVariable from "../Destinations/DestinationVariable";
 import TypeStruct from "../Types/TypeStruct";
 import Utils from "../Utils";
+import Node from "../Nodes/Node";
 import NodeDeclarator from "../Nodes/NodeDeclarator";
 import Variable from "../Variables/Variable";
 import VariablePrimitive from "../Variables/VariablePrimitive";

@@ -9,6 +9,7 @@ import ExpressionBinary from "./ExpressionBinary";
 import ExpressionIdentifier from "./ExpressionIdentifier";
 import ExpressionUnary from "./ExpressionUnary";
 import ExpressionPostfix from "./ExpressionPostfix";
+import Node from "../Nodes/Node";
 
 export default class ExpressionGenerator
 {
@@ -19,7 +20,7 @@ export default class ExpressionGenerator
     {
     }
 
-    public generate(destination: Destination, scope: Scope, node: any): ExpressionResult
+    public generate(destination: Destination, scope: Scope, node: Node): ExpressionResult
     {
         let expression: Expression;
 

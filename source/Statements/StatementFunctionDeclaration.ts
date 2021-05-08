@@ -15,6 +15,7 @@ import TypeVoid from "../Types/TypeVoid";
 import Variable from "../Variables/Variable";
 import VariableStruct from "../Variables/VariableStruct";
 import VariablePrimitive from "../Variables/VariablePrimitive";
+import InstructionRTN from "../Instructions/InstructionRTN";
 
 export default class StatementFunctionDeclaration extends Statement
 {
@@ -96,6 +97,7 @@ export default class StatementFunctionDeclaration extends Statement
             this._compiler.generateAndEmitStatement(newScope, statementNode);
         });
 
-        this._compiler.emitToFunctions(`RTN\n`);
+        if (returnType instanceof TypeVoid)
+            this._compiler.emitToFunctions(new InstructionRTN().write());
     }
 }
