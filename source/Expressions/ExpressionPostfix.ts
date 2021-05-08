@@ -56,7 +56,7 @@ import ExpressionResultVariable from "./ExpressionResultVariable";
 import VariableStruct from "../Variables/VariableStruct";
 import TypeStruct from "../Types/TypeStruct";
 import InstructionGETA from "../Instructions/InstructionGETA";
-import InstructionString from "../Instructions/InstructionString";
+import InstructionComment from "../Instructions/InstructionComment";
 
 export default class ExpressionPostfix extends Expression
 {
@@ -482,9 +482,7 @@ export default class ExpressionPostfix extends Expression
 
         if (targetExpressionResult instanceof ExpressionResultAccessor)
         {
-            expressionResult.pushInstruction(new InstructionString("# Accessor"));
             expressionResult.pushInstruction(new InstructionGETPOPB());
-
         }
         else
         {

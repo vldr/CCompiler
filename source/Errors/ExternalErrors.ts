@@ -12,6 +12,11 @@ export default abstract class ExternalErrors
         );
     }
 
+    static CANNOT_COPY_STRUCT(node: Node)
+    {
+        return this.generateError(`Cannot copy/assignment struct types.`, node);
+    }
+
     static UNIMPLEMENTED_EXPRESSION_TYPE(node: Node, expressionType: string)
     {
         return this.generateError(`Unimplemented expression type, '${expressionType}'.`, node);

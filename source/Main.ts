@@ -18,7 +18,6 @@ class Main
         
         int coolio = 0;
         SuperCookie a[2];
-        int k = (a[1].superness[coolio].rookies *= 2);
        
       
 

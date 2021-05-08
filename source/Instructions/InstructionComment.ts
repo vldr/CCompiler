@@ -6,7 +6,7 @@ import TypeFloat from "../Types/TypeFloat";
 import TypeInteger from "../Types/TypeInteger";
 import TypeUnsignedInteger from "../Types/TypeUnsignedInteger";
 
-export default class InstructionString extends Instruction
+export default class InstructionComment extends Instruction
 {
     constructor(public readonly value: string)
     {
@@ -15,6 +15,6 @@ export default class InstructionString extends Instruction
 
     public write(): string
     {
-        return `${this.value}\n`;
+        return `# ${this.value}\n`;
     }
 }

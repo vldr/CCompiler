@@ -63,6 +63,11 @@ export default class StatementDeclarator extends Statement
             if (type instanceof TypeStruct)
             {
                 variable = new VariableStruct(variableName, type, this._scope, this._compiler);
+
+                if (initializerNode)
+                {
+                    throw ExternalErrors.CANNOT_COPY_STRUCT(node);
+                }
             }
             else
             {
