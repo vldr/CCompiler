@@ -12,9 +12,14 @@ export default abstract class ExternalErrors
         );
     }
 
+    static CANNOT_NO_STRUCT_ARRAY(node: Node)
+    {
+        return this.generateError(`Cannot have a struct type nor array type as a parameter.`, node);
+    }
+
     static CANNOT_COPY_STRUCT(node: Node)
     {
-        return this.generateError(`Cannot copy/assignment struct types.`, node);
+        return this.generateError(`Cannot copy/assignment struct types nor array types.`, node);
     }
 
     static UNIMPLEMENTED_EXPRESSION_TYPE(node: Node, expressionType: string)

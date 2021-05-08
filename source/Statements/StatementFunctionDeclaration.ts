@@ -76,9 +76,9 @@ export default class StatementFunctionDeclaration extends Statement
 
             let variable: Variable;
 
-            if (type instanceof TypeStruct)
+            if (size > 1 || type instanceof TypeStruct)
             {
-                variable = new VariableStruct(parameterName, type, newScope, this._compiler);
+                throw ExternalErrors.CANNOT_NO_STRUCT_ARRAY(node);
             }
             else
             {

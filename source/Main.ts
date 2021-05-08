@@ -16,17 +16,15 @@ class Main
             Munchies cookie;
         };
         
-        int coolio = 0;
-        SuperCookie a[2];
-       
-      
+        int coolio[2];
+        SuperCookie a;
+        SuperCookie b;
 
-        // void test(const int fff)
-        // {
-        //     int a = 2;
-        //
-        //     return a;
-        // }
+        void test(const int fff)
+        {
+            int a = fff;
+            return;
+        }
         
         
         `);

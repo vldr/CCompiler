@@ -36,6 +36,7 @@ import InstructionMOVOUT from "../Instructions/InstructionMOVOUT";
 import InstructionGETPOPR from "../Instructions/InstructionGETPOPR";
 import InstructionMOVINPOP from "../Instructions/InstructionMOVINPOP";
 import InstructionMOVIN from "../Instructions/InstructionMOVIN";
+import TypeStruct from "../Types/TypeStruct";
 
 export default class ExpressionBinary extends Expression
 {
@@ -81,6 +82,19 @@ export default class ExpressionBinary extends Expression
 
         if (isAssignment)
         {
+            if (leftExpressionResult instanceof ExpressionResultAccessor && leftExpressionResult.variable.type.isConstant)
+            {
+                throw ExternalErrors.CANNOT_MODIFY_VARIABLE_READONLY(node, leftExpressionResult.variable.name);
+            }
+            else if (leftExpressionResult instanceof ExpressionResultVariable && leftExpressionResult.variable.type.isConstant)
+            {
+                throw ExternalErrors.CANNOT_MODIFY_VARIABLE_READONLY(node, leftExpressionResult.variable.name);
+            }
+
+            if (rightExpressionResult instanceof ExpressionResultVariable &&
+                (rightExpressionResult.variable.type instanceof TypeStruct || rightExpressionResult.variable.type.size > 1))
+                throw ExternalErrors.CANNOT_COPY_STRUCT(node);
+
             if (operator != "=")
             {
                 expressionResult.pushExpressionResult(leftExpressionResult);
