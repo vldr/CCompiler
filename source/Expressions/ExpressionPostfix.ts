@@ -337,14 +337,54 @@ export default class ExpressionPostfix extends Expression
                 throw ExternalErrors.CANNOT_FIND_NAME(node, selection);
             }
 
-            let targetIndex = -1;
-            let cunter = 0;
+            const calcTotalSizeStruct = (type: TypeStruct) =>
+            {
+                let totalSize = 0;
+
+                type.members.forEach((t) =>
+                {
+                    if (t instanceof TypeStruct)
+                    {
+                        totalSize += calcTotalSizeStruct(t) * t.size;
+                    }
+                    else
+                    {
+                        totalSize += t.size /* 32 bits */;
+                    }
+                });
+
+                return totalSize;
+            };
+
+
+            const calcTotalSize = (type: Type) =>
+            {
+                let totalSize = 0;
+
+                if (type instanceof TypeStruct)
+                {
+                    totalSize += calcTotalSizeStruct(type) * type.size;
+                }
+                else
+                {
+                    totalSize += type.size;
+                }
+
+                return totalSize;
+            };
+
+            let offset = 0;
+            let shouldCount = true;
+
             const targetVariableIndex = (structVariable.type as TypeStruct).members.forEach(((value, key) =>
             {
-                if (key === selection)
-                    targetIndex = cunter;
-
-                cunter++;
+                if (shouldCount)
+                {
+                    if (key === selection)
+                        shouldCount = false;
+                    else
+                        offset += calcTotalSize(value);
+                }
             }))
 
             const expressionResult = new ExpressionResultAccessor(
@@ -354,12 +394,12 @@ export default class ExpressionPostfix extends Expression
             );
 
             targetExpressionResult = this._compiler.generateExpression(
-                new DestinationRegisterA(destinationType), this._scope, expression
+                new DestinationNone(destinationType), this._scope, expression
             );
 
             expressionResult.pushExpressionResult(targetExpressionResult);
             expressionResult.pushInstruction(new InstructionSAVETOA());
-            expressionResult.pushInstruction(new InstructionVGETB(targetIndex.toString()));
+            expressionResult.pushInstruction(new InstructionVGETB(offset.toString()));
             expressionResult.pushInstruction(new InstructionADD(new TypeInteger(new QualifierNone(), 1)));
 
             if (destination instanceof DestinationNone)

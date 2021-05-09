@@ -8,7 +8,7 @@ class Main
         console.log(new Compiler().compile(`
         struct Munchies {
             float cookieness;
-            int rookies;
+            float rookies;
         };
 
         struct SuperCookie {
@@ -17,20 +17,23 @@ class Main
         };
         
         
+        SuperCookie a[2];
+        
         float tesjkt(float fff)
         {
             return fff;
         }
         
         
-        float test(float fff, float aaa)
+        float test(int index, float fff, float aaa)
         {
             fff = fff * 2.f * tesjkt(aaa);
+            a[index].superness[index].cookieness = fff;
             return fff;
         }
         
         float lolol = 12.f;
-        float a = test(lolol / 2.f, 4.f);
+        float alpha = test(1, lolol / 2.f, 4.f);
         
         `));
     }
