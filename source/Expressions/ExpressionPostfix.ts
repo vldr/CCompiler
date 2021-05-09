@@ -479,8 +479,13 @@ export default class ExpressionPostfix extends Expression
         }
 
         const indexExpressionResult = this._compiler.generateExpression(
-            new DestinationRegisterA(new TypeInteger(new QualifierNone(), 1)), this._scope, accessorNode.index
+            new DestinationRegisterA(new TypeVoid(new QualifierNone(), 1)), this._scope, accessorNode.index
         );
+
+        if (!(indexExpressionResult.type instanceof TypeInteger) && !(indexExpressionResult.type instanceof TypeUnsignedInteger))
+        {
+            throw ExternalErrors.CANNOT_CONVERT_TYPE(accessorNode, indexExpressionResult.type.toString(), "int | uint");
+        }
 
         if (newType instanceof TypeStruct)
         {

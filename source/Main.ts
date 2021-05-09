@@ -15,8 +15,7 @@ class Main
         
         float main()
         {
-            m.cookieness[0]++;
-            float a[] = { m.cookieness[0], 2.f };
+            const float a[] = { m.cookieness[0], 2.f };
             return a[0];
         }
         
