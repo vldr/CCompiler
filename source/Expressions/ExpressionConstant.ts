@@ -22,6 +22,8 @@ import NodeConstant from "../Nodes/NodeConstant";
 import VariablePrimitive from "../Variables/VariablePrimitive";
 import Utils from "../Utils";
 import DestinationNone from "../Destinations/DestinationNone";
+import QualifierNone from "../Qualifiers/QualifierNone";
+import TypeVoid from "../Types/TypeVoid";
 
 export default class ExpressionConstant extends Expression
 {
@@ -31,6 +33,7 @@ export default class ExpressionConstant extends Expression
         const destination = this._destination;
         const destinationType = this._destination.type;
         let typeName: string = node.type;
+        let type: Type;
 
         const value: number = node.value_base10;
         let stringValue: string = value.toString();
@@ -42,9 +45,12 @@ export default class ExpressionConstant extends Expression
 
         if (typeName === "int")
         {
+            type = new TypeInteger(new QualifierNone(), 1);
+
             if (destinationType instanceof TypeFloat) { stringValue += "f"; }
             else if (destinationType instanceof TypeInteger) {}
             else if (destinationType instanceof TypeUnsignedInteger) {}
+            else if (destinationType instanceof TypeVoid) {}
             else
             {
                 throw ExternalErrors.CANNOT_CONVERT_TYPE(node, typeName, destinationType.toString());
@@ -52,8 +58,11 @@ export default class ExpressionConstant extends Expression
         }
         else if (typeName === "uint")
         {
+            type = new TypeUnsignedInteger(new QualifierNone(), 1);
+
             if (destinationType instanceof TypeInteger) {}
             else if (destinationType instanceof TypeUnsignedInteger) {}
+            else if (destinationType instanceof TypeVoid) {}
             else
             {
                 throw ExternalErrors.CANNOT_CONVERT_TYPE(node, typeName, destinationType.toString());
@@ -61,16 +70,23 @@ export default class ExpressionConstant extends Expression
         }
         else if (typeName === "float")
         {
+            type = new TypeFloat(new QualifierNone(), 1);
+
             if (destinationType instanceof TypeFloat) { stringValue += "f"; }
+            else if (destinationType instanceof TypeVoid) { stringValue += "f"; }
             else
             {
                 throw ExternalErrors.CANNOT_CONVERT_TYPE(node, typeName, destinationType.toString());
             }
         }
+        else
+        {
+            throw InternalErrors.generateError("Unknown constant type.");
+        }
 
         ///////////////////////////////////////////////
 
-        const expressionResult = new ExpressionResult(destinationType, this);
+        const expressionResult = new ExpressionResult(type, this);
 
         if (destination instanceof DestinationVariable)
         {

@@ -15,14 +15,15 @@ class Main
             Munchies superness[2];
             Munchies cookie;
         };
-        
-        int coolio[2];
-        SuperCookie a;
-        SuperCookie b;
+        //
+        // int coolio[2];
+        // SuperCookie a;
+        // SuperCookie b;
 
-        void test(const int fff)
+        void test(const float fff)
         {
-            int uj = fff;
+            float uj[2];
+            uj[0] += 2.0;
         }
         
         

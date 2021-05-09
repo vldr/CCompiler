@@ -57,6 +57,7 @@ import VariableStruct from "../Variables/VariableStruct";
 import TypeStruct from "../Types/TypeStruct";
 import InstructionGETA from "../Instructions/InstructionGETA";
 import InstructionComment from "../Instructions/InstructionComment";
+import TypeVoid from "../Types/TypeVoid";
 
 export default class ExpressionPostfix extends Expression
 {
@@ -91,9 +92,9 @@ export default class ExpressionPostfix extends Expression
                             throw ExternalErrors.CANNOT_MODIFY_VARIABLE_READONLY(node, expResult.variable.name);
                         }
 
-                        if (!expResult.variable.type.equals(destinationType))
+                        if (destination.type.constructor !== TypeVoid && !expResult.type.equals(destinationType))
                         {
-                            throw ExternalErrors.CANNOT_CONVERT_TYPE(node, destinationType.toString(), expResult.variable.type.toString());
+                            throw ExternalErrors.CANNOT_CONVERT_TYPE(node, destinationType.toString(), expResult.type.toString());
                         }
                     }
                     else if (expResult instanceof ExpressionResultAccessor)
@@ -103,9 +104,9 @@ export default class ExpressionPostfix extends Expression
                             throw ExternalErrors.CANNOT_MODIFY_VARIABLE_READONLY(node, (expResult as ExpressionResultAccessor).variable.name);
                         }
 
-                        if (!expResult.variable.type.equals(destinationType))
+                        if (destination.type.constructor !== TypeVoid && !expResult.type.equals(destinationType))
                         {
-                            throw ExternalErrors.CANNOT_CONVERT_TYPE(node, destinationType.toString(), expResult.variable.type.toString());
+                            throw ExternalErrors.CANNOT_CONVERT_TYPE(node, destinationType.toString(), expResult.type.toString());
                         }
                     }
                     else
@@ -115,7 +116,7 @@ export default class ExpressionPostfix extends Expression
 
                     ///////////////////////////////////////////////////////
 
-                    expressionResult = new ExpressionResult(destinationType, this);
+                    expressionResult = new ExpressionResult(expResult.type, this);
 
                     if (expResult instanceof ExpressionResultVariable)
                     {
@@ -148,7 +149,7 @@ export default class ExpressionPostfix extends Expression
 
                     ///////////////////////////////////////////////////////
 
-                    switch (destinationType.constructor)
+                    switch (expResult.type.constructor)
                     {
                         case TypeFloat:
                             if (operatorSymbol === "++")
@@ -164,7 +165,7 @@ export default class ExpressionPostfix extends Expression
                                 expressionResult.pushInstruction(new InstructionDEC());
                             break;
                         default:
-                            throw ExternalErrors.UNSUPPORTED_TYPE_FOR_UNARY_OPERATOR(node, operatorSymbol, destinationType.toString());
+                            throw ExternalErrors.UNSUPPORTED_TYPE_FOR_UNARY_OPERATOR(node, operatorSymbol, expResult.type.toString());
                     }
 
                     ///////////////////////////////////////////////////////

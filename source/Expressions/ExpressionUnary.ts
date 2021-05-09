@@ -46,6 +46,7 @@ import InstructionMOVINPOP from "../Instructions/InstructionMOVINPOP";
 import InstructionSTOREPUSH from "../Instructions/InstructionSTOREPUSH";
 import ExpressionResultAccessor from "./ExpressionResultAccessor";
 import ExpressionResultVariable from "./ExpressionResultVariable";
+import TypeVoid from "../Types/TypeVoid";
 
 export default class ExpressionUnary extends Expression
 {
@@ -57,85 +58,75 @@ export default class ExpressionUnary extends Expression
         const destinationType = destination.type;
         const expression = node.expression;
 
-        let expressionResult = new ExpressionResult(destinationType, this);
+        let targetExpressionResult = this._compiler.generateExpression(
+            new DestinationRegisterA(destinationType), this._scope, expression
+        );
+
+        if (destinationType.constructor !== TypeVoid && !destination.type.equals(targetExpressionResult.type))
+            throw ExternalErrors.CANNOT_CONVERT_TYPE(node, targetExpressionResult.type.toString(), destination.type.toString());
+
+        let expressionResult = new ExpressionResult(targetExpressionResult.type, this);
 
         switch (operator)
         {
             case "~":
-                expressionResult.pushExpressionResult(
-                    this._compiler.generateExpression(
-                        new DestinationRegisterA(destinationType), this._scope, expression
-                    )
-                );
-
+                expressionResult.pushExpressionResult(targetExpressionResult);
                 expressionResult.pushInstruction(new InstructionNOT());
                 break;
             case "!":
-                if (destinationType instanceof TypeFloat)
+                if (targetExpressionResult.type instanceof TypeFloat)
                 {
-                    throw ExternalErrors.CANNOT_CONVERT_TYPE(node, destinationType.toString(), "int | uint");
+                    throw ExternalErrors.CANNOT_CONVERT_TYPE(node, targetExpressionResult.type.toString(), "int | uint");
                 }
 
-                expressionResult.pushExpressionResult(
-                    this._compiler.generateExpression(
-                        new DestinationRegisterA(destinationType), this._scope, expression
-                    )
-                );
-
+                expressionResult.pushExpressionResult(targetExpressionResult);
                 expressionResult.pushInstruction(new InstructionNEG());
+
                 break;
             case "-":
-                if (destinationType instanceof TypeUnsignedInteger)
+                if (targetExpressionResult.type instanceof TypeUnsignedInteger)
                 {
-                    throw ExternalErrors.CANNOT_CONVERT_TYPE(node, destinationType.toString(), "float | int");
+                    throw ExternalErrors.CANNOT_CONVERT_TYPE(node, targetExpressionResult.type.toString(), "float | int");
                 }
 
-                expressionResult.pushExpressionResult(
-                    this._compiler.generateExpression(
-                        new DestinationRegisterA(destinationType), this._scope, expression
-                    )
-                );
+                expressionResult.pushExpressionResult(targetExpressionResult);
 
-                switch (destinationType.constructor)
+                switch (targetExpressionResult.type.constructor)
                 {
                     case TypeFloat:
-                        expressionResult.pushInstruction(new InstructionSNEG());
-                        break;
-                    case TypeInteger:
                         expressionResult.pushInstruction(new InstructionFNEG());
                         break;
+                    case TypeInteger:
+                        expressionResult.pushInstruction(new InstructionSNEG());
+                        break;
                     default:
-                        throw ExternalErrors.UNSUPPORTED_TYPE_FOR_UNARY_OPERATOR(node, operator, destinationType.toString());
+                        throw ExternalErrors.UNSUPPORTED_TYPE_FOR_UNARY_OPERATOR(node, operator, targetExpressionResult.type.toString());
                 }
                 break;
             case "++":
             case "--":
-                let expResult = this._compiler.generateExpression(
-                    new DestinationRegisterA(destinationType), this._scope, expression
-                );
-
-                if (expResult instanceof ExpressionResultVariable)
+                if (targetExpressionResult instanceof ExpressionResultVariable)
                 {
-                    if ((expResult as ExpressionResultVariable).variable.type.isConstant)
+                    if ((targetExpressionResult as ExpressionResultVariable).variable.type.isConstant)
                     {
-                        throw ExternalErrors.CANNOT_MODIFY_VARIABLE_READONLY(node, expResult.variable.name);
+                        throw ExternalErrors.CANNOT_MODIFY_VARIABLE_READONLY(node, targetExpressionResult.variable.name);
                     }
 
-                    if (!expResult.variable.type.equals(destinationType))
+                    if (!targetExpressionResult.variable.type.equals(targetExpressionResult.type))
                     {
-                        throw ExternalErrors.CANNOT_CONVERT_TYPE(node, destinationType.toString(), expResult.variable.type.toString());
+                        throw ExternalErrors.CANNOT_CONVERT_TYPE(node, targetExpressionResult.type.toString(), targetExpressionResult.variable.type.toString());
                     }
                 }
-                else if (expResult instanceof ExpressionResultAccessor)
+                else if (targetExpressionResult instanceof ExpressionResultAccessor)
                 {
-                    if (expResult.variable.type.isConstant)
+                    if (targetExpressionResult.variable.type.isConstant)
                     {
-                        throw ExternalErrors.CANNOT_MODIFY_VARIABLE_READONLY(node, expResult.variable.name);
+                        throw ExternalErrors.CANNOT_MODIFY_VARIABLE_READONLY(node, targetExpressionResult.variable.name);
                     }
 
-                    if (!expResult.variable.type.equals(destinationType))
+                    if (!targetExpressionResult.variable.type.equals(targetExpressionResult.type))
                     {
-                        throw ExternalErrors.CANNOT_CONVERT_TYPE(node, destinationType.toString(), expResult.variable.type.toString());
+                        throw ExternalErrors.CANNOT_CONVERT_TYPE(node, targetExpressionResult.type.toString(), targetExpressionResult.variable.type.toString());
                     }
                 }
                 else
@@ -143,15 +134,15 @@ export default class ExpressionUnary extends Expression
                     throw ExternalErrors.OPERATOR_EXPECTS_VARIABLE(node, operator);
                 }
 
-                expressionResult = new ExpressionResult(destinationType, this);
-                expressionResult.pushExpressionResult(expResult);
+                expressionResult = new ExpressionResult(targetExpressionResult.type, this);
+                expressionResult.pushExpressionResult(targetExpressionResult);
 
-                if (expResult instanceof ExpressionResultAccessor)
+                if (targetExpressionResult instanceof ExpressionResultAccessor)
                 {
                     expressionResult.pushInstruction(new InstructionSAVEPUSH());
                 }
 
-                switch (destinationType.constructor)
+                switch (targetExpressionResult.type.constructor)
                 {
                     case TypeFloat:
                         if (operator === "++")
@@ -167,14 +158,14 @@ export default class ExpressionUnary extends Expression
                             expressionResult.pushInstruction(new InstructionDEC());
                         break;
                     default:
-                        throw ExternalErrors.UNSUPPORTED_TYPE_FOR_UNARY_OPERATOR(node, operator, destinationType.toString());
+                        throw ExternalErrors.UNSUPPORTED_TYPE_FOR_UNARY_OPERATOR(node, operator, targetExpressionResult.type.toString());
                 }
 
-                if (expResult instanceof ExpressionResultVariable)
+                if (targetExpressionResult instanceof ExpressionResultVariable)
                 {
-                    expressionResult.pushInstruction(new InstructionSAVE(expResult.variable));
+                    expressionResult.pushInstruction(new InstructionSAVE(targetExpressionResult.variable));
                 }
-                else if (expResult instanceof ExpressionResultAccessor)
+                else if (targetExpressionResult instanceof ExpressionResultAccessor)
                 {
                     expressionResult.pushInstruction(new InstructionMOVINPOP());
                 }

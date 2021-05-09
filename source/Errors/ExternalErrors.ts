@@ -6,6 +6,8 @@ export default abstract class ExternalErrors
 {
     private static generateError(message: string, node: Node)
     {
+        console.trace();
+
         return new CompilerError(
             message,
             node.location

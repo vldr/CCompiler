@@ -37,6 +37,7 @@ import InstructionGETPOPR from "../Instructions/InstructionGETPOPR";
 import InstructionMOVINPOP from "../Instructions/InstructionMOVINPOP";
 import InstructionMOVIN from "../Instructions/InstructionMOVIN";
 import TypeStruct from "../Types/TypeStruct";
+import TypeVoid from "../Types/TypeVoid";
 
 export default class ExpressionBinary extends Expression
 {
@@ -53,12 +54,22 @@ export default class ExpressionBinary extends Expression
         const leftExpressionResult = this._compiler.generateExpression(new DestinationStack(destinationType), this._scope, left);
         const rightExpressionResult = this._compiler.generateExpression(new DestinationStack(destinationType), this._scope, right);
 
-        const expressionResult = new ExpressionResult(destinationType, this);
+        ////////////////////////////////////////////////////////////
 
-        if (destination instanceof DestinationNone)
-        {
-            return expressionResult;
-        }
+        // Type Checking
+
+        if (!leftExpressionResult.type.equals(rightExpressionResult.type))
+            throw ExternalErrors.CANNOT_CONVERT_TYPE(node, leftExpressionResult.type.toString(), rightExpressionResult.type.toString())
+
+        if (destinationType.constructor !== TypeVoid && !leftExpressionResult.type.equals(destinationType))
+            throw ExternalErrors.CANNOT_CONVERT_TYPE(node, leftExpressionResult.type.toString(), destinationType.toString());
+
+        if (destinationType.constructor !== TypeVoid && !rightExpressionResult.type.equals(destinationType))
+            throw ExternalErrors.CANNOT_CONVERT_TYPE(node, rightExpressionResult.type.toString(), destinationType.toString());
+
+        ////////////////////////////////////////////////////////////
+
+        const expressionResult = new ExpressionResult(leftExpressionResult.type, this);
 
         const isAssignment = (
             operator == "=" ||
@@ -74,11 +85,7 @@ export default class ExpressionBinary extends Expression
             operator == ">>="
         );
 
-        if (!leftExpressionResult.type.equals(destinationType))
-            throw ExternalErrors.CANNOT_CONVERT_TYPE(node, leftExpressionResult.type.toString(), destinationType.toString());
 
-        if (!rightExpressionResult.type.equals(destinationType))
-            throw ExternalErrors.CANNOT_CONVERT_TYPE(node, rightExpressionResult.type.toString(), destinationType.toString());
 
         if (isAssignment)
         {
@@ -145,19 +152,19 @@ export default class ExpressionBinary extends Expression
                 break;
             case "+":
             case "+=":
-                expressionResult.pushInstruction(new InstructionADD(destinationType));
+                expressionResult.pushInstruction(new InstructionADD(leftExpressionResult.type));
                 break;
             case "-":
             case "-=":
-                expressionResult.pushInstruction(new InstructionSUB(destinationType));
+                expressionResult.pushInstruction(new InstructionSUB(leftExpressionResult.type));
                 break;
             case "/":
             case "/=":
-                expressionResult.pushInstruction(new InstructionDIV(destinationType));
+                expressionResult.pushInstruction(new InstructionDIV(leftExpressionResult.type));
                 break;
             case "*":
             case "*=":
-                expressionResult.pushInstruction(new InstructionMULT(destinationType));
+                expressionResult.pushInstruction(new InstructionMULT(leftExpressionResult.type));
                 break;
             case "%":
             case "%=":
@@ -189,12 +196,12 @@ export default class ExpressionBinary extends Expression
             case ">=":
             case "==":
             case "!=":
-                if (destinationType instanceof TypeFloat)
+                if (leftExpressionResult.type instanceof TypeFloat)
                 {
-                    throw ExternalErrors.CANNOT_CONVERT_TYPE(node, destinationType.toString(), "int | uint");
+                    throw ExternalErrors.CANNOT_CONVERT_TYPE(node, leftExpressionResult.type.toString(), "int | uint");
                 }
 
-                expressionResult.pushInstruction(new InstructionCMP(destinationType, operator));
+                expressionResult.pushInstruction(new InstructionCMP(leftExpressionResult.type, operator));
                 break;
             default:
                 throw InternalErrors.generateError("Unsupported binary operator.");
@@ -231,6 +238,9 @@ export default class ExpressionBinary extends Expression
         else if (destination instanceof DestinationStack)
         {
             expressionResult.pushInstruction(new InstructionSAVEPUSH());
+        }
+        else if (destination instanceof DestinationNone)
+        {
         }
         else
         {

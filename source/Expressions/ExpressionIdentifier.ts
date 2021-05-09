@@ -30,6 +30,7 @@ import InstructionGETB from "../Instructions/InstructionGETB";
 import InstructionPUSH from "../Instructions/InstructionPUSH";
 import DestinationNone from "../Destinations/DestinationNone";
 import ExpressionResultVariable from "./ExpressionResultVariable";
+import TypeVoid from "../Types/TypeVoid";
 
 export default class ExpressionIdentifier extends Expression
 {
@@ -44,11 +45,11 @@ export default class ExpressionIdentifier extends Expression
         if (variable === undefined)
             throw ExternalErrors.CANNOT_FIND_NAME(node, name);
 
-        const expressionResult = new ExpressionResultVariable(destination.type, this, variable);
+        const expressionResult = new ExpressionResultVariable(variable.type, this, variable);
 
         if (destination instanceof DestinationNone)
             return expressionResult;
-        else if (!destination.type.equals(variable.type))
+        else if (destination.type.constructor !== TypeVoid && !destination.type.equals(variable.type))
             throw ExternalErrors.CANNOT_CONVERT_TYPE(node, variable.type.toString(), destination.type.toString());
 
         if (destination instanceof DestinationVariable)

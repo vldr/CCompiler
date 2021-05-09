@@ -6,6 +6,7 @@ import ExternalErrors from "../Errors/ExternalErrors";
 import StatementStructDefinition from "./StatementStructDefinition";
 import StatementFunctionDeclaration from "./StatementFunctionDeclaration";
 import StatementReturn from "./StatementReturn";
+import StatementExpression from "./StatementExpression";
 
 export default class StatementGenerator
 {
@@ -30,6 +31,9 @@ export default class StatementGenerator
                 break;
             case "return":
                 statement = new StatementReturn(node, this._compiler, scope);
+                break;
+            case "expression":
+                statement = new StatementExpression(node, this._compiler, scope);
                 break;
             default:
                 throw ExternalErrors.UNIMPLEMENTED_STATEMENT_TYPE(node, node.type);
