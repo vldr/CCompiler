@@ -5,7 +5,7 @@ class Main
 {
     static start(): void
     {
-        new Compiler().compile(`
+        console.log(new Compiler().compile(`
         struct Munchies {
             float cookieness;
             int rookies;
@@ -15,19 +15,28 @@ class Main
             Munchies superness[2];
             Munchies cookie;
         };
-        //
-        // int coolio[2];
-        // SuperCookie a;
-        // SuperCookie b;
-
-        void test(const float fff)
+        
+        
+        float tesjkt(float fff)
         {
-            float uj[2];
-            uj[0] += 2.0;
+            return fff;
         }
         
         
-        `);
+        float test(const float fff, float aaa)
+        {
+            return fff * 2.f * tesjkt(aaa);
+        }
+        
+        float lolol = 12.f;
+        float a = test(lolol / 2.f, 4.f);
+        
+        
+        
+        
+        
+        
+        `));
     }
 }
 

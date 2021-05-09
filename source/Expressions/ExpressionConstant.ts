@@ -46,42 +46,29 @@ export default class ExpressionConstant extends Expression
         if (typeName === "int")
         {
             type = new TypeInteger(new QualifierNone(), 1);
-
-            if (destinationType instanceof TypeFloat) { stringValue += "f"; }
-            else if (destinationType instanceof TypeInteger) {}
-            else if (destinationType instanceof TypeUnsignedInteger) {}
-            else if (destinationType instanceof TypeVoid) {}
-            else
-            {
-                throw ExternalErrors.CANNOT_CONVERT_TYPE(node, typeName, destinationType.toString());
-            }
         }
         else if (typeName === "uint")
         {
             type = new TypeUnsignedInteger(new QualifierNone(), 1);
-
-            if (destinationType instanceof TypeInteger) {}
-            else if (destinationType instanceof TypeUnsignedInteger) {}
-            else if (destinationType instanceof TypeVoid) {}
-            else
-            {
-                throw ExternalErrors.CANNOT_CONVERT_TYPE(node, typeName, destinationType.toString());
-            }
         }
         else if (typeName === "float")
         {
             type = new TypeFloat(new QualifierNone(), 1);
 
-            if (destinationType instanceof TypeFloat) { stringValue += "f"; }
-            else if (destinationType instanceof TypeVoid) { stringValue += "f"; }
-            else
-            {
-                throw ExternalErrors.CANNOT_CONVERT_TYPE(node, typeName, destinationType.toString());
-            }
+            stringValue += "f";
         }
         else
         {
             throw InternalErrors.generateError("Unknown constant type.");
+        }
+
+        ///////////////////////////////////////////////
+
+        // Type Checking
+
+        if (destination.type.constructor !== TypeVoid && !type.equals(destinationType))
+        {
+            throw ExternalErrors.CANNOT_CONVERT_TYPE(node, destinationType.toString(), type.toString());
         }
 
         ///////////////////////////////////////////////

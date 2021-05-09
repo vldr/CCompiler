@@ -26,7 +26,7 @@ export default class Compiler
     private _statementGenerator: StatementGenerator;
     private _expressionGenerator: ExpressionGenerator;
 
-    public compile(code: string): any
+    public compile(code: string): string
     {
         const parsedCode = this._parser.parse(code);
 
@@ -47,14 +47,12 @@ export default class Compiler
             scope.emit();
         })
 
-        this._root.push("HALT\n\n");
+        this._root.push("HALT\n");
 
         if (this._functions.length > 0)
             this._functions.push("\n");
 
-        const compiledOutput = this._root.concat(this._functions).concat(this._variables).join("");
-
-        console.log(compiledOutput);
+        return this._root.concat(this._functions).concat(this._variables).join("");
     }
 
     public addScope(scope: Scope)

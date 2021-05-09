@@ -86,12 +86,14 @@ export default class StatementFunctionDeclaration extends Statement
                 variable = new VariablePrimitive(parameterName, type, newScope, this._compiler);
             }
 
+            newFunction.parameters.push(variable);
+
             newScope.addVariable(
                 variable
             );
         });
 
-        this._compiler.emitToFunctions(`${newFunction.labelName}:\n`);
+        this._compiler.emitToFunctions(`\n${newFunction.labelName}:\n`);
 
         bodyNode.statements.forEach((statementNode) => {
             this._compiler.generateAndEmitStatement(newScope, statementNode);

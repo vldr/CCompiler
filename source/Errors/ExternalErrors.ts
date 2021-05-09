@@ -131,4 +131,14 @@ export default abstract class ExternalErrors
     {
         return this.generateError(`The unary operator '${operator}' is not supported for '${typeName}'.`, node);
     }
+
+    static FUNCTION_RETURN_VOID(node: Node)
+    {
+        return this.generateError(`The cannot return a value because it is void-type.`, node);
+    }
+
+    static PARAMETER_MISSING(node: Node, functionName: string, expecting: number, got: number)
+    {
+        return this.generateError(`The function '${functionName}' expects ${expecting} parameters but instead of ${got}.`, node);
+    }
 }
