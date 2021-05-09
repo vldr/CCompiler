@@ -280,11 +280,6 @@ export default class ExpressionPostfix extends Expression
                 throw ExternalErrors.CANNOT_FIND_NAME(node, selection);
             }
 
-            if (destinationType.constructor !== TypeVoid && !destinationType.equals(targetVariable.type))
-            {
-                throw ExternalErrors.CANNOT_CONVERT_TYPE(node, targetVariable.type.toString(), destinationType.toString());
-            }
-
             const expressionResult = new ExpressionResultVariable(
                 targetVariable.type,
                 this,

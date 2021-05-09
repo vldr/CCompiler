@@ -7,41 +7,21 @@ class Main
     {
         console.log(new Compiler().compile(`
         struct Munchies {
-            float cookieness;
-            float rookies;
+            float cookieness[3];
+            int rookies;
         };
 
-        struct SuperCookie {
-            Munchies superness[2];
-            Munchies cookie;
-        };
+        Munchies m;
         
-        int sqrt(int x) 
+        float main()
         {
-            int s = 0, b = 32768; 
-            while (b)  
-            { 
-                int t = (s + b); 
-                if (t * t <= x) s = t; 
-                b >>= 1;
-            }
-            return s; 
-        } 
-
-        /* Fast power. */
-        int pow(int base, int exp)
-        {
-            int result = 1;
-            while (exp)
-            {
-                if ((exp & 1) == 1) result *= base;
-                exp >>= 1;
-                base *= base;
-            }
-            return result;
+            m.cookieness[0]++;
+            float a[] = { m.cookieness[0], 2.f };
+            return a[0];
         }
         
-        int result = pow(sqrt(0x1b346c90), 2);`));
+        float result = main();
+        `));
     }
 }
 

@@ -14,6 +14,11 @@ export default abstract class ExternalErrors
         );
     }
 
+    static INTI_LIST_INDEX_OUT_OF_BOUNDS(node: Node, expect: number, got: number)
+    {
+        return this.generateError(`The array expects ${expect} elements instead of ${got}.`, node);
+    }
+
     static CANNOT_NO_STRUCT_ARRAY(node: Node)
     {
         return this.generateError(`A struct type nor array type cannot be used here.`, node);

@@ -77,9 +77,9 @@ export default class ExpressionConstant extends Expression
 
         if (destination instanceof DestinationVariable)
         {
-            if (destination.variable.type.isConstant && destination.variable instanceof  VariablePrimitive)
+            if (destination.variable.type.isConstant && destination.variable instanceof VariablePrimitive)
             {
-                destination.variable.initialValues[0] = stringValue;
+                destination.variable.setInitialValue(0, stringValue);
             }
             else if (Utils.isInlinable(destinationType, value))
             {

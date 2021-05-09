@@ -18,6 +18,7 @@ import NodeDeclarator from "../Nodes/NodeDeclarator";
 import Variable from "../Variables/Variable";
 import VariablePrimitive from "../Variables/VariablePrimitive";
 import VariableStruct from "../Variables/VariableStruct";
+import TypeVoid from "../Types/TypeVoid";
 
 export default class StatementDeclarator extends Statement
 {
@@ -50,6 +51,7 @@ export default class StatementDeclarator extends Statement
 
             const size = declaratorNode.arraySize?.value_base10 || 1;
             const initializerNode = declaratorNode.initializer;
+            const initializerList = declaratorNode.initializer_list;
 
             if (size < 1)
             {
@@ -75,7 +77,47 @@ export default class StatementDeclarator extends Statement
                 variable = new VariablePrimitive(variableName, type, this._scope, this._compiler);
             }
 
-            if (initializerNode)
+            if (initializerList)
+            {
+                if (type instanceof TypeStruct || variable instanceof VariableStruct)
+                {
+                    throw ExternalErrors.CANNOT_NO_STRUCT_ARRAY(node);
+                }
+
+                if (initializerList.length > type.size)
+                {
+                    throw ExternalErrors.INTI_LIST_INDEX_OUT_OF_BOUNDS(node, type.size, initializerList.length);
+                }
+
+                initializerList.forEach((item, index) =>
+                {
+                    const psuedoVariable = (variable as VariablePrimitive).getElement(index);
+
+                    const expressionResult = this._compiler.generateExpression(
+                        new DestinationVariable(psuedoVariable.type, psuedoVariable),
+                        this._scope,
+                        item
+                    );
+
+                    if (!expressionResult.type.equals(psuedoVariable.type))
+                    {
+                        throw ExternalErrors.CANNOT_CONVERT_TYPE(node, expressionResult.type.toString(), psuedoVariable.type.toString());
+                    }
+
+                    const data = expressionResult.write();
+
+                    if (this._scope.isRoot)
+                    {
+                        this._compiler.emitToRoot(data);
+                    }
+                    else
+                    {
+                        this._compiler.emitToFunctions(data);
+                    }
+                })
+
+            }
+            else if (initializerNode)
             {
                 const expressionResult = this._compiler.generateExpression(
                     new DestinationVariable(type, variable),
