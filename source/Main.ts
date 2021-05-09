@@ -33,7 +33,7 @@ class Main
         }
         
         float lolol = 12.f;
-        float alpha = test(1, lolol / 2.f, 4.f);
+        float alpha = test(0, lolol / 2.f, 4.f);
         
         `));
     }

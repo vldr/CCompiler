@@ -401,6 +401,8 @@ export default class ExpressionPostfix extends Expression
             expressionResult.pushInstruction(new InstructionSAVETOA());
             expressionResult.pushInstruction(new InstructionVGETB(offset.toString()));
             expressionResult.pushInstruction(new InstructionADD(new TypeInteger(new QualifierNone(), 1)));
+            expressionResult.pushInstruction(new InstructionComment(`${targetVariable.name}.${selection}`));
+
 
             if (destination instanceof DestinationNone)
             {

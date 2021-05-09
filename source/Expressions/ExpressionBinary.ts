@@ -51,7 +51,7 @@ export default class ExpressionBinary extends Expression
         const left = node.left;
         const right = node.right;
 
-        const leftExpressionResult = this._compiler.generateExpression(new DestinationStack(destinationType), this._scope, left);
+        const leftExpressionResult = this._compiler.generateExpression(operator === "=" ? new DestinationNone(destinationType) : new DestinationStack(destinationType), this._scope, left);
         const rightExpressionResult = this._compiler.generateExpression(new DestinationStack(destinationType), this._scope, right);
 
         ////////////////////////////////////////////////////////////
