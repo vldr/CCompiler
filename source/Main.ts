@@ -23,18 +23,14 @@ class Main
         }
         
         
-        float test(const float fff, float aaa)
+        float test(float fff, float aaa)
         {
-            return fff * 2.f * tesjkt(aaa);
+            fff = fff * 2.f * tesjkt(aaa);
+            return fff;
         }
         
         float lolol = 12.f;
         float a = test(lolol / 2.f, 4.f);
-        
-        
-        
-        
-        
         
         `));
     }
