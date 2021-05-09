@@ -16,25 +16,32 @@ class Main
             Munchies cookie;
         };
         
-        int test(int index)
+        int sqrt(int x) 
         {
-            if (index > 0)
-            {
-                int index = 9;
-                index = 8;
+            int s = 0, b = 32768; 
+            while (b)  
+            { 
+                int t = (s + b); 
+                if (t * t <= x) s = t; 
+                b >>= 1;
             }
-            
-            if (index < 0)
+            return s; 
+        } 
+
+        /* Fast power. */
+        int pow(int base, int exp)
+        {
+            int result = 1;
+            while (exp)
             {
-                const int index = 9;
+                if ((exp & 1) == 1) result *= base;
+                exp >>= 1;
+                base *= base;
             }
-            
-            return index;
+            return result;
         }
         
-        int result = test(1);
-        
-        `));
+        int result = pow(sqrt(0x1b346c90), 2);`));
     }
 }
 

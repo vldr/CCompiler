@@ -40,7 +40,7 @@ export default class ExpressionConstant extends Expression
 
         if (node.format === "hex")
         {
-            typeName = "uint";
+            typeName = "int";
         }
 
         if (typeName === "int")

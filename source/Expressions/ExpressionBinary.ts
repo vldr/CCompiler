@@ -38,6 +38,9 @@ import InstructionMOVINPOP from "../Instructions/InstructionMOVINPOP";
 import InstructionMOVIN from "../Instructions/InstructionMOVIN";
 import TypeStruct from "../Types/TypeStruct";
 import TypeVoid from "../Types/TypeVoid";
+import InstructionLOR from "../Instructions/InstructionLOR";
+import InstructionLAND from "../Instructions/InstructionLAND";
+import InstructionComment from "../Instructions/InstructionComment";
 
 export default class ExpressionBinary extends Expression
 {
@@ -176,9 +179,15 @@ export default class ExpressionBinary extends Expression
             case ">>=":
                 expressionResult.pushInstruction(new InstructionSHIFTR());
                 break;
+            case "||":
+                expressionResult.pushInstruction(new InstructionLOR());
+                break;
             case "|":
             case "|=":
                 expressionResult.pushInstruction(new InstructionOR());
+                break;
+            case "&&":
+                expressionResult.pushInstruction(new InstructionLAND());
                 break;
             case "&":
             case "&=":
@@ -194,11 +203,6 @@ export default class ExpressionBinary extends Expression
             case ">=":
             case "==":
             case "!=":
-                if (leftExpressionResult.type instanceof TypeFloat)
-                {
-                    throw ExternalErrors.CANNOT_CONVERT_TYPE(node, leftExpressionResult.type.toString(), "int | uint");
-                }
-
                 expressionResult.pushInstruction(new InstructionCMP(leftExpressionResult.type, operator));
                 break;
             default:
@@ -213,7 +217,7 @@ export default class ExpressionBinary extends Expression
             }
             else if (leftExpressionResult instanceof ExpressionResultVariable)
             {
-                expressionResult.pushInstruction(new InstructionMOVIN(leftExpressionResult.variable));
+                expressionResult.pushInstruction(new InstructionSAVE(leftExpressionResult.variable));
             }
             else
             {

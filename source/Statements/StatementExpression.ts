@@ -32,6 +32,9 @@ export default class StatementExpression extends Statement
     {
         const node = this._node as NodeExpression;
 
+        if (node.expression === null)
+            throw InternalErrors.generateError("Expression was null.");
+
         const expressionResult = this._compiler.generateExpression(
             new DestinationNone(new TypeVoid(new QualifierNone(), 1)),
             this._scope,

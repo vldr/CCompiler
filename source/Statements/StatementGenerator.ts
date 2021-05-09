@@ -8,6 +8,9 @@ import StatementFunctionDeclaration from "./StatementFunctionDeclaration";
 import StatementReturn from "./StatementReturn";
 import StatementExpression from "./StatementExpression";
 import StatementIf from "./StatementIf";
+import StatementWhile from "./StatementWhile";
+import StatementDo from "./StatementDo";
+import StatementFor from "./StatementFor";
 
 export default class StatementGenerator
 {
@@ -38,6 +41,15 @@ export default class StatementGenerator
                 break;
             case "if_statement":
                 statement = new StatementIf(node, this._compiler, scope);
+                break;
+            case "while_statement":
+                statement = new StatementWhile(node, this._compiler, scope);
+                break;
+            case "do_statement":
+                statement = new StatementDo(node, this._compiler, scope);
+                break;
+            case "for_statement":
+                statement = new StatementFor(node, this._compiler, scope);
                 break;
             default:
                 throw ExternalErrors.UNIMPLEMENTED_STATEMENT_TYPE(node, node.type);
