@@ -16,7 +16,6 @@ export default class InstructionMOVOUTPUSH extends Instruction
 
     public write(): string
     {
-        Compiler.stackCounter++;
         return `MOVOUTPUSH\n`;
     }
 }

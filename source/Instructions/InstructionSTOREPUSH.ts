@@ -18,7 +18,6 @@ export default class InstructionSTOREPUSH extends Instruction
 
     public write(): string
     {
-        Compiler.stackCounter++;
         return `STOREPUSH ${this._value}\n`;
     }
 }

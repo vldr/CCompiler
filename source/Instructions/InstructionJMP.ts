@@ -5,17 +5,16 @@ import InternalErrors from "../Errors/InternalErrors";
 import TypeFloat from "../Types/TypeFloat";
 import TypeInteger from "../Types/TypeInteger";
 import TypeUnsignedInteger from "../Types/TypeUnsignedInteger";
-import Compiler from "../Compiler";
 
-export default class InstructionGETPOPR extends Instruction
+export default class InstructionJMP extends Instruction
 {
-    constructor()
+    constructor(public readonly value: string)
     {
         super();
     }
 
     public write(): string
     {
-        return `GETPOPR\n`;
+        return `JMP ${this.value}\n`;
     }
 }

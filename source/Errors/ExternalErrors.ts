@@ -141,4 +141,9 @@ export default abstract class ExternalErrors
     {
         return this.generateError(`The function '${functionName}' expects ${expecting} parameters but instead of ${got}.`, node);
     }
+
+    static CANNOT_DECLARE_VAR_HERE(node: Node)
+    {
+        return this.generateError(`A variable cannot be declared here.`, node);
+    }
 }

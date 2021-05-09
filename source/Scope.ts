@@ -13,6 +13,8 @@ export default class Scope
     private _scope: Scope | undefined;
     private _function?: Function;
 
+    private _substatementIndex: number;
+
     constructor(private _compiler: Compiler, name?: string, scope?: Scope, fn?: Function)
     {
         this._name = name || "";
@@ -25,6 +27,12 @@ export default class Scope
         this._structs = new Array<TypeStruct>();
         this._functions = new Array<Function>();
         this._function = fn;
+        this._substatementIndex = 0;
+    }
+
+    getNextSubstatementIndex()
+    {
+        return this._substatementIndex++;
     }
 
     addStruct(struct: TypeStruct)

@@ -16,7 +16,6 @@ export default class InstructionGETPOPA extends Instruction
 
     public write(): string
     {
-        Compiler.stackCounter--;
         return `GETPOPA\n`;
     }
 }

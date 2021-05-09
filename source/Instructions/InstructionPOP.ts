@@ -17,7 +17,6 @@ export default class InstructionPOP extends Instruction
 
     public write(): string
     {
-        Compiler.stackCounter--;
         return `POP ${this._variable.labelName}\n`;
     }
 }

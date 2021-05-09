@@ -16,7 +16,6 @@ export default class InstructionSAVEPUSH extends Instruction
 
     public write(): string
     {
-        Compiler.stackCounter++;
         return `SAVEPUSH\n`;
     }
 }

@@ -17,7 +17,6 @@ export default class InstructionPUSH extends Instruction
 
     public write(): string
     {
-        Compiler.stackCounter++;
         return `PUSH ${this._variable.labelName}\n`;
     }
 }

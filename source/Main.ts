@@ -16,24 +16,23 @@ class Main
             Munchies cookie;
         };
         
-        
-        SuperCookie a[2];
-        
-        float tesjkt(float fff)
+        int test(int index)
         {
-            return fff;
+            if (index > 0)
+            {
+                int index = 9;
+                index = 8;
+            }
+            
+            if (index < 0)
+            {
+                const int index = 9;
+            }
+            
+            return index;
         }
         
-        
-        float test(int index, float fff, float aaa)
-        {
-            fff = fff * 2.f * tesjkt(aaa);
-            a[index].superness[index].cookieness = fff;
-            return fff;
-        }
-        
-        float lolol = 12.f;
-        float alpha = test(0, lolol / 2.f, 4.f);
+        int result = test(1);
         
         `));
     }

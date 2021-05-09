@@ -546,13 +546,19 @@ declarator_no_array
 
 declarator_array_with_size
   = name:identifier left_bracket arraySize:constant_expression right_bracket
+    list:(equals left_brace (init_list?) right_brace)?
   {
-      let newNode = new node({ location: location(), 
+      let newNode = new node({ location: location(),
          type: "declarator_item",
          name: name,
          arraySize: arraySize,
          isArray: true
       })
+
+      if (list && list[2])
+      {
+         newNode.initializer_list = list[2];
+      }
 
       return newNode;
     }
@@ -564,7 +570,23 @@ init_list
     }
 
 declarator
-  = declarator_array_with_size
+  = name:identifier left_bracket right_bracket
+        equals left_brace initList:(init_list) right_brace
+        {
+          return new node({ location: location(),
+            type: "declarator_item",
+            name: name,
+            isArray: true,
+            arraySize: {
+                type: "int",
+                format: "number",
+                value_base10: initList.length,
+                value: initList.length
+            },
+            initializer_list: initList
+          });
+        }
+  / declarator_array_with_size
 
 init_declarator
   = name:identifier equals initializer:constant_expression {

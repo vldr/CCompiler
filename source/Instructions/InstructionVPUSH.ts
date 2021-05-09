@@ -16,7 +16,6 @@ export default class InstructionVPUSH extends Instruction
 
     public write(): string
     {
-        Compiler.stackCounter++;
         return `VPUSH ${this._value}\n`;
     }
 }

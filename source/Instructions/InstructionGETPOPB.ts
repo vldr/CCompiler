@@ -16,7 +16,6 @@ export default class InstructionGETPOPB extends Instruction
 
     public write(): string
     {
-        Compiler.stackCounter--;
         return `GETPOPB\n`;
     }
 }

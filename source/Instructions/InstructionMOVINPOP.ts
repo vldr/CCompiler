@@ -16,7 +16,6 @@ export default class InstructionMOVINPOP extends Instruction
 
     public write(): string
     {
-        Compiler.stackCounter--;
         return `MOVINPOP\n`;
     }
 }
