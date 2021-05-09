@@ -47,7 +47,7 @@ export default class StatementReturn extends Statement
 
             if (!expressionResult.type.equals(returnType))
             {
-                throw ExternalErrors.CANNOT_CONVERT_TYPE(node, returnType.toString(), expressionResult.type.toString());
+                throw ExternalErrors.CANNOT_CONVERT_TYPE(value, returnType.toString(), expressionResult.type.toString());
             }
 
             this._compiler.emitToFunctions(expressionResult.write());

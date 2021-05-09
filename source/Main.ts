@@ -6,19 +6,20 @@ class Main
     static start(): void
     {
         console.log(new Compiler().compile(`
-        struct Munchies {
+        struct Munchies
+        {
             float cookieness[3];
             int rookies;
         };
 
         Munchies m;
-        
+
         float main()
         {
             const float a[] = { m.cookieness[0], 2.f };
             return a[0];
         }
-        
+
         float result = main();
         `));
     }

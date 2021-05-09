@@ -101,7 +101,7 @@ export default class StatementDeclarator extends Statement
 
                     if (!expressionResult.type.equals(psuedoVariable.type))
                     {
-                        throw ExternalErrors.CANNOT_CONVERT_TYPE(node, expressionResult.type.toString(), psuedoVariable.type.toString());
+                        throw ExternalErrors.CANNOT_CONVERT_TYPE(item, expressionResult.type.toString(), psuedoVariable.type.toString());
                     }
 
                     const data = expressionResult.write();

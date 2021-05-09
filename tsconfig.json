@@ -1,10 +1,10 @@
 {
   "compilerOptions": {
-    "outDir": "./dist",
-    "sourceRoot": "./source",
+    "outDir": "../server",
+    //"sourceRoot": "./source",
     "module": "umd",
     "target": "es6",
-    "sourceMap": true,
+    "sourceMap": false,
     "noImplicitAny": true,
     "strictNullChecks": true,
     "removeComments": true,

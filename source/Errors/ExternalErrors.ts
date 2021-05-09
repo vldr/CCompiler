@@ -16,7 +16,7 @@ export default abstract class ExternalErrors
 
     static INTI_LIST_INDEX_OUT_OF_BOUNDS(node: Node, expect: number, got: number)
     {
-        return this.generateError(`The array expects ${expect} elements instead of ${got}.`, node);
+        return this.generateError(`The array expects '${expect}' elements but found '${got}' elements.`, node);
     }
 
     static CANNOT_NO_STRUCT_ARRAY(node: Node)

@@ -615,7 +615,7 @@ struct_definition
   = qualifier:((type_qualifier/attribute_qualifier) _)? "struct"
     identifier:(_ identifier)? left_brace
     members:member_list
-    right_brace semicolon? {
+    right_brace semicolon {
       var result = new node({ location: location(), 
         type: "struct_definition",
         members:members

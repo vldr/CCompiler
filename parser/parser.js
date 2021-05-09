@@ -4916,9 +4916,6 @@ module.exports = /*
                                     s6 = peg$parseright_brace();
                                     if (s6 !== peg$FAILED) {
                                         s7 = peg$parsesemicolon();
-                                        if (s7 === peg$FAILED) {
-                                            s7 = null;
-                                        }
                                         if (s7 !== peg$FAILED) {
                                             peg$savedPos = s0;
                                             s1 = peg$c155(s1, s3, s5);
