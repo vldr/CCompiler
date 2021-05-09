@@ -8,9 +8,12 @@ import Destination from "./Destinations/Destination";
 import ExpressionResult from "./Expressions/ExpressionResult";
 import Expression from "./Expressions/Expression";
 import Node from "./Nodes/Node";
+import InternalErrors from "./Errors/InternalErrors";
 
 export default class Compiler
 {
+    public static stackCounter = 0;
+
     private _logger: Logger = new Logger();
     private _parser: Parser = new Parser();
     private _root: Array<string> = new Array<string>();
@@ -28,6 +31,8 @@ export default class Compiler
 
     public compile(code: string): string
     {
+        Compiler.stackCounter = 0;
+
         const parsedCode = this._parser.parse(code);
 
         this._rootScope = new Scope(this);
@@ -51,6 +56,11 @@ export default class Compiler
 
         if (this._functions.length > 0)
             this._functions.push("\n");
+
+        if (Compiler.stackCounter !== 0)
+        {
+            throw InternalErrors.generateError(`Unbalanced stack, ${Compiler.stackCounter}`);
+        }
 
         return this._root.concat(this._functions).concat(this._variables).join("");
     }

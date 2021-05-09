@@ -85,8 +85,6 @@ export default class ExpressionBinary extends Expression
             operator == ">>="
         );
 
-
-
         if (isAssignment)
         {
             if (leftExpressionResult instanceof ExpressionResultAccessor && leftExpressionResult.variable.type.isConstant)

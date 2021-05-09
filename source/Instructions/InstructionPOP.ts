@@ -6,6 +6,7 @@ import TypeFloat from "../Types/TypeFloat";
 import TypeInteger from "../Types/TypeInteger";
 import TypeUnsignedInteger from "../Types/TypeUnsignedInteger";
 import Variable from "../Variables/Variable";
+import Compiler from "../Compiler";
 
 export default class InstructionPOP extends Instruction
 {
@@ -16,6 +17,7 @@ export default class InstructionPOP extends Instruction
 
     public write(): string
     {
+        Compiler.stackCounter--;
         return `POP ${this._variable.labelName}\n`;
     }
 }

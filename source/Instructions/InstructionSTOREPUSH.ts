@@ -5,6 +5,7 @@ import InternalErrors from "../Errors/InternalErrors";
 import TypeFloat from "../Types/TypeFloat";
 import TypeInteger from "../Types/TypeInteger";
 import TypeUnsignedInteger from "../Types/TypeUnsignedInteger";
+import Compiler from "../Compiler";
 
 export default class InstructionSTOREPUSH extends Instruction
 {
@@ -17,6 +18,7 @@ export default class InstructionSTOREPUSH extends Instruction
 
     public write(): string
     {
+        Compiler.stackCounter++;
         return `STOREPUSH ${this._value}\n`;
     }
 }
