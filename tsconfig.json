@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "outDir": "../server",
+    "outDir": "./dist",
     //"sourceRoot": "./source",
     "module": "umd",
     "target": "es6",
