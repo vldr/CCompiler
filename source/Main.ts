@@ -5,7 +5,8 @@ class Main
 {
     static start(): void
     {
-        console.log(new Compiler().compile(`
+        const compiler = new Compiler();
+        console.log(compiler.compile(`
         struct Munchies
         {
             float cookieness[3];

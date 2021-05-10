@@ -624,6 +624,7 @@ struct_definition
         result.qualifier = qualifier[0];
       }
       if (identifier) {
+        result.nameLocation = identifier[1].location;
         result.name = identifier[1].name;
         typeNames[result.name] = result;
       }
