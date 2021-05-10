@@ -2,7 +2,6 @@ import Function from "./Function"
 import TypeStruct from "./Types/TypeStruct";
 import Compiler from "./Compiler";
 import Variable from "./Variables/Variable";
-import {Func} from "mocha";
 
 export default class Scope
 {

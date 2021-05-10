@@ -1,6 +1,5 @@
 import CompilerError from "./CompilerError";
 import Node from "../Nodes/Node";
-import type = Mocha.utils.type;
 
 export default abstract class ExternalErrors
 {
