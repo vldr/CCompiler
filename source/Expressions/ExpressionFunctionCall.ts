@@ -64,11 +64,6 @@ export default class ExpressionFunctionCall extends Expression
         const destination = this._destination;
         const destinationType = destination.type;
 
-        if (fn.returnType instanceof TypeVoid && !(destinationType instanceof DestinationNone))
-        {
-            throw ExternalErrors.FUNCTION_RETURN_VOID(node);
-        }
-
         ////////////////////////////////////////////////////////////
 
         if (fnParameters.length !== nodeParameters.length)

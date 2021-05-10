@@ -751,7 +751,7 @@ single_underscore_identifier
 int_constant
   = head:[\-1-9] tail:[0-9]* unsigned:[Uu]? {
       return new node({ location: location(), 
-        type: "int",
+        type: unsigned ? "uint" : "int",
         format: "number",
         value_base10: parseInt([head].concat(tail).join(""), 10),
         value: [head].concat(tail).join("") + (unsigned ? unsigned : '')
@@ -759,7 +759,7 @@ int_constant
     }
   / "0"[Xx] digits:[0-9A-Fa-f]+ unsigned:[Uu]? {
       return new node({ location: location(), 
-        type: "int",
+        type: unsigned ? "uint" : "int",
         format: "hex",
         value_base10: parseInt(digits.join(""), 16),
         value: "0x" + digits.join("") + (unsigned ? unsigned : '')
@@ -767,7 +767,7 @@ int_constant
     }
   / "0" digits:[0-7]+ unsigned:[Uu]? {
       return new node({ location: location(), 
-        type: "int",
+        type: unsigned ? "uint" : "int",
         format: "octal",
         value_base10: parseInt(digits.join(""), 8),
         value: "0" + digits.join("") + (unsigned ? unsigned : '')
@@ -775,7 +775,7 @@ int_constant
     }
   / "0" unsigned:[Uu]? {
       return new node({ location: location(), 
-        type: "int",
+        type: unsigned ? "uint" : "int",
         format: "number",
         value_base10: 0,
         value: "0" + (unsigned ? unsigned : '')

@@ -42,8 +42,6 @@ export default class StatementFor extends Statement
     {
         const node = this._node as NodeForStatement;
 
-        this._compiler.log(node);
-
         const condition = node.condition;
         const initializer = node.initializer;
         const increment = node.increment;

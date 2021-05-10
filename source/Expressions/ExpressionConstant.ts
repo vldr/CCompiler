@@ -38,11 +38,6 @@ export default class ExpressionConstant extends Expression
         const value: number = node.value_base10;
         let stringValue: string = value.toString();
 
-        if (node.format === "hex")
-        {
-            typeName = "int";
-        }
-
         if (typeName === "int")
         {
             type = new TypeInteger(new QualifierNone(), 1);
@@ -77,7 +72,7 @@ export default class ExpressionConstant extends Expression
 
         if (destination instanceof DestinationVariable)
         {
-            if (destination.variable.type.isConstant && destination.variable instanceof VariablePrimitive)
+            if ((destination.variable.type.isConstant || this._scope.getFunction() === undefined) && destination.variable instanceof VariablePrimitive)
             {
                 destination.variable.setInitialValue(0, stringValue);
             }
