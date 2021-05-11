@@ -266,13 +266,13 @@ export default class ExpressionPostfix extends Expression
 
         if (targetExpressionResult instanceof ExpressionResultVariable)
         {
+            if (selection === "length" && targetExpressionResult.type.size > 1)
+            {
+                return this.generateArrayLength(expression, targetExpressionResult.type) as ExpressionResultAccessor;
+            }
+
             if (!(targetExpressionResult.variable instanceof VariableStruct))
             {
-                if (selection === "length")
-                {
-                    return this.generateArrayLength(expression, targetExpressionResult.type) as ExpressionResultAccessor;
-                }
-
                 throw ExternalErrors.TYPE_MUST_BE_STRUCT(node);
             }
 
@@ -323,13 +323,13 @@ export default class ExpressionPostfix extends Expression
         }
         else if (targetExpressionResult instanceof ExpressionResultAccessor)
         {
+            if (selection === "length" && targetExpressionResult.type.size > 1)
+            {
+                return this.generateArrayLength(expression, targetExpressionResult.type) as ExpressionResultAccessor;
+            }
+
             if (!(targetExpressionResult.variable instanceof VariableStruct))
             {
-                if (selection === "length")
-                {
-                    return this.generateArrayLength(expression, targetExpressionResult.type) as ExpressionResultAccessor;
-                }
-
                 throw ExternalErrors.TYPE_MUST_BE_STRUCT(node);
             }
 
