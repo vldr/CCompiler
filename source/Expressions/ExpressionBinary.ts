@@ -151,6 +151,8 @@ export default class ExpressionBinary extends Expression
         {
             case "=":
                 break;
+
+
             case "+":
             case "+=":
                 expressionResult.pushInstruction(new InstructionADD(leftExpressionResult.type));
@@ -167,43 +169,54 @@ export default class ExpressionBinary extends Expression
             case "*=":
                 expressionResult.pushInstruction(new InstructionMULT(leftExpressionResult.type));
                 break;
+
             case "%":
             case "%=":
+                expressionResult.type = new TypeUnsignedInteger(expressionResult.type.qualifer, expressionResult.type.size);
                 expressionResult.pushInstruction(new InstructionREM());
                 break;
             case "<<":
             case "<<=":
+                expressionResult.type = new TypeUnsignedInteger(expressionResult.type.qualifer, expressionResult.type.size);
                 expressionResult.pushInstruction(new InstructionSHIFTL());
                 break;
             case ">>":
             case ">>=":
+                expressionResult.type = new TypeUnsignedInteger(expressionResult.type.qualifer, expressionResult.type.size);
                 expressionResult.pushInstruction(new InstructionSHIFTR());
                 break;
             case "||":
+                expressionResult.type = new TypeUnsignedInteger(expressionResult.type.qualifer, expressionResult.type.size);
                 expressionResult.pushInstruction(new InstructionLOR());
                 break;
             case "|":
             case "|=":
+                expressionResult.type = new TypeUnsignedInteger(expressionResult.type.qualifer, expressionResult.type.size);
                 expressionResult.pushInstruction(new InstructionOR());
                 break;
             case "&&":
+                expressionResult.type = new TypeUnsignedInteger(expressionResult.type.qualifer, expressionResult.type.size);
                 expressionResult.pushInstruction(new InstructionLAND());
                 break;
             case "&":
             case "&=":
+                expressionResult.type = new TypeUnsignedInteger(expressionResult.type.qualifer, expressionResult.type.size);
                 expressionResult.pushInstruction(new InstructionAND());
                 break;
             case "^":
             case "^=":
+                expressionResult.type = new TypeUnsignedInteger(expressionResult.type.qualifer, expressionResult.type.size);
                 expressionResult.pushInstruction(new InstructionXOR());
                 break;
+
+
             case "<":
             case "<=":
             case ">":
             case ">=":
             case "==":
             case "!=":
-                expressionResult.type = new TypeInteger(expressionResult.type.qualifer, expressionResult.type.size);
+                expressionResult.type = new TypeUnsignedInteger(expressionResult.type.qualifer, expressionResult.type.size);
                 expressionResult.pushInstruction(new InstructionCMP(leftExpressionResult.type, operator));
                 break;
             default:

@@ -126,7 +126,10 @@ export default class ExpressionTypeCast extends Expression
 
                     return expressionResult;
                 }
-                else if (targetExpressionResult.type instanceof TypeFloat)
+                else if (
+                    targetExpressionResult.type instanceof TypeFloat ||
+                    targetExpressionResult.type instanceof TypeUnsignedInteger
+                )
                 {
                     const expr = this._compiler.generateExpression(
                         destination, this._scope, expression

@@ -815,7 +815,7 @@ paren_expression
 bool_constant
   = value:("true" / "false") {
     return new node({ location: location(), 
-      type: "int",
+      type: "uint",
       format: "number",
       value: value == "true" ? "1" : "0",
       value_base10: value == "true" ? 1 : 0
