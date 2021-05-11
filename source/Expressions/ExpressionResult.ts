@@ -7,7 +7,7 @@ export default class ExpressionResult
     private instructions: Array<Instruction>;
 
     constructor(
-        public readonly type: Type,
+        public type: Type,
         public readonly expression: Expression
     )
     {

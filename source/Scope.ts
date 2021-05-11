@@ -2,6 +2,7 @@ import Function from "./Function"
 import TypeStruct from "./Types/TypeStruct";
 import Compiler from "./Compiler";
 import Variable from "./Variables/Variable";
+import Loop from "./Loop";
 
 export default class Scope
 {
@@ -11,6 +12,7 @@ export default class Scope
     private _functions: Array<Function>;
     private _scope: Scope | undefined;
     private _function?: Function;
+    private _loop?: Loop;
 
     private _substatementIndex: number;
 
@@ -103,6 +105,21 @@ export default class Scope
     setFunction(fn: Function): void
     {
         this._function = fn;
+    }
+
+    getLoop(): Loop | undefined
+    {
+        if (this._loop === undefined && this._scope)
+        {
+            return this._scope.getLoop();
+        }
+
+        return this._loop;
+    }
+
+    setLoop(loop: Loop): void
+    {
+        this._loop = loop;
     }
 
     get isRoot() { return this._scope === undefined; }

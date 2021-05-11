@@ -63,6 +63,11 @@ export default abstract class ExternalErrors
         return this.generateError(`Unknown qualifier '${qualifier}'.`, node);
     }
 
+    static BREAK_CAN_ONLY_BE_USED_IN_LOOP(node: Node)
+    {
+        return this.generateError(`The break statement can only be used within a loop.`, node);
+    }
+
     static VARIABLE_NAME_TAKEN(node: Node, variableName: string)
     {
         return this.generateError(`The name '${variableName}' is already used by either a struct declaration or another variable.`, node);
@@ -134,6 +139,11 @@ export default abstract class ExternalErrors
     static UNSUPPORTED_TYPE_FOR_UNARY_OPERATOR(node: Node, operator: string, typeName: string)
     {
         return this.generateError(`The unary operator '${operator}' is not supported for '${typeName}'.`, node);
+    }
+
+    static UNSUPPORTED_TYPE_FOR_TYPE_CAST(node: Node, typeName: string, dstTypeName: string)
+    {
+        return this.generateError(`The type '${typeName}' cannot be casted to '${dstTypeName}'.`, node);
     }
 
     static FUNCTION_RETURN_VOID(node: Node)

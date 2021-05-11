@@ -11,6 +11,8 @@ import StatementIf from "./StatementIf";
 import StatementWhile from "./StatementWhile";
 import StatementDo from "./StatementDo";
 import StatementFor from "./StatementFor";
+import StatementBreak from "./StatementBreak";
+import StatementScope from "./StatementScope";
 
 export default class StatementGenerator
 {
@@ -50,6 +52,12 @@ export default class StatementGenerator
                 break;
             case "for_statement":
                 statement = new StatementFor(node, this._compiler, scope);
+                break;
+            case "break":
+                statement = new StatementBreak(node, this._compiler, scope);
+                break;
+            case "scope":
+                statement = new StatementScope(node, this._compiler, scope);
                 break;
             default:
                 throw ExternalErrors.UNIMPLEMENTED_STATEMENT_TYPE(node, node.type);

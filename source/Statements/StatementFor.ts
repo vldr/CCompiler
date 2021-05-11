@@ -35,6 +35,7 @@ import Scope from "../Scope";
 import Function from "../Function";
 import NodeWhileStatement from "../Nodes/NodeWhileStatement";
 import NodeForStatement from "../Nodes/NodeForStatement";
+import Loop from "../Loop";
 
 export default class StatementFor extends Statement
 {
@@ -60,6 +61,8 @@ export default class StatementFor extends Statement
         const finishLabel = `${this._scope.name}_${statementName}_finish`;
 
         const newScope = new Scope(this._compiler, "_" + statementName, this._scope);
+        newScope.setLoop(new Loop(finishLabel));
+
         this._compiler.addScope(newScope);
 
         if (initializer)

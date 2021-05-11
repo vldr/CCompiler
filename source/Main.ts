@@ -7,21 +7,14 @@ class Main
     {
         const compiler = new Compiler();
         console.log(compiler.compile(`
-        struct Munchies
+        int main()
         {
-            float cookieness[3];
-            int rookies;
-        };
-
-        Munchies m;
-
-        float main()
-        {
-            const float a[] = { m.cookieness[0], 2.f };
-            return a[0];
+            float a = 2.f;
+  
+            return (int)a;
         }
 
-        float result = main();
+        int result = main();
         `));
     }
 }

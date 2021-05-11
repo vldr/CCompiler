@@ -38,64 +38,24 @@ import NodeDoStatement from "../Nodes/NodeDoStatement";
 import InstructionJA from "../Instructions/InstructionJA";
 import Loop from "../Loop";
 
-export default class StatementDo extends Statement
+export default class StatementScope extends Statement
 {
     public generateAndEmit(): void
     {
-        const node = this._node as NodeDoStatement;
-
-        const condition = node.condition;
-        const body = node.body;
-
-        if (body.type === "declarator")
-        {
-            throw ExternalErrors.CANNOT_DECLARE_VAR_HERE(body);
-        }
-
-        /////////////////////////////////////////////////////////
+        const node = this._node as NodeScope;
 
         const substatementIndex = this._scope.getNextSubstatementIndex();
-        const statementName = `do_loop_${substatementIndex}`;
-        const startLabel = `${this._scope.name}_${statementName}`
-        const finishLabel = `${this._scope.name}_${statementName}_finish`
+        const statementName = `scope_${substatementIndex}`;
 
-        const expressionResult = this._compiler.generateExpression(
-            new DestinationRegisterA(new TypeVoid(new QualifierNone(), 1)),
-            this._scope,
-            condition
-        );
-
-        this._compiler.emitToFunctions(new InstructionLabel(startLabel).write());
-
-        this.generateBody(finishLabel, statementName, node.body);
-
-        this._compiler.emitToFunctions(expressionResult.write());
-        this._compiler.emitToFunctions(new InstructionJA(startLabel).write());
-    }
-
-    private generateBody(finishLabel: string, statementName: string, body: Node)
-    {
         const newScope = new Scope(this._compiler, "_" + statementName, this._scope);
-        newScope.setLoop(new Loop(finishLabel));
-
         this._compiler.addScope(newScope);
 
-        if (body.type === "scope")
-        {
-            (body as NodeScope).statements.forEach((statement) =>
-            {
-                this._compiler.generateAndEmitStatement(
-                    newScope,
-                    statement
-                );
-            });
-        }
-        else
+        node.statements.forEach((statement) =>
         {
             this._compiler.generateAndEmitStatement(
                 newScope,
-                body
+                statement
             );
-        }
+        });
     }
 }

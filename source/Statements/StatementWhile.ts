@@ -34,6 +34,7 @@ import InstructionJMP from "../Instructions/InstructionJMP";
 import Scope from "../Scope";
 import Function from "../Function";
 import NodeWhileStatement from "../Nodes/NodeWhileStatement";
+import Loop from "../Loop";
 
 export default class StatementWhile extends Statement
 {
@@ -66,22 +67,22 @@ export default class StatementWhile extends Statement
         this._compiler.emitToFunctions(expressionResult.write());
         this._compiler.emitToFunctions(new InstructionJNA(finishLabel).write());
 
-        this.generateBody(statementName, node.body);
+        this.generateBody(finishLabel, statementName, node.body);
 
         this._compiler.emitToFunctions(new InstructionJMP(startLabel).write());
         this._compiler.emitToFunctions(new InstructionLabel(finishLabel).write());
     }
 
-    private generateBody(statementName: string, body: Node)
+    private generateBody(finishLabel: string, statementName: string, body: Node)
     {
+        const newScope = new Scope(this._compiler, "_" + statementName, this._scope);
+        newScope.setLoop(new Loop(finishLabel));
+
+        this._compiler.addScope(newScope);
+
         if (body.type === "scope")
         {
-            const scopeNode = body as NodeScope;
-
-            const newScope = new Scope(this._compiler, "_" + statementName, this._scope);
-            this._compiler.addScope(newScope);
-
-            scopeNode.statements.forEach((statement) =>
+            (body as NodeScope).statements.forEach((statement) =>
             {
                 this._compiler.generateAndEmitStatement(
                     newScope,
@@ -92,7 +93,7 @@ export default class StatementWhile extends Statement
         else
         {
             this._compiler.generateAndEmitStatement(
-                this._scope,
+                newScope,
                 body
             );
         }

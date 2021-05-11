@@ -11,6 +11,7 @@ import ExpressionUnary from "./ExpressionUnary";
 import ExpressionPostfix from "./ExpressionPostfix";
 import Node from "../Nodes/Node";
 import ExpressionFunctionCall from "./ExpressionFunctionCall";
+import ExpressionTypeCast from "./ExpressionTypeCast";
 
 export default class ExpressionGenerator
 {
@@ -45,6 +46,9 @@ export default class ExpressionGenerator
                 break;
             case "function_call":
                 expression = new ExpressionFunctionCall(node, destination, this._compiler, scope);
+                break;
+            case "type_cast":
+                expression = new ExpressionTypeCast(node, destination, this._compiler, scope);
                 break;
             default:
                 throw ExternalErrors.UNIMPLEMENTED_EXPRESSION_TYPE(node, node.type);
