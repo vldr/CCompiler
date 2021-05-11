@@ -7,14 +7,22 @@ class Main
     {
         const compiler = new Compiler();
         console.log(compiler.compile(`
-        uint sqrt(int x) 
+        struct Test {
+            int a[10];
+        };
+        
+        Test test;
+        
+        int sqrt(int x) 
         {
-            int s = 0;
-            uint r = 12;
+            _push(x * 2);
             
+            int a = _pop_int() + 1.f;
             
-            s += r;
+            return a;
         } 
+        
+        int r = sqrt(10);
 
         `));
     }

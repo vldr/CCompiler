@@ -772,7 +772,7 @@
                     },
                     peg$c284 = function(value) {
                         return new node({ location: location(),
-                            type: "int",
+                            type: "uint",
                             format: "number",
                             value: value == "true" ? "1" : "0",
                             value_base10: value == "true" ? 1 : 0

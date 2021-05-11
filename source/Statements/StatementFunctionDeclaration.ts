@@ -27,6 +27,11 @@ export default class StatementFunctionDeclaration extends Statement
         const bodyNode = node.body;
         const functionName = node.name;
 
+        if (functionName.startsWith("_"))
+        {
+            throw ExternalErrors.FUNCTION_NAME_UNDERSCORE(node);
+        }
+
         if (this._scope.getFunctionByName(functionName) !== undefined)
         {
             throw ExternalErrors.FUNCTION_NAME_TAKEN(node, functionName);

@@ -141,6 +141,7 @@ export default abstract class ExternalErrors
         return this.generateError(`The variable '${variableName}' cannot be modified, it is read-only.`, node);
     }
 
+
     static UNSUPPORTED_TYPE_FOR_UNARY_OPERATOR(node: Node, operator: string, typeName: string)
     {
         return this.generateError(`The unary operator '${operator}' is not supported for '${typeName}'.`, node);
@@ -149,6 +150,11 @@ export default abstract class ExternalErrors
     static UNSUPPORTED_TYPE_FOR_TYPE_CAST(node: Node, typeName: string, dstTypeName: string)
     {
         return this.generateError(`The type '${typeName}' cannot be casted to '${dstTypeName}'.`, node);
+    }
+
+    static UNSUPPORTED_TYPE_FOR_PUSH(node: Node, typeName: string)
+    {
+        return this.generateError(`The push intrinsic cannot accept type '${typeName}' as a parameter.`, node);
     }
 
     static FUNCTION_RETURN_VOID(node: Node)
@@ -169,5 +175,10 @@ export default abstract class ExternalErrors
     static ARRAY_MUST_BE_ATLEAST_TWO(node: Node)
     {
         return this.generateError(`An array's size must be at-least two, otherwise, use a ordinary variable.`, node);
+    }
+
+    static FUNCTION_NAME_UNDERSCORE(node: Node)
+    {
+        return this.generateError(`A function's name cannot begin with an underscore.`, node);
     }
 }

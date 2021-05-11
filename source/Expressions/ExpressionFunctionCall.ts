@@ -42,6 +42,7 @@ import QualifierNone from "../Qualifiers/QualifierNone";
 import NodeFunctionCall from "../Nodes/NodeFunctionCall";
 import InstructionPOP from "../Instructions/InstructionPOP";
 import InstructionCALL from "../Instructions/InstructionCALL";
+import InstructionPOPNOP from "../Instructions/InstructionPOPNOP";
 
 export default class ExpressionFunctionCall extends Expression
 {
@@ -50,6 +51,15 @@ export default class ExpressionFunctionCall extends Expression
         const node = this._node as NodeFunctionCall;
         const functionName = node.function_name;
         const nodeParameters = node.parameters;
+
+        if (functionName === "_push")
+        {
+            return this.generatePushIntrinsic(node);
+        }
+        else if (functionName === "_pop_uint" || functionName === "_pop_int" || functionName === "_pop_float")
+        {
+            return this.generatePopIntrinsic(node);
+        }
 
         const fn = this._scope.getFunctionByName(functionName);
 
@@ -108,6 +118,105 @@ export default class ExpressionFunctionCall extends Expression
         }
         else if (destination instanceof DestinationNone)
         {
+        }
+        else
+        {
+            throw InternalErrors.generateError(`Unknown destination type, ${destination.constructor}.`);
+        }
+
+        return expressionResult;
+    }
+
+    private generatePushIntrinsic(node: NodeFunctionCall): ExpressionResult
+    {
+        const functionName = node.function_name;
+        const nodeParameters = node.parameters;
+        const expectedParameters = 1;
+
+        if (nodeParameters.length !== expectedParameters)
+        {
+            throw ExternalErrors.PARAMETER_MISSING(node, functionName, expectedParameters, nodeParameters.length);
+        }
+
+        const returnType = new TypeVoid(new QualifierNone(), 1);
+
+        const targetExpressionResult = this._compiler.generateExpression(
+            new DestinationStack(returnType), this._scope, nodeParameters[0]
+        );
+
+        const expressionResult = new ExpressionResult(returnType, this);
+
+        if ((targetExpressionResult.type instanceof TypeInteger ||
+            targetExpressionResult.type instanceof TypeUnsignedInteger ||
+            targetExpressionResult.type instanceof TypeFloat)
+            && targetExpressionResult.type.size === 1
+        )
+        {
+            expressionResult.pushExpressionResult(targetExpressionResult);
+        }
+        else
+        {
+            throw ExternalErrors.UNSUPPORTED_TYPE_FOR_PUSH(node, targetExpressionResult.type.toString());
+        }
+
+        return expressionResult;
+    }
+
+    private generatePopIntrinsic(node: NodeFunctionCall): ExpressionResult
+    {
+        const functionName = node.function_name;
+        const nodeParameters = node.parameters;
+
+        const destination = this._destination;
+
+        const expectedParameters = 0;
+
+        if (nodeParameters.length !== expectedParameters)
+        {
+            throw ExternalErrors.PARAMETER_MISSING(node, functionName, expectedParameters, nodeParameters.length);
+        }
+
+        let returnType: Type;
+
+        if (functionName.endsWith("_uint"))
+        {
+            returnType = new TypeUnsignedInteger(new QualifierNone(), 1);
+        }
+        else if (functionName.endsWith("_int"))
+        {
+            returnType = new TypeInteger(new QualifierNone(), 1);
+        }
+        else if (functionName.endsWith("_float"))
+        {
+            returnType = new TypeFloat(new QualifierNone(), 1);
+        }
+        else
+        {
+            throw InternalErrors.generateError("Invalid pop type.");
+        }
+
+        //////////////////////////////////////////////////////////////////
+
+        const expressionResult = new ExpressionResult(returnType, this);
+
+        if (destination instanceof DestinationVariable)
+        {
+            expressionResult.pushInstruction(new InstructionPOP(destination.variable));
+        }
+        else if (destination instanceof DestinationRegisterA)
+        {
+            expressionResult.pushInstruction(new InstructionGETPOPA());
+        }
+        else if (destination instanceof DestinationRegisterB)
+        {
+            expressionResult.pushInstruction(new InstructionGETPOPB());
+        }
+        else if (destination instanceof DestinationStack)
+        {
+        }
+        else if (destination instanceof DestinationNone)
+        {
+            expressionResult.pushInstruction(new InstructionPOPNOP());
         }
         else
         {
