@@ -203,6 +203,7 @@ export default class ExpressionBinary extends Expression
             case ">=":
             case "==":
             case "!=":
+                expressionResult.type = new TypeInteger(expressionResult.type.qualifer, expressionResult.type.size);
                 expressionResult.pushInstruction(new InstructionCMP(leftExpressionResult.type, operator));
                 break;
             default:

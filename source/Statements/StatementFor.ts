@@ -83,6 +83,12 @@ export default class StatementFor extends Statement
                 condition
             );
 
+            if (!conditionalExpressionResult.type.equals(new TypeInteger(new QualifierNone(), 1))
+                && !conditionalExpressionResult.type.equals(new TypeUnsignedInteger(new QualifierNone(), 1)))
+            {
+                throw ExternalErrors.CANNOT_CONVERT_TYPE(condition, conditionalExpressionResult.type.toString(), "int | uint");
+            }
+
             this._compiler.emitToFunctions(conditionalExpressionResult.write());
             this._compiler.emitToFunctions(new InstructionJNA(finishLabel).write());
         }

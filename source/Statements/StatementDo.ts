@@ -65,6 +65,12 @@ export default class StatementDo extends Statement
             condition
         );
 
+        if (!expressionResult.type.equals(new TypeInteger(new QualifierNone(), 1))
+            && !expressionResult.type.equals(new TypeUnsignedInteger(new QualifierNone(), 1)))
+        {
+            throw ExternalErrors.CANNOT_CONVERT_TYPE(condition, expressionResult.type.toString(), "int | uint");
+        }
+
         this._compiler.emitToFunctions(new InstructionLabel(startLabel).write());
 
         this.generateBody(finishLabel, statementName, node.body);
