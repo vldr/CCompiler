@@ -141,10 +141,10 @@ external_statement
   / _ { return ""; }
 
 external_declaration
-  = function_definition
+  = root_function_call
+  / function_definition
   / global_declaration
   / struct_definition
-
 
 // TODO(rowillia):  The preprocessor rules here are a hack.  This won't truely
 // parse any available preprocessor rule, only ones that encapsulate full
@@ -909,6 +909,10 @@ parameter_list
   / head:assignment_expression tail:(comma assignment_expression)* {
       return [ head ].concat(tail.map(function(item) { return item[1] }));
     }
+
+root_function_call = func:function_call semicolon {
+    return func;
+}
 
 function_call
   = function_name:function_identifier left_paren

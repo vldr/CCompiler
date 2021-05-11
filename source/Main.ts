@@ -17,7 +17,7 @@ class Main
         {
             _push(x * 2);
             
-            int a = _pop_int() + 1.f;
+            int a = _pop_int() + 1;
             
             return a;
         } 
