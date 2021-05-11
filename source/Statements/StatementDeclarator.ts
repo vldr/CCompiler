@@ -49,14 +49,18 @@ export default class StatementDeclarator extends Statement
 
             //////////////////////////////////////////////
 
+            if (declaratorNode.arraySize)
+            {
+                if (declaratorNode.arraySize.type !== "int" && declaratorNode.arraySize.type !== "uint")
+                    throw ExternalErrors.ARRAY_SIZE_MUST_BE_CONSTANT(declaratorNode);
+
+                if (declaratorNode.arraySize.value_base10 === 1)
+                    throw ExternalErrors.ARRAY_MUST_BE_ATLEAST_TWO(declaratorNode);
+            }
+
             const size = declaratorNode.arraySize?.value_base10 || 1;
             const initializerNode = declaratorNode.initializer;
             const initializerList = declaratorNode.initializer_list;
-
-            if (declaratorNode.arraySize && declaratorNode.arraySize.value_base10 === 1)
-            {
-                throw ExternalErrors.ARRAY_MUST_BE_ATLEAST_TWO(declaratorNode);
-            }
 
             if (size < 1)
             {

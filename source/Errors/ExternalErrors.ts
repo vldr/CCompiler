@@ -91,6 +91,11 @@ export default abstract class ExternalErrors
         return this.generateError(`The size of an array cannot be zero or negative.`, node);
     }
 
+    static ARRAY_SIZE_MUST_BE_CONSTANT(node: Node)
+    {
+        return this.generateError(`The size of an array must be an unsigned integer constant.`, node);
+    }
+
     static TYPE_MUST_BE_STRUCT(node: Node)
     {
         return this.generateError(`The type must be a struct to be able to access fields from.`, node);

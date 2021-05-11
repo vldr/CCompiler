@@ -12,7 +12,7 @@ class Main
             int cookieness[3];
         };
         
-        int r[2];
+        int r[10];
         Munchies m;
         
         int main()
