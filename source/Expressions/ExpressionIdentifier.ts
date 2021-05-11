@@ -49,8 +49,6 @@ export default class ExpressionIdentifier extends Expression
 
         if (destination instanceof DestinationNone)
             return expressionResult;
-        else if (destination.type.constructor !== TypeVoid && !destination.type.equals(variable.type))
-            throw ExternalErrors.CANNOT_CONVERT_TYPE(node, variable.type.toString(), destination.type.toString());
 
         if (destination instanceof DestinationVariable)
         {

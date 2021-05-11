@@ -7,20 +7,21 @@ class Main
     {
         const compiler = new Compiler();
         console.log(compiler.compile(`
-        struct Munchies
-        { 
-            int cookieness[3];
-        };
-        
-        int r[10];
-        Munchies m;
-        
-        int main()
+        uint sqrt(int x) 
         {
-            return -r.length;
-        }
+            int s = 0, b = 32768; 
+           
+        
+            while (b)  
+            { 
+                int t = (s + b); 
+                if (t * t <= x) s = t; 
+                b >>= 1;
+            }
+        
+            return (uint)s; 
+        } 
 
-        int result = main();
         `));
     }
 }
