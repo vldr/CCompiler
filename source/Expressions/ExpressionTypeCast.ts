@@ -39,6 +39,7 @@ import InstructionSAVE from "../Instructions/InstructionSAVE";
 import InstructionSAVETOA from "../Instructions/InstructionSAVETOA";
 import InstructionSAVETOB from "../Instructions/InstructionSAVETOB";
 import InstructionSAVEPUSH from "../Instructions/InstructionSAVEPUSH";
+import TypeStruct from "../Types/TypeStruct";
 
 export default class ExpressionTypeCast extends Expression
 {
@@ -54,6 +55,12 @@ export default class ExpressionTypeCast extends Expression
         const targetExpressionResult = this._compiler.generateExpression(
             new DestinationRegisterA(new TypeVoid(new QualifierNone(), 1)), this._scope, expression
         );
+
+        if (targetExpressionResult.type.size > 1 || targetExpressionResult.type instanceof TypeStruct)
+        {
+            throw ExternalErrors.CANNOT_NO_STRUCT_ARRAY(node);
+        }
+
         switch (cast_to)
         {
             case "int":

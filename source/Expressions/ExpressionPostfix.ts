@@ -487,6 +487,11 @@ export default class ExpressionPostfix extends Expression
             throw ExternalErrors.CANNOT_CONVERT_TYPE(accessorNode, indexExpressionResult.type.toString(), "int | uint");
         }
 
+        if (indexExpressionResult.type.size > 1 || indexExpressionResult.type instanceof TypeStruct)
+        {
+            throw ExternalErrors.CANNOT_NO_STRUCT_ARRAY(accessorNode);
+        }
+
         if (newType instanceof TypeStruct)
         {
             expressionResult.pushExpressionResult(indexExpressionResult);
