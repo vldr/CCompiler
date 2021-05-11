@@ -160,4 +160,9 @@ export default abstract class ExternalErrors
     {
         return this.generateError(`A variable cannot be declared here.`, node);
     }
+
+    static ARRAY_MUST_BE_ATLEAST_TWO(node: Node)
+    {
+        return this.generateError(`An array's size must be at-least two, otherwise, use a ordinary variable.`, node);
+    }
 }

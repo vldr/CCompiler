@@ -6,6 +6,7 @@ import Type from "../Types/Type";
 import TypeUnsignedInteger from "../Types/TypeUnsignedInteger";
 import NodeBinary from "../Nodes/NodeBinary";
 import Utils from "../Utils";
+import Node from "../Nodes/Node";
 import DestinationRegisterA from "../Destinations/DestinationRegisterA";
 import DestinationRegisterB from "../Destinations/DestinationRegisterB";
 import InstructionADD from "../Instructions/InstructionADD";
@@ -58,6 +59,9 @@ import TypeStruct from "../Types/TypeStruct";
 import InstructionGETA from "../Instructions/InstructionGETA";
 import InstructionComment from "../Instructions/InstructionComment";
 import TypeVoid from "../Types/TypeVoid";
+import Variable from "../Variables/Variable";
+import InstructionVPUSH from "../Instructions/InstructionVPUSH";
+import InstructionQSTORE from "../Instructions/InstructionQSTORE";
 
 export default class ExpressionPostfix extends Expression
 {
@@ -264,6 +268,11 @@ export default class ExpressionPostfix extends Expression
         {
             if (!(targetExpressionResult.variable instanceof VariableStruct))
             {
+                if (selection === "length")
+                {
+                    return this.generateArrayLength(expression, targetExpressionResult.type) as ExpressionResultAccessor;
+                }
+
                 throw ExternalErrors.TYPE_MUST_BE_STRUCT(node);
             }
 
@@ -316,6 +325,11 @@ export default class ExpressionPostfix extends Expression
         {
             if (!(targetExpressionResult.variable instanceof VariableStruct))
             {
+                if (selection === "length")
+                {
+                    return this.generateArrayLength(expression, targetExpressionResult.type) as ExpressionResultAccessor;
+                }
+
                 throw ExternalErrors.TYPE_MUST_BE_STRUCT(node);
             }
 
@@ -562,6 +576,46 @@ export default class ExpressionPostfix extends Expression
         }
         else if (destination instanceof DestinationVariable)
         {
+        }
+        else if (destination instanceof DestinationNone)
+        {
+        }
+        else
+        {
+            throw InternalErrors.generateError(`Unknown destination type, ${destination.constructor}.`);
+        }
+
+        return expressionResult;
+    }
+
+    private generateArrayLength(node: Node, type: Type): ExpressionResult
+    {
+        const expressionResult = new ExpressionResult(
+            new TypeInteger(new QualifierNone(), 1),
+            this,
+        );
+
+        const destination = this._destination;
+        const destinationType = destination.type;
+
+        if (type.size <= 1)
+            throw ExternalErrors.MUST_BE_ARRAY_TYPE(node, type.toString());
+
+        if (destination instanceof DestinationRegisterA)
+        {
+            expressionResult.pushInstruction(new InstructionVGETA(type.size.toString()));
+        }
+        else if (destination instanceof DestinationRegisterB)
+        {
+            expressionResult.pushInstruction(new InstructionVGETB(type.size.toString()));
+        }
+        else if (destination instanceof DestinationStack)
+        {
+            expressionResult.pushInstruction(new InstructionVPUSH(type.size.toString()));
+        }
+        else if (destination instanceof DestinationVariable)
+        {
+            expressionResult.pushInstruction(new InstructionQSTORE(type.size.toString(), destination.variable));
         }
         else if (destination instanceof DestinationNone)
         {

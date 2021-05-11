@@ -78,11 +78,11 @@ export default class ExpressionConstant extends Expression
             }
             else if (Utils.isInlinable(destinationType, value))
             {
-                expressionResult.pushInstruction(new InstructionQSTORE(stringValue, destination));
+                expressionResult.pushInstruction(new InstructionQSTORE(stringValue, destination.variable));
             }
             else
             {
-                expressionResult.pushInstruction(new InstructionSTORE(stringValue, destination));
+                expressionResult.pushInstruction(new InstructionSTORE(stringValue, destination.variable));
             }
         }
         else if (

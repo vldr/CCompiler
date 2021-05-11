@@ -5,12 +5,13 @@ import InternalErrors from "../Errors/InternalErrors";
 import TypeFloat from "../Types/TypeFloat";
 import TypeInteger from "../Types/TypeInteger";
 import TypeUnsignedInteger from "../Types/TypeUnsignedInteger";
+import Variable from "../Variables/Variable";
 
 export default class InstructionSTORE extends Instruction
 {
     constructor(
         private _value: string,
-        private _destinationVariable: DestinationVariable
+        private _destinationVariable: Variable
     )
     {
         super();
@@ -18,6 +19,6 @@ export default class InstructionSTORE extends Instruction
 
     public write(): string
     {
-        return `STORE ${this._value} ${this._destinationVariable.variable.labelName}\n`;
+        return `STORE ${this._value} ${this._destinationVariable.labelName}\n`;
     }
 }

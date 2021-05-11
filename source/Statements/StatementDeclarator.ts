@@ -53,6 +53,11 @@ export default class StatementDeclarator extends Statement
             const initializerNode = declaratorNode.initializer;
             const initializerList = declaratorNode.initializer_list;
 
+            if (declaratorNode.arraySize && declaratorNode.arraySize.value_base10 === 1)
+            {
+                throw ExternalErrors.ARRAY_MUST_BE_ATLEAST_TWO(declaratorNode);
+            }
+
             if (size < 1)
             {
                 throw ExternalErrors.ARRAY_TOO_SMALL(declaratorNode);
