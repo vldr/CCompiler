@@ -181,4 +181,14 @@ export default abstract class ExternalErrors
     {
         return this.generateError(`A function's name cannot begin with an underscore.`, node);
     }
+
+    static OUT_OF_BOUNDS_UINT(node: Node)
+    {
+        return this.generateError(`The unsigned integer is out of bounds, that is, the value must be between 0 and 4294967295.`, node);
+    }
+
+    static OUT_OF_BOUNDS_INT(node: Node)
+    {
+        return this.generateError(`The signed integer is out of bounds, that is, the value must be between -2147483648 and 2147483647.`, node);
+    }
 }

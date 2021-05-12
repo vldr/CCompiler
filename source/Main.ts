@@ -16,7 +16,7 @@ void xtea(uint numRounds, uint mode)
     uint v1 = v[1];
     uint sum = 0u;
 
-    uint delta = 0x9E3779B9u;
+    int delta = 0xFFFFFFFFF;
 
     if (!mode)
         sum = delta * numRounds;

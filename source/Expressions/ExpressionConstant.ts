@@ -41,10 +41,20 @@ export default class ExpressionConstant extends Expression
         if (typeName === "int")
         {
             type = new TypeInteger(new QualifierNone(), 1);
+
+            if (value > 2147483647 || value < -2147483648)
+            {
+                throw ExternalErrors.OUT_OF_BOUNDS_INT(node);
+            }
         }
         else if (typeName === "uint")
         {
             type = new TypeUnsignedInteger(new QualifierNone(), 1);
+
+            if (value > 4294967295)
+            {
+                throw ExternalErrors.OUT_OF_BOUNDS_UINT(node);
+            }
         }
         else if (typeName === "float")
         {
