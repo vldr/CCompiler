@@ -298,6 +298,7 @@ function_definition
       var result = new node({ location: location(), 
         type: "function_declaration",
         name: prototype.name,
+        nameLocation: prototype.location,
         returnType: prototype.returnType,
         parameters: prototype.parameters,
         body: body

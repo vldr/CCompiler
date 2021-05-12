@@ -337,6 +337,7 @@
                         var result = new node({ location: location(),
                             type: "function_declaration",
                             name: prototype.name,
+                            nameLocation: prototype.location,
                             returnType: prototype.returnType,
                             parameters: prototype.parameters,
                             body: body
@@ -9315,6 +9316,7 @@
                 parse:       peg$parse
             };
         })();
+
 
     exports.parse = pegjs.parse;
     exports.SyntaxError = pegjs.SyntaxError;

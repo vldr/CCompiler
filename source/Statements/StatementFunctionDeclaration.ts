@@ -17,6 +17,8 @@ import VariableStruct from "../Variables/VariableStruct";
 import VariablePrimitive from "../Variables/VariablePrimitive";
 import InstructionRTN from "../Instructions/InstructionRTN";
 import CodePathAnalysis from "../CodePathAnalysis";
+import Node from "../Nodes/Node";
+import ExternalWarnings from "../Errors/ExternalWarnings";
 
 export default class StatementFunctionDeclaration extends Statement
 {
@@ -27,8 +29,7 @@ export default class StatementFunctionDeclaration extends Statement
         const parametersNode = node.parameters;
         const bodyNode = node.body;
         const functionName = node.name;
-
-         console.log(CodePathAnalysis.returnsAllPaths(bodyNode));
+        const functionNameLocation = node.nameLocation;
 
         if (functionName.startsWith("_"))
         {
@@ -64,6 +65,16 @@ export default class StatementFunctionDeclaration extends Statement
                 throw ExternalErrors.UNSUPPORTED_RETURN_TYPE(node, returnTypeNode.name);
                 break;
             }
+        }
+
+        if (returnType.constructor !== TypeVoid && !CodePathAnalysis.returnsAllPaths(bodyNode))
+        {
+            const functionNameNode: Node = {
+                location: functionNameLocation,
+                type: String()
+            };
+
+            ExternalWarnings.NOT_ALL_PATHS_RETURN(functionNameNode, this._compiler);
         }
 
         const newScope = new Scope(this._compiler, functionName, this._scope);
