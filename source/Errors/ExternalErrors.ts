@@ -157,6 +157,11 @@ export default abstract class ExternalErrors
         return this.generateError(`The push intrinsic cannot accept type '${typeName}' as a parameter.`, node);
     }
 
+    static UNSUPPORTED_TYPE_FOR_LOAD(node: Node, typeName: string)
+    {
+        return this.generateError(`The load intrinsic cannot accept type '${typeName}' as a parameter.`, node);
+    }
+
     static FUNCTION_RETURN_VOID(node: Node)
     {
         return this.generateError(`The cannot return a value because it is void-type.`, node);
