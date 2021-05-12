@@ -118,6 +118,10 @@ export default class ExpressionFunctionCall extends Expression
         }
         else if (destination instanceof DestinationNone)
         {
+            if (!(fnReturnType instanceof TypeVoid))
+            {
+                expressionResult.pushInstruction(new InstructionPOPNOP());
+            }
         }
         else
         {

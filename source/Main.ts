@@ -13,16 +13,16 @@ class Main
         
         Test test;
         
-        int sqrt(int x) 
+        void sqrt(int x) 
         {
             _push(x * 2);
             
             int a = _pop_int() + 1;
             
-            return a;
+            //return a;
         } 
         
-        int r = sqrt(10);
+        sqrt(10);
 
         `));
     }

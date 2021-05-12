@@ -13,6 +13,7 @@ import StatementDo from "./StatementDo";
 import StatementFor from "./StatementFor";
 import StatementBreak from "./StatementBreak";
 import StatementScope from "./StatementScope";
+import StatementRootFunctionCall from "./StatementRootFunctionCall";
 
 export default class StatementGenerator
 {
@@ -58,6 +59,9 @@ export default class StatementGenerator
                 break;
             case "scope":
                 statement = new StatementScope(node, this._compiler, scope);
+                break;
+            case "function_call":
+                statement = new StatementRootFunctionCall(node, this._compiler, scope);
                 break;
             default:
                 throw ExternalErrors.UNIMPLEMENTED_STATEMENT_TYPE(node, node.type);
