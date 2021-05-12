@@ -69,15 +69,6 @@ export default class ExpressionConstant extends Expression
 
         ///////////////////////////////////////////////
 
-        // Type Checking
-
-        if (destination.type.constructor !== TypeVoid && !type.equals(destinationType))
-        {
-            throw ExternalErrors.CANNOT_CONVERT_TYPE(node, destinationType.toString(), type.toString());
-        }
-
-        ///////////////////////////////////////////////
-
         const expressionResult = new ExpressionResult(type, this);
 
         if (destination instanceof DestinationVariable)
