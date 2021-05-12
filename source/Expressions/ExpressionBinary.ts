@@ -152,7 +152,6 @@ export default class ExpressionBinary extends Expression
             case "=":
                 break;
 
-
             case "+":
             case "+=":
                 expressionResult.pushInstruction(new InstructionADD(leftExpressionResult.type));

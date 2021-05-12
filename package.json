@@ -7,10 +7,10 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "rollup": "^2.47.0",
     "ts-node": "^9.1.1",
     "typescript": "^4.2.4"
   },
   "dependencies": {
-    "rollup": "^2.47.0"
   }
 }
