@@ -9,11 +9,13 @@ import ExpressionResult from "./Expressions/ExpressionResult";
 import Expression from "./Expressions/Expression";
 import Node from "./Nodes/Node";
 import InternalErrors from "./Errors/InternalErrors";
+import CompilerMessage from "./Errors/CompilerMessage";
 
 export default class Compiler
 {
     private _logger: Logger = new Logger();
     private _parser: Parser = new Parser();
+    private _warnings = new Array<CompilerMessage>();
     private _root: Array<string> = new Array<string>();
     private _functions: Array<string> = new Array<string>();
     private _variables: Array<string> = new Array<string>();
@@ -54,6 +56,16 @@ export default class Compiler
             this._functions.push("\n");
 
         return this._root.concat(this._functions).concat(this._variables).join("");
+    }
+
+    public addWarning(warningMessage: CompilerMessage)
+    {
+        this._warnings.push(warningMessage);
+    }
+
+    public getWarnings(): Array<CompilerMessage>
+    {
+        return this._warnings;
     }
 
     public addScope(scope: Scope)

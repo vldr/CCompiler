@@ -7,7 +7,27 @@ class Main
     {
         const compiler = new Compiler();
         console.log(compiler.compile(`
-       float MAX_RAND = (float)0x4f800000u;
+        uint main(float x)
+        {
+            const float COMPARATOR = 2.f;
+            x = 12.f;
+
+            if (x > 1.f) {
+                while (x > 12.f)
+                {
+                    if (x > 1.f)
+                    {
+                        x += 0.f;
+                        return true;
+                    }
+                    
+                    
+                }
+            } else { return true; } 
+                
+            return true;
+        }
+       
         `));
     }
 }

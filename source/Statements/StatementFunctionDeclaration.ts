@@ -16,6 +16,7 @@ import Variable from "../Variables/Variable";
 import VariableStruct from "../Variables/VariableStruct";
 import VariablePrimitive from "../Variables/VariablePrimitive";
 import InstructionRTN from "../Instructions/InstructionRTN";
+import CodePathAnalysis from "../CodePathAnalysis";
 
 export default class StatementFunctionDeclaration extends Statement
 {
@@ -26,6 +27,8 @@ export default class StatementFunctionDeclaration extends Statement
         const parametersNode = node.parameters;
         const bodyNode = node.body;
         const functionName = node.name;
+
+         console.log(CodePathAnalysis.returnsAllPaths(bodyNode));
 
         if (functionName.startsWith("_"))
         {

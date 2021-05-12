@@ -24,10 +24,11 @@ import Utils from "../Utils";
 import DestinationNone from "../Destinations/DestinationNone";
 import QualifierNone from "../Qualifiers/QualifierNone";
 import TypeVoid from "../Types/TypeVoid";
+import ExpressionResultConstant from "./ExpressionResultConstant";
 
 export default class ExpressionConstant extends Expression
 {
-    generate(): ExpressionResult
+    generate(): ExpressionResultConstant
     {
         const node = this._node as NodeConstant;
         const destination = this._destination;
@@ -69,7 +70,7 @@ export default class ExpressionConstant extends Expression
 
         ///////////////////////////////////////////////
 
-        const expressionResult = new ExpressionResult(type, this);
+        const expressionResult = new ExpressionResultConstant(type, this, value);
 
         if (destination instanceof DestinationVariable)
         {

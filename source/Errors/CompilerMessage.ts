@@ -1,6 +1,6 @@
 import NodeLocation from "../Nodes/NodeLocation";
 
-export default class CompilerError
+export default class CompilerMessage
 {
     constructor(
         public readonly message: string,

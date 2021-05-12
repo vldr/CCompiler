@@ -1,4 +1,4 @@
-import CompilerError from "./CompilerError";
+import CompilerMessage from "./CompilerMessage";
 import Node from "../Nodes/Node";
 
 export default abstract class ExternalErrors
@@ -7,7 +7,7 @@ export default abstract class ExternalErrors
     {
         console.trace();
 
-        return new CompilerError(
+        return new CompilerMessage(
             message,
             node.location
         );
