@@ -72,7 +72,7 @@ export default class ExpressionConstant extends Expression
 
         if (destination instanceof DestinationVariable)
         {
-            if ((destination.variable.type.isConstant || this._scope.getFunction() === undefined) && destination.variable instanceof VariablePrimitive)
+            if ((destination.variable.type.isConstant || destination.variable.scope.getFunction() === undefined) && destination.variable instanceof VariablePrimitive)
             {
                 destination.variable.setInitialValue(0, stringValue);
             }
