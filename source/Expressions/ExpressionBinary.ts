@@ -41,6 +41,7 @@ import TypeVoid from "../Types/TypeVoid";
 import InstructionLOR from "../Instructions/InstructionLOR";
 import InstructionLAND from "../Instructions/InstructionLAND";
 import InstructionComment from "../Instructions/InstructionComment";
+import ExpressionResultConstant from "./ExpressionResultConstant";
 
 export default class ExpressionBinary extends Expression
 {
@@ -264,4 +265,29 @@ export default class ExpressionBinary extends Expression
 
         return expressionResult;
     }
+
+    private loadOperand(
+        expressionResult: ExpressionResult,
+        leftExpressionResult: ExpressionResult,
+        rightExpressionResult: ExpressionResult
+    )
+    {
+         const isLeftInlinable = (leftExpressionResult instanceof ExpressionResultVariable ||
+            leftExpressionResult instanceof ExpressionResultConstant);
+
+         const isRightInlinable = (rightExpressionResult instanceof ExpressionResultVariable ||
+             rightExpressionResult instanceof ExpressionResultConstant);
+
+         if (!isLeftInlinable)
+         {
+
+         }
+
+        // expressionResult.pushExpressionResult(leftExpressionResult);
+        // expressionResult.pushExpressionResult(rightExpressionResult);
+        //
+        // expressionResult.pushInstruction(new InstructionGETPOPB());
+        // expressionResult.pushInstruction(new InstructionGETPOPA());
+    }
+
 }

@@ -751,7 +751,7 @@ single_underscore_identifier
   = [A-Za-z0-9]* "_" [A-Za-z0-9]+
 
 int_constant
-  = head:[\-1-9] tail:[0-9]* unsigned:[Uu]? {
+  = head:[1-9] tail:[0-9]* unsigned:[Uu]? {
       return new node({ location: location(), 
         type: unsigned ? "uint" : "int",
         format: "number",
