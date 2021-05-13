@@ -45,6 +45,7 @@ import InstructionCALL from "../Instructions/InstructionCALL";
 import InstructionPOPNOP from "../Instructions/InstructionPOPNOP";
 import InstructionRAND from "../Instructions/InstructionRAND";
 import InstructionTICK from "../Instructions/InstructionTICK";
+import InstructionSETLED from "../Instructions/InstructionSETLED";
 
 export default class ExpressionFunctionCall extends Expression
 {
@@ -65,6 +66,10 @@ export default class ExpressionFunctionCall extends Expression
         else if (functionName === "_load_a" || functionName === "_load_b")
         {
             return this.generateLoadIntrinsic(node);
+        }
+        else if (functionName === "_setled")
+        {
+            return this.generateSetLedIntrinsic(node);
         }
         else if (functionName === "_urand")
         {
@@ -174,6 +179,41 @@ export default class ExpressionFunctionCall extends Expression
         )
         {
             expressionResult.pushExpressionResult(targetExpressionResult);
+        }
+        else
+        {
+            throw ExternalErrors.UNSUPPORTED_TYPE_FOR_LOAD(node, targetExpressionResult.type.toString());
+        }
+
+        return expressionResult;
+    }
+
+    private generateSetLedIntrinsic(node: NodeFunctionCall): ExpressionResult
+    {
+        const functionName = node.function_name;
+        const nodeParameters = node.parameters;
+        const expectedParameters = 1;
+
+        if (nodeParameters.length !== expectedParameters)
+        {
+            throw ExternalErrors.PARAMETER_MISSING(node, functionName, expectedParameters, nodeParameters.length);
+        }
+
+        const returnType = new TypeVoid(new QualifierNone(), 1);
+
+        const targetExpressionResult = this._compiler.generateExpression(
+            new DestinationRegisterA(returnType), this._scope, nodeParameters[0]
+        );
+        const expressionResult = new ExpressionResult(returnType, this);
+
+        if ((targetExpressionResult.type instanceof TypeInteger ||
+            targetExpressionResult.type instanceof TypeUnsignedInteger ||
+            targetExpressionResult.type instanceof TypeFloat)
+            && targetExpressionResult.type.size === 1
+        )
+        {
+            expressionResult.pushExpressionResult(targetExpressionResult);
+            expressionResult.pushInstruction(new InstructionSETLED());
         }
         else
         {
