@@ -59,9 +59,10 @@ export default class StatementFor extends Statement
         const statementName = `for_loop_${substatementIndex}`;
         const startLabel = `${this._scope.name}_${statementName}`;
         const finishLabel = `${this._scope.name}_${statementName}_finish`;
+        const incrementLabel = `${this._scope.name}_${statementName}_increment`;
 
         const newScope = new Scope(this._compiler, "_" + statementName, this._scope);
-        newScope.setLoop(new Loop(finishLabel));
+        newScope.setLoop(new Loop(incrementLabel, finishLabel));
 
         this._compiler.addScope(newScope);
 
@@ -95,6 +96,7 @@ export default class StatementFor extends Statement
 
         this.generateBody(statementName, newScope, node.body);
 
+        this._compiler.emitToFunctions(new InstructionLabel(incrementLabel).write());
         if (increment)
         {
             const incrementExpressionResult = this._compiler.generateExpression(

@@ -59,30 +59,31 @@ export default class StatementDo extends Statement
         const startLabel = `${this._scope.name}_${statementName}`
         const finishLabel = `${this._scope.name}_${statementName}_finish`
 
-        const expressionResult = this._compiler.generateExpression(
+        const conditionExpressionResult = this._compiler.generateExpression(
             new DestinationRegisterA(new TypeVoid(new QualifierNone(), 1)),
             this._scope,
             condition
         );
 
-        if (!expressionResult.type.equals(new TypeInteger(new QualifierNone(), 1))
-            && !expressionResult.type.equals(new TypeUnsignedInteger(new QualifierNone(), 1)))
+        if (!conditionExpressionResult.type.equals(new TypeInteger(new QualifierNone(), 1))
+            && !conditionExpressionResult.type.equals(new TypeUnsignedInteger(new QualifierNone(), 1)))
         {
-            throw ExternalErrors.CANNOT_CONVERT_TYPE(condition, expressionResult.type.toString(), "int | uint");
+            throw ExternalErrors.CANNOT_CONVERT_TYPE(condition, conditionExpressionResult.type.toString(), "int | uint");
         }
 
         this._compiler.emitToFunctions(new InstructionLabel(startLabel).write());
 
-        this.generateBody(finishLabel, statementName, node.body);
+        this.generateBody(startLabel, finishLabel, statementName, node.body);
 
-        this._compiler.emitToFunctions(expressionResult.write());
+        this._compiler.emitToFunctions(conditionExpressionResult.write());
         this._compiler.emitToFunctions(new InstructionJA(startLabel).write());
+        this._compiler.emitToFunctions(new InstructionLabel(finishLabel).write());
     }
 
-    private generateBody(finishLabel: string, statementName: string, body: Node)
+    private generateBody(startLabel: string, finishLabel: string, statementName: string, body: Node)
     {
         const newScope = new Scope(this._compiler, "_" + statementName, this._scope);
-        newScope.setLoop(new Loop(finishLabel));
+        newScope.setLoop(new Loop(startLabel, finishLabel));
 
         this._compiler.addScope(newScope);
 

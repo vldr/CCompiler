@@ -7,25 +7,17 @@ class Main
     {
         const compiler = new Compiler();
         console.log(compiler.compile(`
-        uint main(float x)
+        void main(float x)
         {
-            const float COMPARATOR = 2.f;
-            x = 12.f;
-
-            if (x > 1.f) {
-                while (x > 12.f)
-                {
-                    if (x > 1.f)
-                    {
-                        x += 0.f;
-                        return true;
-                    }
+            for (int i = 0; i < 10; i++)
+            {
+                if (i == 5)
+                    continue;
+                else if (i == 8)
+                    break;
                     
-                    
-                }
-            } else { return true; } 
-                
-            return true;
+                x++;
+            }
         }
        
         `));

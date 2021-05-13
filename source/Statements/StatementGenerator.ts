@@ -14,6 +14,7 @@ import StatementFor from "./StatementFor";
 import StatementBreak from "./StatementBreak";
 import StatementScope from "./StatementScope";
 import StatementRootFunctionCall from "./StatementRootFunctionCall";
+import StatementContinue from "./StatementContinue";
 
 export default class StatementGenerator
 {
@@ -62,6 +63,9 @@ export default class StatementGenerator
                 break;
             case "function_call":
                 statement = new StatementRootFunctionCall(node, this._compiler, scope);
+                break;
+            case "continue":
+                statement = new StatementContinue(node, this._compiler, scope);
                 break;
             default:
                 throw ExternalErrors.UNIMPLEMENTED_STATEMENT_TYPE(node, node.type);

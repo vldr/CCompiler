@@ -68,6 +68,11 @@ export default abstract class ExternalErrors
         return this.generateError(`The break statement can only be used within a loop.`, node);
     }
 
+    static CONTINUE_CAN_ONLY_BE_USED_IN_LOOP(node: Node)
+    {
+        return this.generateError(`The continue statement can only be used within a loop.`, node);
+    }
+
     static VARIABLE_NAME_TAKEN(node: Node, variableName: string)
     {
         return this.generateError(`The name '${variableName}' is already used by either a struct declaration or another variable.`, node);

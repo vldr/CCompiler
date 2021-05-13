@@ -39,6 +39,6 @@ export default class StatementBreak extends Statement
             throw ExternalErrors.BREAK_CAN_ONLY_BE_USED_IN_LOOP(node);
         }
 
-        this._compiler.emitToFunctions(new InstructionJMP(loop.labelName).write());
+        this._compiler.emitToFunctions(new InstructionJMP(loop.endLabelName).write());
     }
 }

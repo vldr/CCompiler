@@ -73,16 +73,16 @@ export default class StatementWhile extends Statement
         this._compiler.emitToFunctions(expressionResult.write());
         this._compiler.emitToFunctions(new InstructionJNA(finishLabel).write());
 
-        this.generateBody(finishLabel, statementName, node.body);
+        this.generateBody(startLabel, finishLabel, statementName, node.body);
 
         this._compiler.emitToFunctions(new InstructionJMP(startLabel).write());
         this._compiler.emitToFunctions(new InstructionLabel(finishLabel).write());
     }
 
-    private generateBody(finishLabel: string, statementName: string, body: Node)
+    private generateBody(startLabel: string, finishLabel: string, statementName: string, body: Node)
     {
         const newScope = new Scope(this._compiler, "_" + statementName, this._scope);
-        newScope.setLoop(new Loop(finishLabel));
+        newScope.setLoop(new Loop(startLabel, finishLabel));
 
         this._compiler.addScope(newScope);
 

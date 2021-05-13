@@ -266,6 +266,7 @@ export default class ExpressionBinary extends Expression
         return expressionResult;
     }
 
+    // TODO: Finish operand loading optimization.
     private loadOperand(
         expressionResult: ExpressionResult,
         leftExpressionResult: ExpressionResult,

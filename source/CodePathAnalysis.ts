@@ -9,6 +9,8 @@ import NodeTypeCast from "./Nodes/NodeTypeCast";
 
 export default class CodePathAnalysis
 {
+    // TODO: Implement break detection.
+
     public static returnsAllPaths(node: Node): boolean
     {
         switch (node.type)
