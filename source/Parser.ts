@@ -1,5 +1,5 @@
 // @ts-ignore
-import { parse } from "../parser/parser.umd.js";
+import { parse } from "../parser/parser.js";
 
 export default class Parser
 {
