@@ -42,6 +42,8 @@ import InstructionLOR from "../Instructions/InstructionLOR";
 import InstructionLAND from "../Instructions/InstructionLAND";
 import InstructionComment from "../Instructions/InstructionComment";
 import ExpressionResultConstant from "./ExpressionResultConstant";
+import Node from "../Nodes/Node";
+import Destination from "../Destinations/Destination";
 
 export default class ExpressionBinary extends Expression
 {
@@ -106,11 +108,7 @@ export default class ExpressionBinary extends Expression
 
             if (operator != "=")
             {
-                expressionResult.pushExpressionResult(leftExpressionResult);
-                expressionResult.pushExpressionResult(rightExpressionResult);
-
-                expressionResult.pushInstruction(new InstructionGETPOPB());
-                expressionResult.pushInstruction(new InstructionGETPOPA());
+                this.loadOperand(expressionResult, left, right, leftExpressionResult, rightExpressionResult);
 
                 if (leftExpressionResult instanceof ExpressionResultAccessor)
                 {
@@ -129,9 +127,9 @@ export default class ExpressionBinary extends Expression
                 }
                 else if (leftExpressionResult instanceof ExpressionResultVariable)
                 {
-                    expressionResult.pushExpressionResult(rightExpressionResult);
-                    expressionResult.pushInstruction(new InstructionGETPOPR());
-                    expressionResult.pushInstruction(new InstructionSAVE(leftExpressionResult.variable));
+                    expressionResult.pushExpressionResult(
+                        this._compiler.generateExpression(new DestinationVariable(destinationType, leftExpressionResult.variable), this._scope, right)
+                    );
                 }
                 else
                 {
@@ -141,11 +139,7 @@ export default class ExpressionBinary extends Expression
         }
         else
         {
-            expressionResult.pushExpressionResult(leftExpressionResult);
-            expressionResult.pushExpressionResult(rightExpressionResult);
-
-            expressionResult.pushInstruction(new InstructionGETPOPB());
-            expressionResult.pushInstruction(new InstructionGETPOPA());
+            this.loadOperand(expressionResult, left, right, leftExpressionResult, rightExpressionResult);
         }
 
         switch (operator)
@@ -266,29 +260,51 @@ export default class ExpressionBinary extends Expression
         return expressionResult;
     }
 
-    // TODO: Finish operand loading optimization.
     private loadOperand(
         expressionResult: ExpressionResult,
+        leftNode: Node,
+        rightNode: Node,
         leftExpressionResult: ExpressionResult,
         rightExpressionResult: ExpressionResult
     )
     {
-         const isLeftInlinable = (leftExpressionResult instanceof ExpressionResultVariable ||
+        const isLeftInlinable = (leftExpressionResult instanceof ExpressionResultVariable ||
             leftExpressionResult instanceof ExpressionResultConstant);
 
-         const isRightInlinable = (rightExpressionResult instanceof ExpressionResultVariable ||
-             rightExpressionResult instanceof ExpressionResultConstant);
+        const isRightInlinable = (rightExpressionResult instanceof ExpressionResultVariable ||
+            rightExpressionResult instanceof ExpressionResultConstant);
 
-         if (!isLeftInlinable)
-         {
+        const generateRight = (destination: Destination) => expressionResult.pushExpressionResult(
+            this._compiler.generateExpression(destination, this._scope, rightNode)
+        );
 
-         }
+        const generateLeft = (destination: Destination) => expressionResult.pushExpressionResult(
+            this._compiler.generateExpression(destination, this._scope, leftNode)
+        );
 
-        // expressionResult.pushExpressionResult(leftExpressionResult);
-        // expressionResult.pushExpressionResult(rightExpressionResult);
-        //
-        // expressionResult.pushInstruction(new InstructionGETPOPB());
-        // expressionResult.pushInstruction(new InstructionGETPOPA());
+        //////////////////////////////////////////////////////
+
+        if (!isLeftInlinable && isRightInlinable)
+        {
+            generateLeft(new DestinationRegisterA(this._destination.type));
+            generateRight(new DestinationRegisterB(this._destination.type));
+        }
+        else if (isLeftInlinable && !isRightInlinable)
+        {
+            generateRight(new DestinationRegisterB(this._destination.type));
+            generateLeft(new DestinationRegisterA(this._destination.type));
+        }
+        else if (isLeftInlinable && isRightInlinable)
+        {
+            generateLeft(new DestinationRegisterA(this._destination.type));
+            generateRight(new DestinationRegisterB(this._destination.type));
+        }
+        else
+        {
+            generateLeft(new DestinationStack(this._destination.type));
+            generateRight(new DestinationRegisterB(this._destination.type));
+
+            expressionResult.pushInstruction(new InstructionGETPOPA());
+        }
     }
-
 }

@@ -78,7 +78,7 @@ export default class ExpressionConstant extends Expression
             {
                 destination.variable.setInitialValue(0, stringValue);
             }
-            else if (Utils.isInlinable(destinationType, value))
+            else if (Utils.isInlinable(type, value))
             {
                 expressionResult.pushInstruction(new InstructionQSTORE(stringValue, destination.variable));
             }
@@ -93,7 +93,7 @@ export default class ExpressionConstant extends Expression
             destination instanceof DestinationStack
         )
         {
-            if (Utils.isInlinable(destinationType, value))
+            if (Utils.isInlinable(type, value))
             {
                 if (destination instanceof DestinationRegisterA)
                 {
