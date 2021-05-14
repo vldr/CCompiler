@@ -19,6 +19,7 @@ import InstructionRTN from "../Instructions/InstructionRTN";
 import CodePathAnalysis from "../CodePathAnalysis";
 import Node from "../Nodes/Node";
 import ExternalWarnings from "../Errors/ExternalWarnings";
+import SymbolFunction from "../Symbols/SymbolFunction";
 
 export default class StatementFunctionDeclaration extends Statement
 {
@@ -29,7 +30,7 @@ export default class StatementFunctionDeclaration extends Statement
         const parametersNode = node.parameters;
         const bodyNode = node.body;
         const functionName = node.name;
-        const functionNameLocation = node.nameLocation;
+        const functionIdentifierNode = node.identifier;
 
         if (functionName.startsWith("_"))
         {
@@ -69,13 +70,10 @@ export default class StatementFunctionDeclaration extends Statement
 
         if (returnType.constructor !== TypeVoid && !CodePathAnalysis.returnsAllPaths(bodyNode))
         {
-            const functionNameNode: Node = {
-                location: functionNameLocation,
-                type: String()
-            };
-
-            ExternalWarnings.NOT_ALL_PATHS_RETURN(functionNameNode, this._compiler);
+            ExternalWarnings.NOT_ALL_PATHS_RETURN(functionIdentifierNode, this._compiler);
         }
+
+        this._compiler.addSymbol(new SymbolFunction(functionIdentifierNode.location));
 
         const newScope = new Scope(this._compiler, functionName, this._scope);
         const newFunction = new Function(functionName, returnType, this._scope)

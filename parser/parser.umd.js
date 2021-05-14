@@ -337,7 +337,7 @@
               var result = new node({ location: location(), 
                 type: "function_declaration",
                 name: prototype.name,
-                nameLocation: prototype.location,
+                identifier: prototype.identifier,
                 returnType: prototype.returnType,
                 parameters: prototype.parameters,
                 body: body
@@ -471,6 +471,7 @@
               var result = new node({ location: location(), 
                 type:"function_prototype",
                 name: identifier.name,
+                identifier: identifier,
                 returnType: type,
                 parameters: parameters
               });
@@ -567,7 +568,7 @@
                 result.qualifier = qualifier[0];
               }
               if (identifier) {
-                result.nameLocation = identifier[1].location;
+                result.identifier = identifier[1];
                 result.name = identifier[1].name;
                 typeNames[result.name] = result;
               }
@@ -845,7 +846,8 @@
         peg$c293 = function(function_name, parameters) {
               var result = new node({ location: location(), 
                 type: "function_call",
-                function_name: function_name,
+                identifier: function_name,
+                function_name: function_name.name,
                 parameters: parameters
               });
               if (!parameters) {
@@ -853,7 +855,9 @@
               }
               return result;
             },
-        peg$c294 = function(id) {return id.name;},
+        peg$c294 = function(id) {
+              return id;
+          },
         peg$c295 = function(head, tail) {
               var result = tail
               if (head) {
@@ -7241,9 +7245,6 @@
         s1 = peg$c294(s1);
       }
       s0 = s1;
-      if (s0 === peg$FAILED) {
-        s0 = peg$parsetype_name();
-      }
 
       return s0;
     }

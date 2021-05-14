@@ -298,7 +298,7 @@ function_definition
       var result = new node({ location: location(), 
         type: "function_declaration",
         name: prototype.name,
-        nameLocation: prototype.location,
+        identifier: prototype.identifier,
         returnType: prototype.returnType,
         parameters: prototype.parameters,
         body: body
@@ -477,6 +477,7 @@ function_prototype
       var result = new node({ location: location(), 
         type:"function_prototype",
         name: identifier.name,
+        identifier: identifier,
         returnType: type,
         parameters: parameters
       });
@@ -625,7 +626,7 @@ struct_definition
         result.qualifier = qualifier[0];
       }
       if (identifier) {
-        result.nameLocation = identifier[1].location;
+        result.identifier = identifier[1];
         result.name = identifier[1].name;
         typeNames[result.name] = result;
       }
@@ -920,7 +921,8 @@ function_call
     parameters:(parameter_list?) right_paren {
       var result = new node({ location: location(), 
         type: "function_call",
-        function_name: function_name,
+        identifier: function_name,
+        function_name: function_name.name,
         parameters: parameters
       });
       if (!parameters) {
@@ -930,7 +932,9 @@ function_call
     }
 
 function_identifier
-  = id:identifier {return id.name;}/ type_name
+  = id:identifier {
+      return id;
+  }
 
 unary_expression
   = head:("++" / "--" / "!" / "~" / "+" / "-")? _?

@@ -46,6 +46,8 @@ import InstructionPOPNOP from "../Instructions/InstructionPOPNOP";
 import InstructionRAND from "../Instructions/InstructionRAND";
 import InstructionTICK from "../Instructions/InstructionTICK";
 import InstructionSETLED from "../Instructions/InstructionSETLED";
+import SymbolStruct from "../Symbols/SymbolStruct";
+import SymbolFunction from "../Symbols/SymbolFunction";
 
 export default class ExpressionFunctionCall extends Expression
 {
@@ -54,6 +56,7 @@ export default class ExpressionFunctionCall extends Expression
         const node = this._node as NodeFunctionCall;
         const functionName = node.function_name;
         const nodeParameters = node.parameters;
+        const functionIdentifier = node.identifier;
 
         if (functionName === "_push")
         {
@@ -92,6 +95,8 @@ export default class ExpressionFunctionCall extends Expression
 
         const destination = this._destination;
         const destinationType = destination.type;
+
+        this._compiler.addSymbol(new SymbolFunction(functionIdentifier.location));
 
         ////////////////////////////////////////////////////////////
 

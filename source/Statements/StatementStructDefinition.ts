@@ -18,6 +18,8 @@ import Variable from "../Variables/Variable";
 import VariablePrimitive from "../Variables/VariablePrimitive";
 import VariableStruct from "../Variables/VariableStruct";
 import NodeStructDefinition from "../Nodes/NodeStructDefinition";
+import SymbolFunction from "../Symbols/SymbolFunction";
+import SymbolStruct from "../Symbols/SymbolStruct";
 
 export default class StatementStructDefinition extends Statement
 {
@@ -29,6 +31,7 @@ export default class StatementStructDefinition extends Statement
             throw ExternalErrors.STRUCT_MUST_BE_NAMED(node);
 
         const nameStruct = node.name;
+        const identifierStructNode = node.identifier;
         const qualifierStruct = Utils.getQualifer(node, node.qualifier);
 
         if (this._scope.getVariableByName(nameStruct) !== undefined ||
@@ -40,6 +43,9 @@ export default class StatementStructDefinition extends Statement
         }
 
         //////////////////////////////////////////////////////////////////
+
+        if (identifierStructNode)
+            this._compiler.addSymbol(new SymbolStruct(identifierStructNode.location));
 
         let members = new Map<string, Type>();
 

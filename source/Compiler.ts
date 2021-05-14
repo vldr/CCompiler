@@ -10,12 +10,14 @@ import Expression from "./Expressions/Expression";
 import Node from "./Nodes/Node";
 import InternalErrors from "./Errors/InternalErrors";
 import CompilerMessage from "./Errors/CompilerMessage";
+import Symbol from "./Symbols/Symbol";
 
 export default class Compiler
 {
     private _logger: Logger = new Logger();
     private _parser: Parser = new Parser();
     private _warnings = new Array<CompilerMessage>();
+    private _symbols = new Array<Symbol>();
     private _root: Array<string> = new Array<string>();
     private _functions: Array<string> = new Array<string>();
     private _variables: Array<string> = new Array<string>();
@@ -56,6 +58,16 @@ export default class Compiler
             this._functions.push("\n");
 
         return this._root.concat(this._functions).concat(this._variables).join("");
+    }
+
+    public addSymbol(symbol: Symbol)
+    {
+        this._symbols.push(symbol);
+    }
+
+    public getSymbols(): Symbol[]
+    {
+        return this._symbols;
     }
 
     public addWarning(warningMessage: CompilerMessage)

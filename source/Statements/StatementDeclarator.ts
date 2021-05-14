@@ -19,6 +19,7 @@ import Variable from "../Variables/Variable";
 import VariablePrimitive from "../Variables/VariablePrimitive";
 import VariableStruct from "../Variables/VariableStruct";
 import TypeVoid from "../Types/TypeVoid";
+import SymbolStruct from "../Symbols/SymbolStruct";
 
 export default class StatementDeclarator extends Statement
 {
@@ -74,6 +75,8 @@ export default class StatementDeclarator extends Statement
 
             if (type instanceof TypeStruct)
             {
+                this._compiler.addSymbol(new SymbolStruct(typeAttributeNode.location));
+
                 variable = new VariableStruct(variableName, type, this._scope, this._compiler);
 
                 if (initializerNode)

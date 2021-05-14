@@ -62,6 +62,8 @@ import TypeVoid from "../Types/TypeVoid";
 import Variable from "../Variables/Variable";
 import InstructionVPUSH from "../Instructions/InstructionVPUSH";
 import InstructionQSTORE from "../Instructions/InstructionQSTORE";
+import SymbolFunction from "../Symbols/SymbolFunction";
+import SymbolStructMember from "../Symbols/SymbolStructMember";
 
 export default class ExpressionPostfix extends Expression
 {
@@ -259,6 +261,8 @@ export default class ExpressionPostfix extends Expression
 
         const fieldSelectorNode = operator as NodeFieldSelector;
         const selection = fieldSelectorNode.selection;
+
+        this._compiler.addSymbol(new SymbolStructMember(fieldSelectorNode.location));
 
         let targetExpressionResult = this._compiler.generateExpression(
             new DestinationNone(destinationType), this._scope, expression
