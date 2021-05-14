@@ -3,6 +3,21 @@ import Compiler from "./Compiler";
 
 class Main
 {
+
+    main(x: number): number
+    {
+        while (true)
+        {
+            while (true)
+            if (x > 1.0)
+                x += 2.0;
+            else
+               break;
+
+            return 1.0;
+        }
+    }
+
     static start(): void
     {
         const compiler = new Compiler();

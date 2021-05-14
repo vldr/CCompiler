@@ -9,17 +9,10 @@ import NodeTypeCast from "./Nodes/NodeTypeCast";
 
 export default class CodePathAnalysis
 {
-    // TODO: Implement break detection.
-
     public static returnsAllPaths(node: Node): boolean
     {
         switch (node.type)
         {
-            case "function_call":
-            case "declarator":
-            case "expression":
-            case "break":
-                return false;
             case "return":
                 return true;
             case "scope":
@@ -32,6 +25,40 @@ export default class CodePathAnalysis
                 return this.returnsAllPathsDoStatement(node as unknown as NodeDoStatement);
             case "for_statement":
                 return this.returnsAllPathsForStatement(node as unknown as NodeForStatement);
+            default:
+                return false;
+        }
+    }
+
+    private static doesContainBreak(node: Node): boolean
+    {
+        switch (node.type)
+        {
+            case "break":
+                return true;
+            case "scope": {
+                let result = false;
+
+                (node as unknown as NodeScope).statements.forEach((node) => {
+                    if (this.doesContainBreak(node)) {
+                        result = true;
+                    }
+                });
+
+                return result;
+            }
+            case "if_statement": {
+                const nodeIfStatement = (node as unknown as NodeIfStatement);
+
+                let result = this.doesContainBreak(nodeIfStatement.body);
+
+                if (!result && nodeIfStatement.elseBody)
+                {
+                    result = this.doesContainBreak(nodeIfStatement.elseBody);
+                }
+
+                return result;
+            }
             default:
                 return false;
         }
@@ -72,7 +99,7 @@ export default class CodePathAnalysis
 
     private static returnsAllPathsWhileStatement(node: NodeWhileStatement): boolean
     {
-        if (this.isAlwaysTrue(node.condition))
+        if (this.isAlwaysTrue(node.condition) && !this.doesContainBreak(node.body))
         {
             return this.returnsAllPaths(node.body);
         }
@@ -82,7 +109,7 @@ export default class CodePathAnalysis
 
     private static returnsAllPathsForStatement(node: NodeForStatement): boolean
     {
-        if (node.condition === null || this.isAlwaysTrue(node.condition))
+        if ((node.condition === null || this.isAlwaysTrue(node.condition)) && !this.doesContainBreak(node.body))
         {
             return this.returnsAllPaths(node.body);
         }
@@ -92,7 +119,10 @@ export default class CodePathAnalysis
 
     private static isAlwaysTrue(node: Node): boolean
     {
-        if ((node.type === "int" || node.type === "uint") && (node as unknown as NodeConstant).value_base10 != 0)
+        if (
+            (node.type === "int" || node.type === "uint") &&
+            (node as unknown as NodeConstant).value_base10 != 0
+        )
         {
             return true;
         }
