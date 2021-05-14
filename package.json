@@ -6,6 +6,7 @@
   "author": "",
   "license": "ISC",
   "scripts": {
+     "compile": "tsc -p tsconfig.json",
      "debug": "webpack --config webpack.config.debug.js",
      "release": "webpack --config webpack.config.release.js"
   },
