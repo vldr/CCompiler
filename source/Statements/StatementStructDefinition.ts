@@ -86,6 +86,11 @@ export default class StatementStructDefinition extends Statement
 
                 let type = Utils.getType(typeAttributeNode, typeName, size, qualifier, this._scope);
 
+                if (type instanceof TypeStruct)
+                {
+                    this._compiler.addSymbol(new SymbolStruct(typeAttributeNode.location));
+                }
+
                 members.set(variableName, type);
             });
         });
