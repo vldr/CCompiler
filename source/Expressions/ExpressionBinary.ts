@@ -65,13 +65,7 @@ export default class ExpressionBinary extends Expression
         // Type Checking
 
         if (!leftExpressionResult.type.equals(rightExpressionResult.type))
-            throw ExternalErrors.CANNOT_CONVERT_TYPE(node, leftExpressionResult.type.toString(), rightExpressionResult.type.toString())
-
-        if (destinationType.constructor !== TypeVoid && !leftExpressionResult.type.equals(destinationType))
-            throw ExternalErrors.CANNOT_CONVERT_TYPE(node, leftExpressionResult.type.toString(), destinationType.toString());
-
-        if (destinationType.constructor !== TypeVoid && !rightExpressionResult.type.equals(destinationType))
-            throw ExternalErrors.CANNOT_CONVERT_TYPE(node, rightExpressionResult.type.toString(), destinationType.toString());
+            throw ExternalErrors.CANNOT_CONVERT_TYPE(node, leftExpressionResult.type.toString(), rightExpressionResult.type.toString());
 
         ////////////////////////////////////////////////////////////
 

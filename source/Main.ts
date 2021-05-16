@@ -8,16 +8,18 @@ class Main
     {
         const compiler = new Compiler();
         console.log(compiler.compile(`
-        void lastPosition(int n, int m, int k)
-{
-    int x;
+        uint g_seed = _urand();
+        
+        int rand() {
+            g_seed = (214013u * g_seed + 2531011u);
+            int result[] = { 1, (int)(g_seed >>= 16u) };
+        
+            /*if (result < 0)
+                result *= -1;*/
+        
+            return 1;
+        }
 
-
-    if (x)
-    {
-
-    }
-}
  
         `));
 
