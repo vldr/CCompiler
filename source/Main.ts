@@ -7,18 +7,19 @@ class Main
     static start(): void
     {
         const compiler = new Compiler();
-        const interpreter = new Interpreter(compiler.compile(`
-        uint z1yguyguygvuyguy = 687u;
-        uint b = z1yguyguygvuyguy + 3u;
+        console.log(compiler.compile(`
+        uint lastPosition(uint n, uint m, uint k)
+        {
+            /*if (m <= n - k + 1)
+                return m + k - 1;
         
-        void main() {
-            z1yguyguygvuyguy = ((z1yguyguygvuyguy & 4294967294u) << 18u) ^ b;
+            m = m - (n - k + 1);*/
+        
+            return (m % n == 0u) ? n : (m % n);
         }
-        
-        main();
-        `))
+        `));
 
-        interpreter.run();
+        //interpreter.run();
 
     }
 }

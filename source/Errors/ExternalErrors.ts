@@ -146,6 +146,10 @@ export default abstract class ExternalErrors
         return this.generateError(`The variable '${variableName}' cannot be modified, it is read-only.`, node);
     }
 
+    static UNSUPPORTED_TYPE_FOR_BINARY_OPERATOR(node: Node, operator: string, typeName: string)
+    {
+        return this.generateError(`The operator '${operator}' is not supported for '${typeName}'.`, node);
+    }
 
     static UNSUPPORTED_TYPE_FOR_UNARY_OPERATOR(node: Node, operator: string, typeName: string)
     {

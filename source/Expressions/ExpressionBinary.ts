@@ -166,40 +166,80 @@ export default class ExpressionBinary extends Expression
 
             case "%":
             case "%=":
-                expressionResult.type = new TypeUnsignedInteger(expressionResult.type.qualifer, expressionResult.type.size);
+                if (expressionResult.type.constructor !== TypeUnsignedInteger &&
+                    expressionResult.type.constructor !== TypeInteger)
+                    throw ExternalErrors.UNSUPPORTED_TYPE_FOR_BINARY_OPERATOR(
+                        node, operator, expressionResult.type.toString()
+                    );
+
                 expressionResult.pushInstruction(new InstructionREM());
                 break;
             case "<<":
             case "<<=":
-                expressionResult.type = new TypeUnsignedInteger(expressionResult.type.qualifer, expressionResult.type.size);
+                if (expressionResult.type.constructor !== TypeUnsignedInteger &&
+                    expressionResult.type.constructor !== TypeInteger)
+                    throw ExternalErrors.UNSUPPORTED_TYPE_FOR_BINARY_OPERATOR(
+                        node, operator, expressionResult.type.toString()
+                    );
+
                 expressionResult.pushInstruction(new InstructionSHIFTL());
                 break;
             case ">>":
             case ">>=":
-                expressionResult.type = new TypeUnsignedInteger(expressionResult.type.qualifer, expressionResult.type.size);
+                if (expressionResult.type.constructor !== TypeUnsignedInteger &&
+                    expressionResult.type.constructor !== TypeInteger)
+                    throw ExternalErrors.UNSUPPORTED_TYPE_FOR_BINARY_OPERATOR(
+                        node, operator, expressionResult.type.toString()
+                    );
+
                 expressionResult.pushInstruction(new InstructionSHIFTR());
                 break;
             case "||":
-                expressionResult.type = new TypeUnsignedInteger(expressionResult.type.qualifer, expressionResult.type.size);
+                if (expressionResult.type.constructor !== TypeUnsignedInteger &&
+                    expressionResult.type.constructor !== TypeInteger)
+                    throw ExternalErrors.UNSUPPORTED_TYPE_FOR_BINARY_OPERATOR(
+                        node, operator, expressionResult.type.toString()
+                    );
+
                 expressionResult.pushInstruction(new InstructionLOR());
                 break;
             case "|":
             case "|=":
-                expressionResult.type = new TypeUnsignedInteger(expressionResult.type.qualifer, expressionResult.type.size);
+                if (expressionResult.type.constructor !== TypeUnsignedInteger &&
+                    expressionResult.type.constructor !== TypeInteger)
+                    throw ExternalErrors.UNSUPPORTED_TYPE_FOR_BINARY_OPERATOR(
+                        node, operator, expressionResult.type.toString()
+                    );
+
                 expressionResult.pushInstruction(new InstructionOR());
                 break;
             case "&&":
-                expressionResult.type = new TypeUnsignedInteger(expressionResult.type.qualifer, expressionResult.type.size);
+                if (expressionResult.type.constructor !== TypeUnsignedInteger &&
+                    expressionResult.type.constructor !== TypeInteger)
+                    throw ExternalErrors.UNSUPPORTED_TYPE_FOR_BINARY_OPERATOR(
+                        node, operator, expressionResult.type.toString()
+                    );
+
                 expressionResult.pushInstruction(new InstructionLAND());
                 break;
             case "&":
             case "&=":
-                expressionResult.type = new TypeUnsignedInteger(expressionResult.type.qualifer, expressionResult.type.size);
+                if (expressionResult.type.constructor !== TypeUnsignedInteger &&
+                    expressionResult.type.constructor !== TypeInteger)
+                    throw ExternalErrors.UNSUPPORTED_TYPE_FOR_BINARY_OPERATOR(
+                        node, operator, expressionResult.type.toString()
+                    );
+
                 expressionResult.pushInstruction(new InstructionAND());
                 break;
             case "^":
             case "^=":
-                expressionResult.type = new TypeUnsignedInteger(expressionResult.type.qualifer, expressionResult.type.size);
+                if (expressionResult.type.constructor !== TypeUnsignedInteger &&
+                    expressionResult.type.constructor !== TypeInteger)
+                    throw ExternalErrors.UNSUPPORTED_TYPE_FOR_BINARY_OPERATOR(
+                        node, operator, expressionResult.type.toString()
+                    );
+
                 expressionResult.pushInstruction(new InstructionXOR());
                 break;
 
@@ -210,7 +250,11 @@ export default class ExpressionBinary extends Expression
             case ">=":
             case "==":
             case "!=":
-                expressionResult.type = new TypeUnsignedInteger(expressionResult.type.qualifer, expressionResult.type.size);
+                if (destinationType instanceof TypeInteger)
+                    expressionResult.type = new TypeInteger(expressionResult.type.qualifer, expressionResult.type.size);
+                else
+                    expressionResult.type = new TypeUnsignedInteger(expressionResult.type.qualifer, expressionResult.type.size);
+
                 expressionResult.pushInstruction(new InstructionCMP(leftExpressionResult.type, operator));
                 break;
             default:
