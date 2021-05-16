@@ -64,6 +64,7 @@ import InstructionVPUSH from "../Instructions/InstructionVPUSH";
 import InstructionQSTORE from "../Instructions/InstructionQSTORE";
 import SymbolFunction from "../Symbols/SymbolFunction";
 import SymbolStructMember from "../Symbols/SymbolStructMember";
+import SymbolAccessor from "../Symbols/SymbolAccessor";
 
 export default class ExpressionPostfix extends Expression
 {
@@ -465,6 +466,8 @@ export default class ExpressionPostfix extends Expression
         const destination = this._destination;
         const destinationType = destination.type;
         const expression = node.expression;
+
+        this._compiler.addSymbol(new SymbolAccessor(expression.location));
 
         const accessorNode = operator as NodeAccessor;
         let targetExpressionResult = this._compiler.generateExpression(
