@@ -10,6 +10,8 @@ import NodeScope from "../Nodes/NodeScope";
 import Node from "../Nodes/Node";
 import InstructionJMP from "../Instructions/InstructionJMP";
 import Scope from "../Scope";
+import TypeInteger from "../Types/TypeInteger";
+import TypeUnsignedInteger from "../Types/TypeUnsignedInteger";
 
 export default class StatementIf extends Statement
 {
@@ -37,13 +39,19 @@ export default class StatementIf extends Statement
         const alternateLabel = `${this._scope.name}_${statementName}_alternate`
         const finishLabel = `${this._scope.name}_${statementName}_finish`
 
-        const expressionResult = this._compiler.generateExpression(
+        const conditionalExpressionResult = this._compiler.generateExpression(
             new DestinationRegisterA(new TypeVoid(new QualifierNone(), 1)),
             this._scope,
             condition
         );
 
-        this._compiler.emitToFunctions(expressionResult.write());
+        if (!conditionalExpressionResult.type.equals(new TypeInteger(new QualifierNone(), 1))
+            && !conditionalExpressionResult.type.equals(new TypeUnsignedInteger(new QualifierNone(), 1)))
+        {
+            throw ExternalErrors.CANNOT_CONVERT_TYPE(condition, conditionalExpressionResult.type.toString(), "int | uint");
+        }
+
+        this._compiler.emitToFunctions(conditionalExpressionResult.write());
         this._compiler.emitToFunctions(new InstructionJNA(alternateLabel).write());
 
         this.generateBody(statementName, node.body);
