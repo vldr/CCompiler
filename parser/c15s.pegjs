@@ -814,22 +814,11 @@ paren_expression
       return expression;
     }
 
-bool_constant
-  = value:("true" / "false") {
-    return new node({ location: location(), 
-      type: "uint",
-      format: "number",
-      value: value == "true" ? "1" : "0",
-      value_base10: value == "true" ? 1 : 0
-    });
-  }
-
 primary_expression
   = function_call
   / identifier
   / float_constant
   / int_constant
-  / bool_constant
   / paren_expression
   / type_cast
   
