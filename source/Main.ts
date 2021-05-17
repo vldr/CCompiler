@@ -16,8 +16,8 @@ class Main
         //console.log(result);
 
         new Interpreter(`
-            GETA var_f
-            GETB var_a
+            VGETB -3
+            GETA var_a
             HALT
             
             var_a:

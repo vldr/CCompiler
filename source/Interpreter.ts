@@ -64,12 +64,12 @@ export default class Interpreter
         else
         {
             const integerValue = Number.parseInt(str);
-            if (Number.isNaN(integerValue))
+            if (str.includes(".") || Number.isNaN(integerValue))
             {
                 throw instruction.error(location, "Invalid value provided.");
             }
 
-            return new Uint32Array([ integerValue ]);
+            return integerValue < 0 ? new Int32Array([ integerValue ]) : new Uint32Array([ integerValue ]);
         }
     }
 
@@ -211,6 +211,10 @@ export default class Interpreter
         }
     }
 
+    // Implement InstructionVGETA.ts
+    // Implement InstructionVGETB.ts
+    // Implement InstructionGETA.ts
+    // Implement InstructionGETB.ts
     public interpretGET(instruction: InterpreterInstruction)
     {
         let value: ArrayBuffer;
@@ -238,14 +242,14 @@ export default class Interpreter
         }
     }
 
-    // TODO: Implement InstructionGETA.ts
-    // TODO: Implement InstructionGETB.ts
     // TODO: Implement InstructionGETPOPA.ts
     // TODO: Implement InstructionGETPOPB.ts
     // TODO: Implement InstructionGETPOPR.ts
 
     // TODO: Implement InstructionPOP.ts
     // TODO: Implement InstructionPUSH.ts
+    // TODO: Implement InstructionVPUSH.ts
+    // TODO: Implement InstructionPOPNOP.ts
 
     // TODO: Implement InstructionADD.ts
     // TODO: Implement InstructionAND.ts
@@ -278,7 +282,7 @@ export default class Interpreter
     // TODO: Implement InstructionNOT.ts
     // TODO: Implement InstructionOR.ts
 
-    // TODO: Implement InstructionPOPNOP.ts
+
 
     // TODO: Implement InstructionQADD.ts
     // TODO: Implement InstructionQSTORE.ts
@@ -299,9 +303,8 @@ export default class Interpreter
     // TODO: Implement InstructionSTOREPUSH.ts
     // TODO: Implement InstructionSUB.ts
     // TODO: Implement InstructionTICK.ts
-    // TODO: Implement InstructionVGETA.ts
-    // TODO: Implement InstructionVGETB.ts
-    // TODO: Implement InstructionVPUSH.ts
+
+
     // TODO: Implement InstructionXOR.ts
 }
 
