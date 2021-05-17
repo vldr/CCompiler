@@ -17,15 +17,29 @@ class Main
         // `);
 
         new Interpreter(`
-          GETA var_a
-            GETB var_b
+            VPUSH var_b
+            
+            VPUSH 128
+            VPUSH 64
+            VPUSH 32
+            
+            VPUSH 16
+            
+            POP var_a
+            
+            GETPOPA
+            GETPOPB
+            GETPOPR
+            
+            MOVINPOP
+
             HALT
             
             var_a:
-            .data 10.25f
+            .data 0
             
             var_b:
-            .data 5
+            .data 0
 
         `).run();
     }

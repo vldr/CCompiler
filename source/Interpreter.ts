@@ -1,8 +1,8 @@
 export default class Interpreter
 {
-    private _registerA = new ArrayBuffer(4);
-    private _registerB = new ArrayBuffer(4);
-    private _registerR = new ArrayBuffer(4);
+    private _registerA: ArrayBuffer = new Uint32Array([ 0 ]);
+    private _registerB: ArrayBuffer = new Uint32Array([ 0 ]);
+    private _registerR: ArrayBuffer = new Uint32Array([ 0 ]);
     private _stack = new Array<ArrayBuffer>();
     private _programCounter: number;
 
@@ -21,6 +21,8 @@ export default class Interpreter
     get registerA() { return this._registerA.slice(0); }
     get registerB() { return this._registerB.slice(0); }
     get registerR() { return this._registerR.slice(0); }
+    get stack() { return this._stack; }
+    get memoryRegions() { return this._memoryRegions; }
 
     public run()
     {
@@ -53,27 +55,36 @@ export default class Interpreter
                 break;
         }
 
-        if (str.endsWith("f"))
+        let memoryLocation = this._labels.get(str);
+
+        if (memoryLocation)
         {
-            str = str.replace("f", "");
-
-            const floatValue = Number.parseFloat(str);
-            if (Number.isNaN(floatValue))
-            {
-                throw instruction.error(location, "Invalid floating point value provided.");
-            }
-
-            return new Float32Array([ floatValue ]);
+            return new Uint32Array([ memoryLocation ]);
         }
         else
         {
-            const integerValue = Number.parseInt(str);
-            if (str.includes(".") || Number.isNaN(integerValue))
+            if (str.endsWith("f"))
             {
-                throw instruction.error(location, "Invalid value provided.");
-            }
+                str = str.replace("f", "");
 
-            return integerValue < 0 ? new Int32Array([ integerValue ]) : new Uint32Array([ integerValue ]);
+                const floatValue = Number.parseFloat(str);
+                if (Number.isNaN(floatValue))
+                {
+                    throw instruction.error(location, "Invalid floating point value provided.");
+                }
+
+                return new Float32Array([ floatValue ]);
+            }
+            else
+            {
+                const integerValue = Number.parseInt(str);
+                if (str.includes(".") || Number.isNaN(integerValue))
+                {
+                    throw instruction.error(location, "Invalid value provided.");
+                }
+
+                return integerValue < 0 ? new Int32Array([ integerValue ]) : new Uint32Array([ integerValue ]);
+            }
         }
     }
 
@@ -103,6 +114,11 @@ export default class Interpreter
 
     private setMemoryValue(instruction: InterpreterInstruction, labelLocation: InterpreterLocation, valueLocation: InterpreterLocation)
     {
+        this.setMemoryNumericValue(instruction, labelLocation, this.getNumericValue(instruction, valueLocation));
+    }
+
+    private setMemoryNumericValue(instruction: InterpreterInstruction, labelLocation: InterpreterLocation, value: ArrayBuffer)
+    {
         let label = String();
 
         switch (labelLocation)
@@ -123,9 +139,37 @@ export default class Interpreter
 
         //////////////////////////////////////////////////////////
 
-        let value = this.getNumericValue(instruction, valueLocation);
-
         this._memoryRegions.set(label, value.slice(0));
+    }
+
+    private setMemoryNumericValueByAddress(instruction: InterpreterInstruction, address: number, value: ArrayBuffer)
+    {
+        let label: string | undefined;
+
+        this._labels.forEach((_address, _label) =>
+        {
+            if (address === _address)
+            {
+                label = _label;
+            }
+        });
+
+        if (!label)
+        {
+            throw instruction.error(InterpreterLocation.Operand, "Unable to resolve popped address to a memory region.");
+        }
+
+        const memoryRegion = this._memoryRegions.get(label);
+
+        if (memoryRegion)
+        {
+            this._memoryRegions.set(label, value.slice(0));
+        }
+        else
+        {
+            throw instruction.error(InterpreterLocation.Operand, "The corresponding address does not " +
+                "corresponding to a given memory region (buffer overrun?).");
+        }
     }
 
     private pushMemory(instruction: InterpreterInstruction, labelLocation: InterpreterLocation)
@@ -135,14 +179,19 @@ export default class Interpreter
         this._stack.push(value.slice(0));
     }
 
-    private pushValue(instruction: InterpreterInstruction, valueLocation: InterpreterLocation)
+    private pushNumericValue(instruction: InterpreterInstruction, valueLocation: InterpreterLocation)
     {
         let value = this.getNumericValue(instruction, valueLocation);
 
         this._stack.push(value.slice(0));
     }
 
-    private popValue(instruction: InterpreterInstruction): ArrayBuffer
+    private pushValue(instruction: InterpreterInstruction, value: ArrayBuffer)
+    {
+        this._stack.push(value.slice(0));
+    }
+
+    public popValue(instruction: InterpreterInstruction): ArrayBuffer
     {
         const value = this._stack.pop();
 
@@ -220,6 +269,22 @@ export default class Interpreter
                 {
                     this.interpretPUSH(instruction);
                 }
+                    // TODO: Implement InstructionPOP.ts
+                    // TODO: Implement InstructionGETPOPA.ts
+                    // TODO: Implement InstructionGETPOPB.ts
+                    // TODO: Implement InstructionGETPOPR.ts
+                // TODO: Implement InstructionPOPNOP.ts
+                else if (
+                    instruction.operand === "POP" ||
+                    instruction.operand === "GETPOPA" ||
+                    instruction.operand === "GETPOPB" ||
+                    instruction.operand === "GETPOPR" ||
+                    instruction.operand === "POPNOP" ||
+                    instruction.operand === "MOVINPOP"
+                )
+                {
+                    this.interpretPOP(instruction);
+                }
                 else
                 {
                     throw instruction.error(InterpreterLocation.Operand, "Unimplemented instruction '" + instruction.operand + "'.")
@@ -269,48 +334,60 @@ export default class Interpreter
     {
         if (instruction.operand === "PUSH")
         {
-            const value = this.getMemoryValue(instruction, InterpreterLocation.Arg0);
-
+            this.pushMemory(instruction, InterpreterLocation.Arg0);
+        }
+        else if (instruction.operand === "VPUSH" || instruction.operand === "STOREPUSH")
+        {
+            this.pushNumericValue(instruction, InterpreterLocation.Arg0);
+        }
+        else if (instruction.operand === "SAVEPUSH")
+        {
+            this.pushValue(instruction, this._registerR);
         }
         else
         {
             instruction.error(InterpreterLocation.Operand, "Unknown operand for PUSH-like instruction.");
         }
+    }
 
+    // Implement InstructionPOP.ts
+    // Implement InstructionGETPOPA.ts
+    // Implement InstructionGETPOPB.ts
+    // Implement InstructionGETPOPR.ts
+    // Implement InstructionPOPNOP.ts
+    // Implement InstructionMOVINPOP.ts
+    public interpretPOP(instruction: InterpreterInstruction)
+    {
+        const value = this.popValue(instruction);
 
-        /*let value: ArrayBuffer;
-
-        if (instruction.operand?.startsWith("V") )
+        if (instruction.operand === "POP")
         {
-            value = this.getNumericValue(instruction, InterpreterLocation.Arg0);
+            this.setMemoryNumericValue(instruction, InterpreterLocation.Arg0, value);
         }
-        else
-        {
-            value = this.getMemoryValue(instruction, InterpreterLocation.Arg0)
-        }
-
-        if (instruction.operand?.endsWith("A"))
+        else if (instruction.operand === "GETPOPA")
         {
             this._registerA = value;
         }
-        else if (instruction.operand?.endsWith("B"))
+        else if (instruction.operand === "GETPOPB")
         {
             this._registerB = value;
         }
+        else if (instruction.operand === "GETPOPR")
+        {
+            this._registerR = value;
+        }
+        else if (instruction.operand === "MOVINPOP")
+        {
+            const address = new Uint32Array(value)[0];
+
+            this.setMemoryNumericValueByAddress(instruction, address, this._registerR);
+        }
+        else if (instruction.operand === "POPNOP") {}
         else
         {
-            instruction.error(InterpreterLocation.Operand, "Unknown operand for GET instruction.");
-        }*/
+            instruction.error(InterpreterLocation.Operand, "Unknown operand for POP-like instruction.");
+        }
     }
-
-
-
-    // TODO: Implement InstructionPOPNOP.ts
-    // TODO: Implement InstructionPOP.ts
-
-    // TODO: Implement InstructionGETPOPA.ts
-    // TODO: Implement InstructionGETPOPB.ts
-    // TODO: Implement InstructionGETPOPR.ts
 
     // TODO: Implement InstructionADD.ts
     // TODO: Implement InstructionAND.ts
@@ -335,7 +412,6 @@ export default class Interpreter
     // TODO: Implement InstructionLOR.ts
     // TODO: Implement InstructionMOV.ts
     // TODO: Implement InstructionMOVIN.ts
-    // TODO: Implement InstructionMOVINPOP.ts
     // TODO: Implement InstructionMOVOUT.ts
     // TODO: Implement InstructionMOVOUTPUSH.ts
     // TODO: Implement InstructionMULT.ts
