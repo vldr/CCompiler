@@ -4,6 +4,7 @@ export default class Interpreter
     private _registerB: ArrayBuffer = new Uint32Array([ 0 ]);
     private _registerR: ArrayBuffer = new Uint32Array([ 0 ]);
     private _stack = new Array<ArrayBuffer>();
+    private _callStack = new Array<number>();
     private _programCounter: number;
 
     private _labels = new Map<string, number>();
@@ -31,6 +32,42 @@ export default class Interpreter
         this.processLabels();
         this.processMemoryRegions();
         this.processInstructions();
+    }
+
+    private jumpToLocation(instruction: InterpreterInstruction, location: InterpreterLocation)
+    {
+        let label = String();
+
+        switch (location)
+        {
+            case InterpreterLocation.Operand:
+                if (instruction.operand) label = instruction.operand;
+                break;
+            case InterpreterLocation.Arg0:
+                if (instruction.arg0) label = instruction.arg0;
+                break;
+            case InterpreterLocation.Arg1:
+                if (instruction.arg1) label = instruction.arg1;
+                break;
+        }
+
+        const address = this._labels.get(label);
+
+        if (this._memoryRegions.get(label))
+            throw instruction.error(location, "Cannot jump to a memory location.");
+
+        if (!address)
+            throw instruction.error(location, "Invalid label location provided.");
+
+        this._programCounter = address;
+    }
+
+    private jumpToLocationByAddress(instruction: InterpreterInstruction, address: number)
+    {
+        if (address < 0 || address > this._instructions.length)
+            throw instruction.error(InterpreterLocation.Operand, "Address is out of bounds.");
+
+        this._programCounter = address;
     }
 
     private getNumericValue(instruction: InterpreterInstruction, location: InterpreterLocation): ArrayBuffer
@@ -266,6 +303,7 @@ export default class Interpreter
         while (isRunning)
         {
             const instruction = new InterpreterInstruction(this._instructions[this._programCounter], this._programCounter);
+            const previousPC = this._programCounter;
 
             if (instruction.operand)
             {
@@ -313,13 +351,28 @@ export default class Interpreter
                 {
                     this.interpretSAVE(instruction);
                 }
+                else if (
+                    instruction.operand === "JA" ||
+                    instruction.operand === "JNA" ||
+                    instruction.operand === "JMP" ||
+                    instruction.operand === "CALL" ||
+                    instruction.operand === "RTN"
+                )
+                {
+                    this.interpretJUMP(instruction);
+                }
+                else if (instruction.operand === "#") {}
+                else if (this._instructions[this._programCounter].endsWith(":")) {}
                 else
                 {
                     throw instruction.error(InterpreterLocation.Operand, "Unimplemented instruction '" + instruction.operand + "'.")
                 }
             }
 
-            this._programCounter++;
+            if (this._programCounter === previousPC)
+            {
+                this._programCounter++;
+            }
         }
     }
 
@@ -432,7 +485,6 @@ export default class Interpreter
     // Implement InstructionSAVETOB.ts
     public interpretSAVE(instruction: InterpreterInstruction)
     {
-
         if (instruction.operand === "SAVE")
         {
             this.setMemoryNumericValue(instruction, InterpreterLocation.Arg0, this._registerR);
@@ -459,55 +511,89 @@ export default class Interpreter
         }
     }
 
+    // Implement InstructionJA.ts
+    // Implement InstructionJNA.ts
+    // Implement InstructionJMP.ts
+    // Implement InstructionCALL.ts
+    // Implement InstructionRTN.ts
+    public interpretJUMP(instruction: InterpreterInstruction)
+    {
+        if (instruction.operand === "JA")
+        {
+            if (new Uint32Array(this._registerA)[0] != 0)
+            {
+                this.jumpToLocation(instruction, InterpreterLocation.Arg0);
+            }
+        }
+        else if (instruction.operand === "JNA")
+        {
+            if (new Uint32Array(this._registerA)[0] == 0)
+            {
+                this.jumpToLocation(instruction, InterpreterLocation.Arg0);
+            }
+        }
+        else if (instruction.operand === "JMP")
+        {
+            this.jumpToLocation(instruction, InterpreterLocation.Arg0);
+        }
+        else if (instruction.operand === "RTN")
+        {
+            const poppedAddress = this._callStack.pop();
 
+            if (!poppedAddress)
+                throw instruction.error(InterpreterLocation.Operand, "Call stack is empty.");
 
-    // TODO: Implement InstructionADD.ts
-    // TODO: Implement InstructionAND.ts
-    // TODO: Implement InstructionCALL.ts
-    // TODO: Implement InstructionCMP.ts
-    // TODO: Implement InstructionComment.ts
-    // TODO: Implement InstructionDEC.ts
-    // TODO: Implement InstructionDIV.ts
-    // TODO: Implement InstructionFDEC.ts
-    // TODO: Implement InstructionFINC.ts
-    // TODO: Implement InstructionFLTOINT.ts
-    // TODO: Implement InstructionFNEG.ts
+            this.jumpToLocationByAddress(instruction, poppedAddress);
+        }
+        else if (instruction.operand === "CALL")
+        {
+            this._callStack.push(this._programCounter + 1);
 
+            this.jumpToLocation(instruction, InterpreterLocation.Arg0);
+        }
+        else
+        {
+            instruction.error(InterpreterLocation.Operand, "Unknown operand for JUMP-like instruction.");
+        }
+    }
 
-    // TODO: Implement InstructionINC.ts
-    // TODO: Implement InstructionINTTOFL.ts
-    // TODO: Implement InstructionJA.ts
-    // TODO: Implement InstructionJMP.ts
-    // TODO: Implement InstructionJNA.ts
-    // TODO: Implement InstructionLabel.ts
-    // TODO: Implement InstructionLAND.ts
-    // TODO: Implement InstructionLOR.ts
     // TODO: Implement InstructionMOV.ts
     // TODO: Implement InstructionMOVIN.ts
     // TODO: Implement InstructionMOVOUT.ts
+
+    // TODO: Implement InstructionADD.ts
     // TODO: Implement InstructionMULT.ts
+    // TODO: Implement InstructionDIV.ts
+    // TODO: Implement InstructionSUB.ts
+    // TODO: Implement InstructionREM.ts
+
+    // TODO: Implement InstructionAND.ts
+    // TODO: Implement InstructionCMP.ts
+    // TODO: Implement InstructionSHIFTL.ts
+    // TODO: Implement InstructionSHIFTR.ts
+    // TODO: Implement InstructionFLTOINT.ts
+    // TODO: Implement InstructionFNEG.ts
+    // TODO: Implement InstructionINC.ts
+    // TODO: Implement InstructionINTTOFL.ts
+    // TODO: Implement InstructionDEC.ts
+    // TODO: Implement InstructionFDEC.ts
+    // TODO: Implement InstructionFINC.ts
+    // TODO: Implement InstructionLAND.ts
+    // TODO: Implement InstructionLOR.ts
     // TODO: Implement InstructionNEG.ts
     // TODO: Implement InstructionNOT.ts
     // TODO: Implement InstructionOR.ts
-
+    // TODO: Implement InstructionSNEG.ts
+    // TODO: Implement InstructionXOR.ts
 
 
     // TODO: Implement InstructionQADD.ts
     // TODO: Implement InstructionQSTORE.ts
     // TODO: Implement InstructionRAND.ts
-    // TODO: Implement InstructionREM.ts
-    // TODO: Implement InstructionRTN.ts
     // TODO: Implement InstructionSETLED.ts
-    // TODO: Implement InstructionSHIFTL.ts
-    // TODO: Implement InstructionSHIFTR.ts
-    // TODO: Implement InstructionSNEG.ts
     // TODO: Implement InstructionSTORE.ts
-
-    // TODO: Implement InstructionSUB.ts
     // TODO: Implement InstructionTICK.ts
 
-
-    // TODO: Implement InstructionXOR.ts
 }
 
 enum InterpreterLocation {

@@ -71,21 +71,15 @@ test("Test MOVOUTPUSH.", () => {
 test("Test POPNOP, POP, GETPOPA, GETPOPB, GETPOPR, MOVINPOP.", () => {
     const interpreter = new Interpreter(`
             VPUSH var_b
-            
             VPUSH 128
             VPUSH 64
-            VPUSH 32
-            
+            VPUSH 32      
             VPUSH 16
-            
             VPUSH 0
             
           
             POPNOP
-            
             POP var_a
-         
-            
             GETPOPA
             GETPOPB
             GETPOPR
@@ -145,4 +139,66 @@ test("Test SAVE, SAVEA, SAVEB, SAVETOA, SAVETOB.", () => {
     expect(interpreter.registerA).toStrictEqual(new Uint32Array([ 128 ]));
     expect(interpreter.registerB).toStrictEqual(new Uint32Array([ 128 ]));
     expect(interpreter.registerR).toStrictEqual(new Uint32Array([ 128 ]));
+});
+
+test("Test JMP.", () => {
+    const interpreter = new Interpreter(`
+            JMP test
+            HALT
+            
+            test:
+            VGETA 128
+            HALT
+        `);
+    interpreter.run();
+
+    expect(interpreter.registerA).toStrictEqual(new Uint32Array([ 128 ]));
+});
+
+test("Test CALL, RTN.", () => {
+    const interpreter = new Interpreter(`
+            CALL test
+            VGETB 64
+            HALT
+            
+            test:
+            VGETA 128
+            RTN
+        `);
+    interpreter.run();
+
+    expect(interpreter.registerA).toStrictEqual(new Uint32Array([ 128 ]));
+    expect(interpreter.registerB).toStrictEqual(new Uint32Array([ 64 ]));
+});
+
+test("Test JA, JNA.", () => {
+    let interpreter = new Interpreter(`
+                VGETA 6.4f
+                JA true
+            false:
+                VGETB 0
+                JMP finish
+            true:
+                VGETB 1
+            finish:
+                HALT
+        `);
+    interpreter.run();
+
+    expect(interpreter.registerB).toStrictEqual(new Uint32Array([ 1 ]));
+
+    interpreter = new Interpreter(`
+                VGETA 0
+                JNA false
+            true:
+                VGETB 0
+                JMP finish
+            false:
+                VGETB 1
+            finish:
+                HALT
+        `);
+    interpreter.run();
+
+    expect(interpreter.registerB).toStrictEqual(new Uint32Array([ 1 ]));
 });
