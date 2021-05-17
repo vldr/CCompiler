@@ -53,6 +53,21 @@ test("Test PUSH, VPUSH, STOREPUSH, SAVEPUSH.", () => {
     expect(interpreter.stack.pop()).toStrictEqual(new Float32Array([ 289 ]));
 });
 
+test("Test MOVOUTPUSH.", () => {
+    const interpreter = new Interpreter(`
+            VPUSH var_a
+            GETPOPR
+            MOVOUTPUSH            
+            HALT
+            
+            var_a:
+            .data 10.25f
+        `);
+    interpreter.run();
+
+    expect(interpreter.stack.pop()).toStrictEqual(new Float32Array([ 10.25 ]));
+});
+
 test("Test POP, GETPOPA, GETPOPB, GETPOPR, MOVINPOP.", () => {
     const interpreter = new Interpreter(`
             VPUSH var_b

@@ -156,7 +156,7 @@ export default class Interpreter
 
         if (!label)
         {
-            throw instruction.error(InterpreterLocation.Operand, "Unable to resolve popped address to a memory region.");
+            throw instruction.error(InterpreterLocation.Operand, "Unable to resolve address to a memory region.");
         }
 
         const memoryRegion = this._memoryRegions.get(label);
@@ -164,6 +164,36 @@ export default class Interpreter
         if (memoryRegion)
         {
             this._memoryRegions.set(label, value.slice(0));
+        }
+        else
+        {
+            throw instruction.error(InterpreterLocation.Operand, "The corresponding address does not " +
+                "corresponding to a given memory region (buffer overrun?).");
+        }
+    }
+
+    private getMemoryNumericValueByAddress(instruction: InterpreterInstruction, address: number): ArrayBuffer
+    {
+        let label: string | undefined;
+
+        this._labels.forEach((_address, _label) =>
+        {
+            if (address === _address)
+            {
+                label = _label;
+            }
+        });
+
+        if (!label)
+        {
+            throw instruction.error(InterpreterLocation.Operand, "Unable to resolve address to a memory region.");
+        }
+
+        const value = this._memoryRegions.get(label);
+
+        if (value)
+        {
+            return value;
         }
         else
         {
@@ -264,16 +294,12 @@ export default class Interpreter
                     instruction.operand === "PUSH" ||
                     instruction.operand === "VPUSH" ||
                     instruction.operand === "SAVEPUSH" ||
+                    instruction.operand === "MOVOUTPUSH" ||
                     instruction.operand === "STOREPUSH"
                 )
                 {
                     this.interpretPUSH(instruction);
                 }
-                    // TODO: Implement InstructionPOP.ts
-                    // TODO: Implement InstructionGETPOPA.ts
-                    // TODO: Implement InstructionGETPOPB.ts
-                    // TODO: Implement InstructionGETPOPR.ts
-                // TODO: Implement InstructionPOPNOP.ts
                 else if (
                     instruction.operand === "POP" ||
                     instruction.operand === "GETPOPA" ||
@@ -330,6 +356,7 @@ export default class Interpreter
     // Implement InstructionVPUSH.ts
     // Implement InstructionSAVEPUSH.ts
     // Implement InstructionSTOREPUSH.ts
+    // Implement InstructionMOVOUTPUSH.ts
     public interpretPUSH(instruction: InterpreterInstruction)
     {
         if (instruction.operand === "PUSH")
@@ -343,6 +370,13 @@ export default class Interpreter
         else if (instruction.operand === "SAVEPUSH")
         {
             this.pushValue(instruction, this._registerR);
+        }
+        else if (instruction.operand === "MOVOUTPUSH")
+        {
+            const address = new Uint32Array(this._registerR)[0];
+            const value = this.getMemoryNumericValueByAddress(instruction, address);
+
+            this.pushValue(instruction, value);
         }
         else
         {
@@ -413,7 +447,6 @@ export default class Interpreter
     // TODO: Implement InstructionMOV.ts
     // TODO: Implement InstructionMOVIN.ts
     // TODO: Implement InstructionMOVOUT.ts
-    // TODO: Implement InstructionMOVOUTPUSH.ts
     // TODO: Implement InstructionMULT.ts
     // TODO: Implement InstructionNEG.ts
     // TODO: Implement InstructionNOT.ts
