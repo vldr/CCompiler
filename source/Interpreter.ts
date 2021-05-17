@@ -303,6 +303,16 @@ export default class Interpreter
                 {
                     this.interpretPOP(instruction);
                 }
+                else if (
+                    instruction.operand === "SAVE" ||
+                    instruction.operand === "SAVEA" ||
+                    instruction.operand === "SAVEB" ||
+                    instruction.operand === "SAVETOA" ||
+                    instruction.operand === "SAVETOB"
+                )
+                {
+                    this.interpretSAVE(instruction);
+                }
                 else
                 {
                     throw instruction.error(InterpreterLocation.Operand, "Unimplemented instruction '" + instruction.operand + "'.")
@@ -415,6 +425,42 @@ export default class Interpreter
         }
     }
 
+    // Implement InstructionSAVE.ts
+    // Implement InstructionSAVEA.ts
+    // Implement InstructionSAVEB.ts
+    // Implement InstructionSAVETOA.ts
+    // Implement InstructionSAVETOB.ts
+    public interpretSAVE(instruction: InterpreterInstruction)
+    {
+
+        if (instruction.operand === "SAVE")
+        {
+            this.setMemoryNumericValue(instruction, InterpreterLocation.Arg0, this._registerR);
+        }
+        else if (instruction.operand === "SAVEA")
+        {
+            this.setMemoryNumericValue(instruction, InterpreterLocation.Arg0, this._registerA);
+        }
+        else if (instruction.operand === "SAVEB")
+        {
+            this.setMemoryNumericValue(instruction, InterpreterLocation.Arg0, this._registerB);
+        }
+        else if (instruction.operand === "SAVETOA")
+        {
+            this._registerA = this.registerR.slice(0);
+        }
+        else if (instruction.operand === "SAVETOB")
+        {
+            this._registerB = this.registerR.slice(0);
+        }
+        else
+        {
+            instruction.error(InterpreterLocation.Operand, "Unknown operand for SAVE-like instruction.");
+        }
+    }
+
+
+
     // TODO: Implement InstructionADD.ts
     // TODO: Implement InstructionAND.ts
     // TODO: Implement InstructionCALL.ts
@@ -451,11 +497,6 @@ export default class Interpreter
     // TODO: Implement InstructionRAND.ts
     // TODO: Implement InstructionREM.ts
     // TODO: Implement InstructionRTN.ts
-    // TODO: Implement InstructionSAVE.ts
-    // TODO: Implement InstructionSAVEA.ts
-    // TODO: Implement InstructionSAVEB.ts
-    // TODO: Implement InstructionSAVETOA.ts
-    // TODO: Implement InstructionSAVETOB.ts
     // TODO: Implement InstructionSETLED.ts
     // TODO: Implement InstructionSHIFTL.ts
     // TODO: Implement InstructionSHIFTR.ts

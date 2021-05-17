@@ -68,7 +68,7 @@ test("Test MOVOUTPUSH.", () => {
     expect(interpreter.stack.pop()).toStrictEqual(new Float32Array([ 10.25 ]));
 });
 
-test("Test POP, GETPOPA, GETPOPB, GETPOPR, MOVINPOP.", () => {
+test("Test POPNOP, POP, GETPOPA, GETPOPB, GETPOPR, MOVINPOP.", () => {
     const interpreter = new Interpreter(`
             VPUSH var_b
             
@@ -78,7 +78,13 @@ test("Test POP, GETPOPA, GETPOPB, GETPOPR, MOVINPOP.", () => {
             
             VPUSH 16
             
+            VPUSH 0
+            
+          
+            POPNOP
+            
             POP var_a
+         
             
             GETPOPA
             GETPOPB
@@ -100,5 +106,43 @@ test("Test POP, GETPOPA, GETPOPB, GETPOPR, MOVINPOP.", () => {
     expect(interpreter.memoryRegions.get("var_b")).toStrictEqual(new Uint32Array([ 128 ]));
     expect(interpreter.registerA).toStrictEqual(new Uint32Array([ 32 ]));
     expect(interpreter.registerB).toStrictEqual(new Uint32Array([ 64 ]));
+    expect(interpreter.registerR).toStrictEqual(new Uint32Array([ 128 ]));
+});
+
+test("Test SAVE, SAVEA, SAVEB, SAVETOA, SAVETOB.", () => {
+    const interpreter = new Interpreter(`
+            VPUSH 128
+            VPUSH 64
+            VPUSH 32
+            
+            GETPOPA
+            GETPOPB
+            GETPOPR
+            
+            SAVE var_a
+            SAVEA var_b
+            SAVEB var_c
+            
+            SAVETOA
+            SAVETOB
+           
+            HALT
+            
+            var_a:
+            .data 0
+            
+            var_b:
+            .data 0
+            
+            var_c:
+            .data 0
+        `);
+    interpreter.run();
+
+    expect(interpreter.memoryRegions.get("var_a")).toStrictEqual(new Uint32Array([ 128 ]));
+    expect(interpreter.memoryRegions.get("var_b")).toStrictEqual(new Uint32Array([ 32 ]));
+    expect(interpreter.memoryRegions.get("var_c")).toStrictEqual(new Uint32Array([ 64 ]));
+    expect(interpreter.registerA).toStrictEqual(new Uint32Array([ 128 ]));
+    expect(interpreter.registerB).toStrictEqual(new Uint32Array([ 128 ]));
     expect(interpreter.registerR).toStrictEqual(new Uint32Array([ 128 ]));
 });
