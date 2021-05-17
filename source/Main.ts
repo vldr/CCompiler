@@ -7,23 +7,30 @@ class Main
     static start(): void
     {
         const compiler = new Compiler();
-        console.log(compiler.compile(`
-        uint g_seed = _urand();
-        
-        int rand() {
-            g_seed = (214013u * g_seed + 2531011u);
-            int result[] = { 1, (int)(g_seed >>= 16u) };
-        
-            /*if (result < 0)
-                result *= -1;*/
-        
-            return 1;
-        }
-
+        const result = compiler.compile(`
+        int a = 10;
+        int f = 5;
+        int r = f + a;
  
-        `));
+        `);
+        //console.log(result);
 
-        //interpreter.run();
+        new Interpreter(`
+            GETA var_f
+            GETB var_a
+            HALT
+            
+            var_a:
+            .data 10.25f
+            .read var_a var_a
+            var_f:
+            .data 5
+            .read var_f var_f
+            var_r:
+            .data 0
+            .read var_r var_r
+
+        `).run();
 
     }
 }
