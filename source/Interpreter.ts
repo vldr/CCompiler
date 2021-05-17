@@ -31,11 +31,6 @@ export default class Interpreter
         this.processLabels();
         this.processMemoryRegions();
         this.processInstructions();
-
-        console.log();
-        console.log("Register A: " + this._registerA);
-        console.log("Register B: " + this._registerB);
-        console.log("Register R: " + this._registerR);
     }
 
     private getNumericValue(instruction: InterpreterInstruction, location: InterpreterLocation): ArrayBuffer
@@ -262,8 +257,6 @@ export default class Interpreter
                 }
             }
         });
-
-        console.log(this._memoryRegions);
     }
 
     private processInstructions()
@@ -272,7 +265,6 @@ export default class Interpreter
 
         while (isRunning)
         {
-            console.log(this._instructions[this._programCounter])
             const instruction = new InterpreterInstruction(this._instructions[this._programCounter], this._programCounter);
 
             if (instruction.operand)
