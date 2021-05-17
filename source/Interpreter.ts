@@ -211,6 +211,15 @@ export default class Interpreter
                 {
                     this.interpretGET(instruction);
                 }
+                else if (
+                    instruction.operand === "PUSH" ||
+                    instruction.operand === "VPUSH" ||
+                    instruction.operand === "SAVEPUSH" ||
+                    instruction.operand === "STOREPUSH"
+                )
+                {
+                    this.interpretPUSH(instruction);
+                }
                 else
                 {
                     throw instruction.error(InterpreterLocation.Operand, "Unimplemented instruction '" + instruction.operand + "'.")
@@ -248,18 +257,60 @@ export default class Interpreter
         }
         else
         {
-            instruction.error(InterpreterLocation.Operand, "Unknown operand for GET instruction.");
+            instruction.error(InterpreterLocation.Operand, "Unknown operand for GET-like instruction.");
         }
     }
+
+    // Implement InstructionPUSH.ts
+    // Implement InstructionVPUSH.ts
+    // Implement InstructionSAVEPUSH.ts
+    // Implement InstructionSTOREPUSH.ts
+    public interpretPUSH(instruction: InterpreterInstruction)
+    {
+        if (instruction.operand === "PUSH")
+        {
+            const value = this.getMemoryValue(instruction, InterpreterLocation.Arg0);
+
+        }
+        else
+        {
+            instruction.error(InterpreterLocation.Operand, "Unknown operand for PUSH-like instruction.");
+        }
+
+
+        /*let value: ArrayBuffer;
+
+        if (instruction.operand?.startsWith("V") )
+        {
+            value = this.getNumericValue(instruction, InterpreterLocation.Arg0);
+        }
+        else
+        {
+            value = this.getMemoryValue(instruction, InterpreterLocation.Arg0)
+        }
+
+        if (instruction.operand?.endsWith("A"))
+        {
+            this._registerA = value;
+        }
+        else if (instruction.operand?.endsWith("B"))
+        {
+            this._registerB = value;
+        }
+        else
+        {
+            instruction.error(InterpreterLocation.Operand, "Unknown operand for GET instruction.");
+        }*/
+    }
+
+
+
+    // TODO: Implement InstructionPOPNOP.ts
+    // TODO: Implement InstructionPOP.ts
 
     // TODO: Implement InstructionGETPOPA.ts
     // TODO: Implement InstructionGETPOPB.ts
     // TODO: Implement InstructionGETPOPR.ts
-
-    // TODO: Implement InstructionPOP.ts
-    // TODO: Implement InstructionPUSH.ts
-    // TODO: Implement InstructionVPUSH.ts
-    // TODO: Implement InstructionPOPNOP.ts
 
     // TODO: Implement InstructionADD.ts
     // TODO: Implement InstructionAND.ts
@@ -302,7 +353,6 @@ export default class Interpreter
     // TODO: Implement InstructionSAVE.ts
     // TODO: Implement InstructionSAVEA.ts
     // TODO: Implement InstructionSAVEB.ts
-    // TODO: Implement InstructionSAVEPUSH.ts
     // TODO: Implement InstructionSAVETOA.ts
     // TODO: Implement InstructionSAVETOB.ts
     // TODO: Implement InstructionSETLED.ts
@@ -310,7 +360,7 @@ export default class Interpreter
     // TODO: Implement InstructionSHIFTR.ts
     // TODO: Implement InstructionSNEG.ts
     // TODO: Implement InstructionSTORE.ts
-    // TODO: Implement InstructionSTOREPUSH.ts
+
     // TODO: Implement InstructionSUB.ts
     // TODO: Implement InstructionTICK.ts
 
