@@ -131,16 +131,23 @@ export default class Interpreter
         this._stack.push(value.slice(0));
     }
 
-    private pushValue(instruction: InterpreterInstruction, valueLocation: InterpreterLocation,)
+    private pushValue(instruction: InterpreterInstruction, valueLocation: InterpreterLocation)
     {
         let value = this.getNumericValue(instruction, valueLocation);
 
         this._stack.push(value.slice(0));
     }
 
-    private popStack(): ArrayBuffer | undefined
+    private popValue(instruction: InterpreterInstruction): ArrayBuffer
     {
-        return this._stack.pop()?.slice(0);
+        const value = this._stack.pop();
+
+        if (!value)
+        {
+            throw instruction.error(InterpreterLocation.Operand, "Stack was empty.")
+        }
+
+        return value.slice(0);
     }
 
     private processLabels()
