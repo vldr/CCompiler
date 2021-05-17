@@ -1,9 +1,8 @@
 const path = require('path');
 
 module.exports = {
-    entry: "./dist/Compiler.js",
-    mode: "development",
-    stats: 'errors-only',
+    entry: "./dist/source/Compiler.js",
+    mode: "production",
     output: {
         path: path.resolve(__dirname, 'bundle'),
         filename: 'compiler.js',

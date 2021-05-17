@@ -18,6 +18,10 @@ export default class Interpreter
             .map((line) => line.replace("\n", "").trim());
     }
 
+    get registerA() { return this._registerA.slice(0); }
+    get registerB() { return this._registerB.slice(0); }
+    get registerR() { return this._registerR.slice(0); }
+
     public run()
     {
         this._programCounter = 0;
@@ -175,7 +179,6 @@ export default class Interpreter
 
                 if (instruction.arg0 && instruction.operand === ".data")
                 {
-
                     this._memoryRegions.set(label, this.getNumericValue(instruction, InterpreterLocation.Arg0));
                 }
             }
