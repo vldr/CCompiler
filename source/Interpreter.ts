@@ -406,7 +406,13 @@ export default class Interpreter
                     instruction.operand === "FCMPLT" ||
                     instruction.operand === "FCMPLTE" ||
                     instruction.operand === "FCMPGT" ||
-                    instruction.operand === "FCMPGTE"
+                    instruction.operand === "FCMPGTE" ||
+
+                    instruction.operand === "NEG" ||
+                    instruction.operand === "SNEG" ||
+                    instruction.operand === "FNEG" ||
+
+                    false
                 )
                 {
                     this.interpretCOMPUTE(instruction);
@@ -645,9 +651,10 @@ export default class Interpreter
     // Implement InstructionSUB.ts
     // Implement InstructionCMP.ts
 
-    // TODO: Implement InstructionNEG.ts
-    // TODO: Implement InstructionFNEG.ts
-    // TODO: Implement InstructionSNEG.ts
+    // Implement InstructionNEG.ts
+    // Implement InstructionFNEG.ts
+    // Implement InstructionSNEG.ts
+
     // TODO: Implement InstructionINC.ts
     // TODO: Implement InstructionDEC.ts
     // TODO: Implement InstructionFINC.ts
@@ -752,6 +759,15 @@ export default class Interpreter
         else if (instruction.operand === "FCMPLTE")
             this._registerR = new Uint32Array(
                 [new Float32Array(this._registerA)[0] <= new Float32Array(this._registerB)[0] ? 1 : 0]);
+
+        else if (instruction.operand === "NEG")
+            this._registerR = new Uint32Array(
+                [ new Uint32Array(this._registerA)[0] != 0 ? 0 : 1 ]);
+        else if (instruction.operand === "SNEG")
+            this._registerR = new Int32Array([ -new Int32Array(this._registerA)[0] ]);
+        else if (instruction.operand === "FNEG")
+            this._registerR = new Float32Array([ -new Float32Array(this._registerA)[0] ]);
+
 
         else
         {
