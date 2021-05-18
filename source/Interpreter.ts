@@ -361,6 +361,35 @@ export default class Interpreter
                 {
                     this.interpretJUMP(instruction);
                 }
+                else if (
+                    instruction.operand === "MOV" ||
+                    instruction.operand === "MOVIN" ||
+                    instruction.operand === "MOVOUT"
+                )
+                {
+                    this.interpretMOVE(instruction);
+                }
+                    // Implement InstructionADD.ts
+                    // Implement InstructionMULT.ts
+                    // Implement InstructionDIV.ts
+                // Implement InstructionSUB.ts
+                else if (
+                    instruction.operand === "ADD" ||
+                    instruction.operand === "FADD" ||
+                    instruction.operand === "SADD" ||
+                    instruction.operand === "MULT" ||
+                    instruction.operand === "FMULT" ||
+                    instruction.operand === "SMULT" ||
+                    instruction.operand === "DIV" ||
+                    instruction.operand === "FDIV" ||
+                    instruction.operand === "SDIV" ||
+                    instruction.operand === "SUB" ||
+                    instruction.operand === "FSUB" ||
+                    instruction.operand === "SSUB"
+                )
+                {
+                    this.interpretCOMPUTE(instruction);
+                }
                 else if (instruction.operand === "#") {}
                 else if (this._instructions[this._programCounter].endsWith(":")) {}
                 else
@@ -380,7 +409,7 @@ export default class Interpreter
     // Implement InstructionVGETB.ts
     // Implement InstructionGETA.ts
     // Implement InstructionGETB.ts
-    public interpretGET(instruction: InterpreterInstruction)
+    private interpretGET(instruction: InterpreterInstruction)
     {
         let value: ArrayBuffer;
 
@@ -412,7 +441,7 @@ export default class Interpreter
     // Implement InstructionSAVEPUSH.ts
     // Implement InstructionSTOREPUSH.ts
     // Implement InstructionMOVOUTPUSH.ts
-    public interpretPUSH(instruction: InterpreterInstruction)
+    private interpretPUSH(instruction: InterpreterInstruction)
     {
         if (instruction.operand === "PUSH")
         {
@@ -445,7 +474,7 @@ export default class Interpreter
     // Implement InstructionGETPOPR.ts
     // Implement InstructionPOPNOP.ts
     // Implement InstructionMOVINPOP.ts
-    public interpretPOP(instruction: InterpreterInstruction)
+    private interpretPOP(instruction: InterpreterInstruction)
     {
         const value = this.popValue(instruction);
 
@@ -483,7 +512,7 @@ export default class Interpreter
     // Implement InstructionSAVEB.ts
     // Implement InstructionSAVETOA.ts
     // Implement InstructionSAVETOB.ts
-    public interpretSAVE(instruction: InterpreterInstruction)
+    private interpretSAVE(instruction: InterpreterInstruction)
     {
         if (instruction.operand === "SAVE")
         {
@@ -516,7 +545,7 @@ export default class Interpreter
     // Implement InstructionJMP.ts
     // Implement InstructionCALL.ts
     // Implement InstructionRTN.ts
-    public interpretJUMP(instruction: InterpreterInstruction)
+    private interpretJUMP(instruction: InterpreterInstruction)
     {
         if (instruction.operand === "JA")
         {
@@ -557,43 +586,105 @@ export default class Interpreter
         }
     }
 
-    // TODO: Implement InstructionMOV.ts
-    // TODO: Implement InstructionMOVIN.ts
-    // TODO: Implement InstructionMOVOUT.ts
+    // Implement InstructionMOV.ts
+    // Implement InstructionMOVIN.ts
+    // Implement InstructionMOVOUT.ts
+    private interpretMOVE(instruction: InterpreterInstruction)
+    {
+        if (instruction.operand === "MOV")
+        {
+            this.setMemoryNumericValue(
+                instruction,
+                InterpreterLocation.Arg1,
+                this.getMemoryValue(instruction, InterpreterLocation.Arg0)
+            );
+        }
+        else if (instruction.operand === "MOVIN")
+        {
+            const value = this.getMemoryValue(instruction, InterpreterLocation.Arg0);
+            const address = new Uint32Array(this._registerR)[0];
 
-    // TODO: Implement InstructionADD.ts
-    // TODO: Implement InstructionMULT.ts
-    // TODO: Implement InstructionDIV.ts
-    // TODO: Implement InstructionSUB.ts
-    // TODO: Implement InstructionREM.ts
+            this.setMemoryNumericValueByAddress(instruction, address, value);
+        }
+        else if (instruction.operand === "MOVOUT")
+        {
+            const value = this.getMemoryNumericValueByAddress(instruction, new Uint32Array(this._registerR)[0]);
 
-    // TODO: Implement InstructionAND.ts
+            this.setMemoryNumericValue(instruction, InterpreterLocation.Arg0, value);
+        }
+        else
+        {
+            instruction.error(InterpreterLocation.Operand, "Unknown operand for MOVE-like instruction.");
+        }
+    }
+
+    // Implement InstructionADD.ts
+    // Implement InstructionMULT.ts
+    // Implement InstructionDIV.ts
+    // Implement InstructionSUB.ts
     // TODO: Implement InstructionCMP.ts
+    // TODO: Implement InstructionNEG.ts
+    // TODO: Implement InstructionFNEG.ts
+    // TODO: Implement InstructionSNEG.ts
+    // TODO: Implement InstructionINC.ts
+    // TODO: Implement InstructionDEC.ts
+    // TODO: Implement InstructionFINC.ts
+    // TODO: Implement InstructionFDEC.ts
+
+    // TODO: Implement InstructionREM.ts
+    // TODO: Implement InstructionAND.ts
     // TODO: Implement InstructionSHIFTL.ts
     // TODO: Implement InstructionSHIFTR.ts
     // TODO: Implement InstructionFLTOINT.ts
-    // TODO: Implement InstructionFNEG.ts
-    // TODO: Implement InstructionINC.ts
     // TODO: Implement InstructionINTTOFL.ts
-    // TODO: Implement InstructionDEC.ts
-    // TODO: Implement InstructionFDEC.ts
-    // TODO: Implement InstructionFINC.ts
     // TODO: Implement InstructionLAND.ts
     // TODO: Implement InstructionLOR.ts
-    // TODO: Implement InstructionNEG.ts
     // TODO: Implement InstructionNOT.ts
     // TODO: Implement InstructionOR.ts
-    // TODO: Implement InstructionSNEG.ts
     // TODO: Implement InstructionXOR.ts
+    private interpretCOMPUTE(instruction: InterpreterInstruction)
+    {
+        if (instruction.operand === "SADD")
+            this._registerR = new Int32Array([ new Int32Array(this._registerA)[0] + new Int32Array(this._registerB)[0] ]);
+        else if (instruction.operand === "FADD")
+            this._registerR = new Float32Array([ new Float32Array(this._registerA)[0] + new Float32Array(this._registerB)[0] ]);
+        else if (instruction.operand === "ADD")
+            this._registerR = new Uint32Array([new Uint32Array(this._registerA)[0] + new Uint32Array(this._registerB)[0]]);
 
+        else if (instruction.operand === "SSUB")
+            this._registerR = new Int32Array([ new Int32Array(this._registerA)[0] - new Int32Array(this._registerB)[0] ]);
+        else if (instruction.operand === "FSUB")
+            this._registerR = new Float32Array([ new Float32Array(this._registerA)[0] - new Float32Array(this._registerB)[0] ]);
+        else if (instruction.operand === "SUB")
+            this._registerR = new Uint32Array([new Uint32Array(this._registerA)[0] - new Uint32Array(this._registerB)[0]]);
+
+        else if (instruction.operand === "SDIV")
+            this._registerR = new Int32Array([ new Int32Array(this._registerA)[0] / new Int32Array(this._registerB)[0] ]);
+        else if (instruction.operand === "FDIV")
+            this._registerR = new Float32Array([ new Float32Array(this._registerA)[0] / new Float32Array(this._registerB)[0] ]);
+        else if (instruction.operand === "DIV")
+            this._registerR = new Uint32Array([new Uint32Array(this._registerA)[0] / new Uint32Array(this._registerB)[0]]);
+
+        else if (instruction.operand === "SMULT")
+            this._registerR = new Int32Array([ new Int32Array(this._registerA)[0] * new Int32Array(this._registerB)[0] ]);
+        else if (instruction.operand === "FMULT")
+            this._registerR = new Float32Array([ new Float32Array(this._registerA)[0] * new Float32Array(this._registerB)[0] ]);
+        else if (instruction.operand === "MULT")
+            this._registerR = new Uint32Array([new Uint32Array(this._registerA)[0] * new Uint32Array(this._registerB)[0]]);
+
+        else
+        {
+            instruction.error(InterpreterLocation.Operand, "Unknown operand for COMPUTE-like instruction.");
+        }
+    }
 
     // TODO: Implement InstructionQADD.ts
     // TODO: Implement InstructionQSTORE.ts
+    // TODO: Implement InstructionSTORE.ts
+
     // TODO: Implement InstructionRAND.ts
     // TODO: Implement InstructionSETLED.ts
-    // TODO: Implement InstructionSTORE.ts
     // TODO: Implement InstructionTICK.ts
-
 }
 
 enum InterpreterLocation {
@@ -620,7 +711,7 @@ class InterpreterInstruction
             case InterpreterLocation.Arg0:
                 return this.generateError(this._instruction, this._lineNumber, this._instructionParts[0].length + 1, this._instructionParts[1].length - 1, message);
             case InterpreterLocation.Arg1:
-                return this.generateError(this._instruction, this._lineNumber, this._instructionParts[1].length + 1, this._instructionParts[2].length - 1, message);
+                return this.generateError(this._instruction, this._lineNumber, this._instructionParts[0].length + this._instructionParts[1].length + 2, this._instructionParts[2].length - 1, message);
         }
     }
 

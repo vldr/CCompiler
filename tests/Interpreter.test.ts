@@ -202,3 +202,322 @@ test("Test JA, JNA.", () => {
 
     expect(interpreter.registerB).toStrictEqual(new Uint32Array([ 1 ]));
 });
+
+test("Test MOV.", () => {
+    const interpreter = new Interpreter(`
+            MOV var_a var_b
+            HALT
+            
+            var_a:
+            .data 16
+            
+            var_b:
+            .data 0
+        `);
+    interpreter.run();
+
+    expect(interpreter.memoryRegions.get("var_a")).toStrictEqual(new Uint32Array([ 16 ]));
+    expect(interpreter.memoryRegions.get("var_b")).toStrictEqual(new Uint32Array([ 16 ]));
+});
+
+test("Test MOVIN.", () => {
+    const interpreter = new Interpreter(`
+            VPUSH var_b
+            GETPOPR
+            MOVIN var_a     
+            HALT
+            
+            var_a:
+            .data 16
+            
+            var_b:
+            .data 0
+        `);
+    interpreter.run();
+
+    expect(interpreter.memoryRegions.get("var_a")).toStrictEqual(new Uint32Array([ 16 ]));
+    expect(interpreter.memoryRegions.get("var_b")).toStrictEqual(new Uint32Array([ 16 ]));
+});
+
+test("Test MOVOUT.", () => {
+    const interpreter = new Interpreter(`
+            VPUSH var_a
+            GETPOPR
+            MOVOUT var_b     
+            HALT
+            
+            var_a:
+            .data 16
+            
+            var_b:
+            .data 0
+        `);
+    interpreter.run();
+
+    expect(interpreter.memoryRegions.get("var_a")).toStrictEqual(new Uint32Array([ 16 ]));
+    expect(interpreter.memoryRegions.get("var_b")).toStrictEqual(new Uint32Array([ 16 ]));
+});
+
+test("Test ADD.", () => {
+    let interpreter = new Interpreter(`
+            VGETA 10
+            VGETB 20
+            ADD
+            HALT
+        `);
+    interpreter.run();
+
+    expect(interpreter.registerR).toStrictEqual(new Uint32Array([ 30 ]));
+
+    interpreter = new Interpreter(`
+            VGETA -10
+            VGETB 20
+            ADD
+            HALT
+        `);
+    interpreter.run();
+
+    expect(interpreter.registerR).toStrictEqual(new Uint32Array([ 10 ]));
+});
+
+test("Test SADD.", () => {
+    let interpreter = new Interpreter(`
+            VGETA 10
+            VGETB 20
+            SADD
+            HALT
+        `);
+    interpreter.run();
+
+    expect(interpreter.registerR).toStrictEqual(new Int32Array([ 30 ]));
+
+    interpreter = new Interpreter(`
+            VGETA -10
+            VGETB 20
+            SADD
+            HALT
+        `);
+    interpreter.run();
+
+    expect(interpreter.registerR).toStrictEqual(new Int32Array([ 10 ]));
+});
+
+test("Test FADD.", () => {
+    let interpreter = new Interpreter(`
+            VGETA 12.5f
+            VGETB 22.5f
+            FADD
+            HALT
+        `);
+    interpreter.run();
+
+    expect(interpreter.registerR).toStrictEqual(new Float32Array([ 35 ]));
+
+    interpreter = new Interpreter(`
+            VGETA -10f
+            VGETB 20f
+            FADD
+            HALT
+        `);
+    interpreter.run();
+
+    expect(interpreter.registerR).toStrictEqual(new Float32Array([ 10 ]));
+});
+
+test("Test SUB.", () => {
+    let interpreter = new Interpreter(`
+            VGETA 10
+            VGETB 20
+            SUB
+            HALT
+        `);
+    interpreter.run();
+
+    expect(interpreter.registerR).toStrictEqual(new Uint32Array([ -10 ]));
+
+    interpreter = new Interpreter(`
+            VGETA -10
+            VGETB 20
+            SUB
+            HALT
+        `);
+    interpreter.run();
+
+    expect(interpreter.registerR).toStrictEqual(new Uint32Array([ -30 ]));
+});
+
+test("Test SSUB.", () => {
+    let interpreter = new Interpreter(`
+            VGETA 10
+            VGETB -20
+            SSUB
+            HALT
+        `);
+    interpreter.run();
+
+    expect(interpreter.registerR).toStrictEqual(new Int32Array([ 30 ]));
+
+    interpreter = new Interpreter(`
+            VGETA -10
+            VGETB 20
+            SSUB
+            HALT
+        `);
+    interpreter.run();
+
+    expect(interpreter.registerR).toStrictEqual(new Int32Array([ -30 ]));
+});
+
+test("Test FSUB.", () => {
+    let interpreter = new Interpreter(`
+            VGETA 10.5f
+            VGETB -20.5f
+            FSUB
+            HALT
+        `);
+    interpreter.run();
+
+    expect(interpreter.registerR).toStrictEqual(new Float32Array([ 31 ]));
+
+    interpreter = new Interpreter(`
+            VGETA -10.5f
+            VGETB 20.5f
+            FSUB
+            HALT
+        `);
+    interpreter.run();
+
+    expect(interpreter.registerR).toStrictEqual(new Float32Array([ -31 ]));
+});
+
+test("Test DIV.", () => {
+    let interpreter = new Interpreter(`
+            VGETA 10
+            VGETB 2
+            DIV
+            HALT
+        `);
+    interpreter.run();
+
+    expect(interpreter.registerR).toStrictEqual(new Uint32Array([ 5 ]));
+
+    interpreter = new Interpreter(`
+            VGETA 2
+            VGETB 3
+            DIV
+            HALT
+        `);
+    interpreter.run();
+
+    expect(interpreter.registerR).toStrictEqual(new Uint32Array([ 0 ]));
+});
+
+test("Test SDIV.", () => {
+    let interpreter = new Interpreter(`
+            VGETA 10
+            VGETB -2
+            SDIV
+            HALT
+        `);
+    interpreter.run();
+
+    expect(interpreter.registerR).toStrictEqual(new Int32Array([ -5 ]));
+
+    interpreter = new Interpreter(`
+            VGETA -10
+            VGETB -10
+            SDIV
+            HALT
+        `);
+    interpreter.run();
+
+    expect(interpreter.registerR).toStrictEqual(new Int32Array([ 1 ]));
+});
+
+test("Test FDIV.", () => {
+    let interpreter = new Interpreter(`
+            VGETA 11f
+            VGETB -2f
+            FDIV
+            HALT
+        `);
+    interpreter.run();
+
+    expect(interpreter.registerR).toStrictEqual(new Float32Array([ -5.5 ]));
+
+    interpreter = new Interpreter(`
+            VGETA -10f
+            VGETB -10f
+            FDIV
+            HALT
+        `);
+    interpreter.run();
+
+    expect(interpreter.registerR).toStrictEqual(new Float32Array([ 1 ]));
+});
+
+test("Test MULT.", () => {
+    let interpreter = new Interpreter(`
+            VGETA 10
+            VGETB 2
+            MULT
+            HALT
+        `);
+    interpreter.run();
+
+    expect(interpreter.registerR).toStrictEqual(new Uint32Array([ 20 ]));
+
+    interpreter = new Interpreter(`
+            VGETA 0
+            VGETB 3
+            MULT
+            HALT
+        `);
+    interpreter.run();
+
+    expect(interpreter.registerR).toStrictEqual(new Uint32Array([ 0 ]));
+});
+
+test("Test SMULT.", () => {
+    let interpreter = new Interpreter(`
+            VGETA 10
+            VGETB -2
+            SMULT
+            HALT
+        `);
+    interpreter.run();
+
+    expect(interpreter.registerR).toStrictEqual(new Int32Array([ -20 ]));
+
+    interpreter = new Interpreter(`
+            VGETA -10
+            VGETB -10
+            SMULT
+            HALT
+        `);
+    interpreter.run();
+
+    expect(interpreter.registerR).toStrictEqual(new Int32Array([ 100 ]));
+});
+
+test("Test FMULT.", () => {
+    let interpreter = new Interpreter(`
+            VGETA 10f
+            VGETB -2f
+            FMULT
+            HALT
+        `);
+    interpreter.run();
+
+    expect(interpreter.registerR).toStrictEqual(new Float32Array([ -20 ]));
+
+    interpreter = new Interpreter(`
+            VGETA -10f
+            VGETB -10f
+            FMULT
+            HALT
+        `);
+    interpreter.run();
+
+    expect(interpreter.registerR).toStrictEqual(new Float32Array([ 100 ]));
+});

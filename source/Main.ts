@@ -17,26 +17,11 @@ class Main
         // `);
 
         new Interpreter(`
-            VPUSH var_b
-            
-            VPUSH 128
-            VPUSH 64
-            VPUSH 32
-            
-            VPUSH 16
-            
-            POP var_a
-            
-            GETPOPA
-            GETPOPB
-            GETPOPR
-            
-            MOVINPOP
-
+            MOV var_a var_b
             HALT
             
             var_a:
-            .data 0
+            .data 16
             
             var_b:
             .data 0
