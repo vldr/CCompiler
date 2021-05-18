@@ -664,3 +664,31 @@ test("Test NEG, SNEG, FNEG", () => {
     expect(interpreter.stack.pop()).toStrictEqual(new Uint32Array([ 1 ]));
     expect(interpreter.stack.pop()).toStrictEqual(new Uint32Array([ 0 ]));
 });
+
+test("Test INC, FINC, DEC, FDEC", () => {
+    const interpreter = new Interpreter(`
+            VGETA 128
+            INC
+            SAVEPUSH
+            
+            VGETA 0
+            DEC
+            SAVEPUSH
+            
+            VGETA 100.5f
+            FINC
+            SAVEPUSH
+            
+            VGETA 50.5f
+            FDEC
+            SAVEPUSH
+
+            HALT
+        `);
+    interpreter.run();
+
+    expect(interpreter.stack.pop()).toStrictEqual(new Float32Array([ 49.5 ]));
+    expect(interpreter.stack.pop()).toStrictEqual(new Float32Array([ 101.5 ]));
+    expect(interpreter.stack.pop()).toStrictEqual(new Int32Array([ -1 ]));
+    expect(interpreter.stack.pop()).toStrictEqual(new Int32Array([ 129 ]));
+});

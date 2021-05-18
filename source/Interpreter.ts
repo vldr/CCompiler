@@ -412,6 +412,11 @@ export default class Interpreter
                     instruction.operand === "SNEG" ||
                     instruction.operand === "FNEG" ||
 
+                    instruction.operand === "INC" ||
+                    instruction.operand === "DEC" ||
+                    instruction.operand === "FINC" ||
+                    instruction.operand === "FDEC" ||
+
                     false
                 )
                 {
@@ -655,10 +660,10 @@ export default class Interpreter
     // Implement InstructionFNEG.ts
     // Implement InstructionSNEG.ts
 
-    // TODO: Implement InstructionINC.ts
-    // TODO: Implement InstructionDEC.ts
-    // TODO: Implement InstructionFINC.ts
-    // TODO: Implement InstructionFDEC.ts
+    // Implement InstructionINC.ts
+    // Implement InstructionDEC.ts
+    // Implement InstructionFINC.ts
+    // Implement InstructionFDEC.ts
 
     // TODO: Implement InstructionREM.ts
     // TODO: Implement InstructionAND.ts
@@ -768,6 +773,14 @@ export default class Interpreter
         else if (instruction.operand === "FNEG")
             this._registerR = new Float32Array([ -new Float32Array(this._registerA)[0] ]);
 
+        else if (instruction.operand === "INC")
+            this._registerR = new Int32Array([ new Int32Array(this._registerA)[0] + 1 ]);
+        else if (instruction.operand === "DEC")
+            this._registerR = new Int32Array([ new Int32Array(this._registerA)[0] - 1 ]);
+        else if (instruction.operand === "FINC")
+            this._registerR = new Float32Array([ new Float32Array(this._registerA)[0] + 1 ]);
+        else if (instruction.operand === "FDEC")
+            this._registerR = new Float32Array([ new Float32Array(this._registerA)[0] - 1 ]);
 
         else
         {
