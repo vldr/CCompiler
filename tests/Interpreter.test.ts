@@ -671,7 +671,7 @@ test("Test INC, FINC, DEC, FDEC", () => {
             INC
             SAVEPUSH
             
-            VGETA 1
+            VGETA 0
             DEC
             SAVEPUSH
             
