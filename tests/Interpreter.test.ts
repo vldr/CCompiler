@@ -521,3 +521,108 @@ test("Test FMULT.", () => {
 
     expect(interpreter.registerR).toStrictEqual(new Float32Array([ 100 ]));
 });
+
+test("Test CMPE, CMPNE, CMPLT, CMPLTE, CMPGT, CMPGTE", () => {
+    const interpreter = new Interpreter(`
+            VGETA 10
+            VGETB 20
+            
+            CMPE
+            SAVEPUSH
+            
+            CMPNE
+            SAVEPUSH
+            
+            CMPLT
+            SAVEPUSH
+            
+            CMPLTE
+            SAVEPUSH
+            
+            CMPGT
+            SAVEPUSH
+            
+            CMPGTE
+            SAVEPUSH
+
+            HALT
+        `);
+    interpreter.run();
+
+    expect(interpreter.stack.pop()).toStrictEqual(new Uint32Array([ 0 ]));
+    expect(interpreter.stack.pop()).toStrictEqual(new Uint32Array([ 0 ]));
+    expect(interpreter.stack.pop()).toStrictEqual(new Uint32Array([ 1 ]));
+    expect(interpreter.stack.pop()).toStrictEqual(new Uint32Array([ 1 ]));
+    expect(interpreter.stack.pop()).toStrictEqual(new Uint32Array([ 1 ]));
+    expect(interpreter.stack.pop()).toStrictEqual(new Uint32Array([ 0 ]));
+});
+
+test("Test SCMPE, SCMPNE, SCMPLT, SCMPLTE, SCMPGT, SCMPGTE", () => {
+    const interpreter = new Interpreter(`
+            VGETA 10
+            VGETB -20
+            
+            SCMPE
+            SAVEPUSH
+            
+            SCMPNE
+            SAVEPUSH
+            
+            SCMPLT
+            SAVEPUSH
+            
+            SCMPLTE
+            SAVEPUSH
+            
+            SCMPGT
+            SAVEPUSH
+            
+            SCMPGTE
+            SAVEPUSH
+
+            HALT
+        `);
+    interpreter.run();
+
+    expect(interpreter.stack.pop()).toStrictEqual(new Uint32Array([ 1 ]));
+    expect(interpreter.stack.pop()).toStrictEqual(new Uint32Array([ 1 ]));
+    expect(interpreter.stack.pop()).toStrictEqual(new Uint32Array([ 0 ]));
+    expect(interpreter.stack.pop()).toStrictEqual(new Uint32Array([ 0 ]));
+    expect(interpreter.stack.pop()).toStrictEqual(new Uint32Array([ 1 ]));
+    expect(interpreter.stack.pop()).toStrictEqual(new Uint32Array([ 0 ]));
+});
+
+test("Test FCMPE, FCMPNE, FCMPLT, FCMPLTE, FCMPGT, FCMPGTE", () => {
+    const interpreter = new Interpreter(`
+            VGETA 10.25f
+            VGETB -20f
+            
+            FCMPE
+            SAVEPUSH
+            
+            FCMPNE
+            SAVEPUSH
+            
+            FCMPLT
+            SAVEPUSH
+            
+            FCMPLTE
+            SAVEPUSH
+            
+            FCMPGT
+            SAVEPUSH
+            
+            FCMPGTE
+            SAVEPUSH
+
+            HALT
+        `);
+    interpreter.run();
+
+    expect(interpreter.stack.pop()).toStrictEqual(new Uint32Array([ 1 ]));
+    expect(interpreter.stack.pop()).toStrictEqual(new Uint32Array([ 1 ]));
+    expect(interpreter.stack.pop()).toStrictEqual(new Uint32Array([ 0 ]));
+    expect(interpreter.stack.pop()).toStrictEqual(new Uint32Array([ 0 ]));
+    expect(interpreter.stack.pop()).toStrictEqual(new Uint32Array([ 1 ]));
+    expect(interpreter.stack.pop()).toStrictEqual(new Uint32Array([ 0 ]));
+});

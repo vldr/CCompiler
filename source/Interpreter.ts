@@ -385,7 +385,28 @@ export default class Interpreter
                     instruction.operand === "SDIV" ||
                     instruction.operand === "SUB" ||
                     instruction.operand === "FSUB" ||
-                    instruction.operand === "SSUB"
+                    instruction.operand === "SSUB" ||
+
+                    instruction.operand === "CMPE" ||
+                    instruction.operand === "CMPNE" ||
+                    instruction.operand === "CMPLT" ||
+                    instruction.operand === "CMPLTE" ||
+                    instruction.operand === "CMPGT" ||
+                    instruction.operand === "CMPGTE" ||
+
+                    instruction.operand === "SCMPE" ||
+                    instruction.operand === "SCMPNE" ||
+                    instruction.operand === "SCMPLT" ||
+                    instruction.operand === "SCMPLTE" ||
+                    instruction.operand === "SCMPGT" ||
+                    instruction.operand === "SCMPGTE" ||
+
+                    instruction.operand === "FCMPE" ||
+                    instruction.operand === "FCMPNE" ||
+                    instruction.operand === "FCMPLT" ||
+                    instruction.operand === "FCMPLTE" ||
+                    instruction.operand === "FCMPGT" ||
+                    instruction.operand === "FCMPGTE"
                 )
                 {
                     this.interpretCOMPUTE(instruction);
@@ -622,7 +643,8 @@ export default class Interpreter
     // Implement InstructionMULT.ts
     // Implement InstructionDIV.ts
     // Implement InstructionSUB.ts
-    // TODO: Implement InstructionCMP.ts
+    // Implement InstructionCMP.ts
+
     // TODO: Implement InstructionNEG.ts
     // TODO: Implement InstructionFNEG.ts
     // TODO: Implement InstructionSNEG.ts
@@ -671,6 +693,65 @@ export default class Interpreter
             this._registerR = new Float32Array([ new Float32Array(this._registerA)[0] * new Float32Array(this._registerB)[0] ]);
         else if (instruction.operand === "MULT")
             this._registerR = new Uint32Array([new Uint32Array(this._registerA)[0] * new Uint32Array(this._registerB)[0]]);
+
+        else if (instruction.operand === "CMPE")
+            this._registerR = new Uint32Array(
+                [ new Uint32Array(this._registerA)[0] == new Uint32Array(this._registerB)[0] ? 1 : 0 ]);
+        else if (instruction.operand === "CMPNE")
+            this._registerR = new Uint32Array(
+                [ new Uint32Array(this._registerA)[0] != new Uint32Array(this._registerB)[0]  ? 1 : 0 ]);
+        else if (instruction.operand === "CMPGT")
+            this._registerR = new Uint32Array(
+                [ new Uint32Array(this._registerA)[0] > new Uint32Array(this._registerB)[0] ? 1 : 0 ]);
+        else if (instruction.operand === "CMPGTE")
+                    this._registerR = new Uint32Array(
+                        [ new Uint32Array(this._registerA)[0] >= new Uint32Array(this._registerB)[0] ? 1 : 0 ]);
+        else if (instruction.operand === "CMPLT")
+                    this._registerR = new Uint32Array(
+                        [ new Uint32Array(this._registerA)[0] < new Uint32Array(this._registerB)[0] ? 1 : 0 ]);
+        else if (instruction.operand === "CMPLTE") {
+            this._registerR = new Uint32Array(
+                [ new Uint32Array(this._registerA)[0] <= new Uint32Array(this._registerB)[0] ? 1 : 0 ]);
+        }
+
+
+        else if (instruction.operand === "SCMPE")
+            this._registerR = new Uint32Array(
+                [ new Int32Array(this._registerA)[0] == new Int32Array(this._registerB)[0] ? 1 : 0 ]);
+        else if (instruction.operand === "SCMPNE")
+            this._registerR = new Uint32Array(
+                [ new Int32Array(this._registerA)[0] != new Int32Array(this._registerB)[0]  ? 1 : 0 ]);
+        else if (instruction.operand === "SCMPGT")
+            this._registerR = new Uint32Array(
+                [new Int32Array(this._registerA)[0] > new Int32Array(this._registerB)[0] ? 1 : 0]);
+        else if (instruction.operand === "SCMPGTE")
+            this._registerR = new Uint32Array(
+                [new Int32Array(this._registerA)[0] >= new Int32Array(this._registerB)[0] ? 1 : 0]);
+        else if (instruction.operand === "SCMPLT")
+            this._registerR = new Uint32Array(
+                [new Int32Array(this._registerA)[0] < new Int32Array(this._registerB)[0] ? 1 : 0]);
+        else if (instruction.operand === "SCMPLTE")
+            this._registerR = new Uint32Array(
+                [new Int32Array(this._registerA)[0] <= new Int32Array(this._registerB)[0] ? 1 : 0]);
+
+        else if (instruction.operand === "FCMPE")
+            this._registerR = new Uint32Array(
+                [ new Float32Array(this._registerA)[0] == new Float32Array(this._registerB)[0] ? 1 : 0 ]);
+        else if (instruction.operand === "FCMPNE")
+            this._registerR = new Uint32Array(
+                [ new Float32Array(this._registerA)[0] != new Float32Array(this._registerB)[0]  ? 1 : 0 ]);
+        else if (instruction.operand === "FCMPGT")
+            this._registerR = new Uint32Array(
+                [new Float32Array(this._registerA)[0] > new Float32Array(this._registerB)[0] ? 1 : 0]);
+        else if (instruction.operand === "FCMPGTE")
+            this._registerR = new Uint32Array(
+                [new Float32Array(this._registerA)[0] >= new Float32Array(this._registerB)[0] ? 1 : 0]);
+        else if (instruction.operand === "FCMPLT")
+            this._registerR = new Uint32Array(
+                [new Float32Array(this._registerA)[0] < new Float32Array(this._registerB)[0] ? 1 : 0]);
+        else if (instruction.operand === "FCMPLTE")
+            this._registerR = new Uint32Array(
+                [new Float32Array(this._registerA)[0] <= new Float32Array(this._registerB)[0] ? 1 : 0]);
 
         else
         {
