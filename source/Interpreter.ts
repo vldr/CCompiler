@@ -425,9 +425,7 @@ export default class Interpreter
                     instruction.operand === "FLTOINT" ||
                     instruction.operand === "INTTOFL" ||
                     instruction.operand === "LAND" ||
-                    instruction.operand === "LOR" ||
-
-                    false
+                    instruction.operand === "LOR"
                 )
                 {
                     this.interpretCOMPUTE(instruction);
@@ -439,6 +437,14 @@ export default class Interpreter
                 )
                 {
                     this.interpretSTORE(instruction);
+                }
+                else if (
+                    instruction.operand === "TICK" ||
+                    instruction.operand === "RAND" ||
+                    instruction.operand === "SETLED"
+                )
+                {
+                    this.interpretSPECIAL(instruction);
                 }
                 else if (instruction.operand === "#") {}
                 else if (this._instructions[this._programCounter].endsWith(":")) {}
@@ -865,9 +871,25 @@ export default class Interpreter
         }
     }
 
-    // TODO: Implement InstructionRAND.ts
-    // TODO: Implement InstructionSETLED.ts
-    // TODO: Implement InstructionTICK.ts
+    // Implement InstructionRAND.ts
+    // Implement InstructionSETLED.ts
+    // Implement InstructionTICK.ts
+    private interpretSPECIAL(instruction: InterpreterInstruction)
+    {
+        if (instruction.operand === "RAND")
+        {
+            const getRandomNumber = (min: number, max: number) => {
+                return Math.random() * (max - min) + min;
+            };
+
+            this._registerR = new Uint32Array([ getRandomNumber(0, 4294967295) ]);
+        }
+        else if (instruction.operand === "SETLED" || instruction.operand === "TICK") {}
+        else
+        {
+            instruction.error(InterpreterLocation.Operand, "Unknown operand for SPECIAL-like instruction.");
+        }
+    }
 }
 
 enum InterpreterLocation {
