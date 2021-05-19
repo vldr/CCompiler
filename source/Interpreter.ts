@@ -8,6 +8,7 @@ export default class Interpreter
     private _programCounter: number;
 
     private _labels = new Map<string, number>();
+    private _addresses = new Map<number, number>(); // Line numbers -> address
     private _memoryRegions = new Map<string, ArrayBuffer>();
 
     private _instructions: Array<string>;
@@ -31,6 +32,7 @@ export default class Interpreter
 
         this.processLabels();
         this.processMemoryRegions();
+        this.processAddresses();
         this.processInstructions();
     }
 
@@ -178,18 +180,20 @@ export default class Interpreter
     {
         let label: string | undefined;
 
-        this._labels.forEach((_address, _label) =>
+        this._labels.forEach((address_, label_) =>
         {
-            if (address === _address)
+            if (address_ === address + 1)
             {
-                label = _label;
+                label = label_;
             }
         });
 
         if (!label)
         {
-            throw instruction.error(InterpreterLocation.Operand, "Unable to resolve address to a memory region.");
+            throw instruction.error(InterpreterLocation.Operand, "Unable to resolve line number to a label.");
         }
+
+        ////////////////////////////////////////////////////////////
 
         const memoryRegion = this._memoryRegions.get(label);
 
@@ -208,18 +212,22 @@ export default class Interpreter
     {
         let label: string | undefined;
 
-        this._labels.forEach((_address, _label) =>
+        this._labels.forEach((address_, label_) =>
         {
-            if (address === _address)
+            if (address_ === address)
             {
-                label = _label;
+                label = label_;
             }
         });
 
         if (!label)
         {
-            throw instruction.error(InterpreterLocation.Operand, "Unable to resolve address to a memory region.");
+            console.log(this._labels, address);
+
+            throw instruction.error(InterpreterLocation.Operand, "Unable to resolve line number to a label.");
         }
+
+        ////////////////////////////////////////////////////////////
 
         const value = this._memoryRegions.get(label);
 
@@ -253,7 +261,7 @@ export default class Interpreter
         this._stack.push(value.slice(0));
     }
 
-    public popValue(instruction: InterpreterInstruction): ArrayBuffer
+    private popValue(instruction: InterpreterInstruction): ArrayBuffer
     {
         const value = this._stack.pop();
 
@@ -294,6 +302,121 @@ export default class Interpreter
                 }
             }
         });
+    }
+
+    private processAddresses()
+    {
+        let addressCount = 0;
+
+        for (let i = 0; i < this._instructions.length; i++)
+        {
+            const instruction = new InterpreterInstruction(this._instructions[i], i);
+
+            if (
+                instruction.operand === "HALT" ||
+                instruction.operand === "GETA" ||
+                instruction.operand === "GETB" ||
+                instruction.operand === "VGETA" ||
+                instruction.operand === "VGETB" ||
+                instruction.operand === "PUSH" ||
+                instruction.operand === "VPUSH" ||
+                instruction.operand === "SAVEPUSH" ||
+                instruction.operand === "MOVOUTPUSH" ||
+                instruction.operand === "POP" ||
+                instruction.operand === "GETPOPA" ||
+                instruction.operand === "GETPOPB" ||
+                instruction.operand === "GETPOPR" ||
+                instruction.operand === "POPNOP" ||
+                instruction.operand === "MOVINPOP" ||
+                instruction.operand === "SAVE" ||
+                instruction.operand === "SAVEA" ||
+                instruction.operand === "SAVEB" ||
+                instruction.operand === "SAVETOA" ||
+                instruction.operand === "SAVETOB" ||
+                instruction.operand === "JA" ||
+                instruction.operand === "JNA" ||
+                instruction.operand === "JMP" ||
+                instruction.operand === "CALL" ||
+                instruction.operand === "RTN" ||
+                instruction.operand === "MOV" ||
+                instruction.operand === "MOVIN" ||
+                instruction.operand === "MOVOUT" ||
+                instruction.operand === "ADD" ||
+                instruction.operand === "FADD" ||
+                instruction.operand === "SADD" ||
+                instruction.operand === "MULT" ||
+                instruction.operand === "FMULT" ||
+                instruction.operand === "SMULT" ||
+                instruction.operand === "DIV" ||
+                instruction.operand === "FDIV" ||
+                instruction.operand === "SDIV" ||
+                instruction.operand === "SUB" ||
+                instruction.operand === "FSUB" ||
+                instruction.operand === "SSUB" ||
+                instruction.operand === "CMPE" ||
+                instruction.operand === "CMPNE" ||
+                instruction.operand === "CMPLT" ||
+                instruction.operand === "CMPLTE" ||
+                instruction.operand === "CMPGT" ||
+                instruction.operand === "CMPGTE" ||
+                instruction.operand === "SCMPE" ||
+                instruction.operand === "SCMPNE" ||
+                instruction.operand === "SCMPLT" ||
+                instruction.operand === "SCMPLTE" ||
+                instruction.operand === "SCMPGT" ||
+                instruction.operand === "SCMPGTE" ||
+                instruction.operand === "FCMPE" ||
+                instruction.operand === "FCMPNE" ||
+                instruction.operand === "FCMPLT" ||
+                instruction.operand === "FCMPLTE" ||
+                instruction.operand === "FCMPGT" ||
+                instruction.operand === "FCMPGTE" ||
+                instruction.operand === "NEG" ||
+                instruction.operand === "SNEG" ||
+                instruction.operand === "FNEG" ||
+                instruction.operand === "INC" ||
+                instruction.operand === "DEC" ||
+                instruction.operand === "FINC" ||
+                instruction.operand === "FDEC" ||
+                instruction.operand === "REM" ||
+                instruction.operand === "AND" ||
+                instruction.operand === "SHIFTL" ||
+                instruction.operand === "SHIFTR" ||
+                instruction.operand === "OR" ||
+                instruction.operand === "XOR" ||
+                instruction.operand === "NOT" ||
+                instruction.operand === "FLTOINT" ||
+                instruction.operand === "INTTOFL" ||
+                instruction.operand === "LAND" ||
+                instruction.operand === "LOR" ||
+                instruction.operand === "QADD" ||
+                instruction.operand === "QSTORE" ||
+                instruction.operand === "TICK" ||
+                instruction.operand === "RAND" ||
+                instruction.operand === "SETLED" ||
+                instruction.operand === ".data"
+            )
+            {
+                this._addresses.set(i, addressCount);
+
+                addressCount += 1;
+            }
+            else if (
+                instruction.operand === "STORE" ||
+                instruction.operand === "STOREPUSH"
+            )
+            {
+                this._addresses.set(i, addressCount);
+
+                addressCount += 2;
+            }
+            else
+            {
+                this._addresses.set(i, addressCount);
+            }
+
+            //console.log(i +":", this._instructions[i], "=>", addressCount);
+        }
     }
 
     private processInstructions()

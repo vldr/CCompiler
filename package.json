@@ -7,7 +7,7 @@
   "license": "ISC",
   "scripts": {
     "test": "jest",
-    "compile": "tsc -p tsconfig.json",
+    "compile": "tsc -p tsconfig.json && node tools/generateParser.js",
     "bundle": "npm run compile && webpack --config webpack.config.js"
   },
   "devDependencies": {
