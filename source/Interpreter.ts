@@ -369,10 +369,6 @@ export default class Interpreter
                 {
                     this.interpretMOVE(instruction);
                 }
-                    // Implement InstructionADD.ts
-                    // Implement InstructionMULT.ts
-                    // Implement InstructionDIV.ts
-                // Implement InstructionSUB.ts
                 else if (
                     instruction.operand === "ADD" ||
                     instruction.operand === "FADD" ||
@@ -417,10 +413,32 @@ export default class Interpreter
                     instruction.operand === "FINC" ||
                     instruction.operand === "FDEC" ||
 
+                    instruction.operand === "REM" ||
+                    instruction.operand === "AND" ||
+                    instruction.operand === "SHIFTL" ||
+                    instruction.operand === "SHIFTR" ||
+
+                    instruction.operand === "OR" ||
+                    instruction.operand === "XOR" ||
+                    instruction.operand === "NOT" ||
+
+                    instruction.operand === "FLTOINT" ||
+                    instruction.operand === "INTTOFL" ||
+                    instruction.operand === "LAND" ||
+                    instruction.operand === "LOR" ||
+
                     false
                 )
                 {
                     this.interpretCOMPUTE(instruction);
+                }
+                else if (
+                    instruction.operand === "QADD" ||
+                    instruction.operand === "QSTORE" ||
+                    instruction.operand === "STORE"
+                )
+                {
+                    this.interpretSTORE(instruction);
                 }
                 else if (instruction.operand === "#") {}
                 else if (this._instructions[this._programCounter].endsWith(":")) {}
@@ -665,17 +683,21 @@ export default class Interpreter
     // Implement InstructionFINC.ts
     // Implement InstructionFDEC.ts
 
-    // TODO: Implement InstructionREM.ts
-    // TODO: Implement InstructionAND.ts
-    // TODO: Implement InstructionSHIFTL.ts
-    // TODO: Implement InstructionSHIFTR.ts
-    // TODO: Implement InstructionFLTOINT.ts
-    // TODO: Implement InstructionINTTOFL.ts
-    // TODO: Implement InstructionLAND.ts
-    // TODO: Implement InstructionLOR.ts
-    // TODO: Implement InstructionNOT.ts
-    // TODO: Implement InstructionOR.ts
-    // TODO: Implement InstructionXOR.ts
+    // Implement InstructionREM.ts
+
+    // Implement InstructionAND.ts
+    // Implement InstructionNOT.ts
+    // Implement InstructionOR.ts
+    // Implement InstructionXOR.ts
+
+    // Implement InstructionSHIFTL.ts
+    // Implement InstructionSHIFTR.ts
+
+    // Implement InstructionFLTOINT.ts
+    // Implement InstructionINTTOFL.ts
+    // Implement InstructionLAND.ts
+    // Implement InstructionLOR.ts
+
     private interpretCOMPUTE(instruction: InterpreterInstruction)
     {
         if (instruction.operand === "SADD")
@@ -725,7 +747,6 @@ export default class Interpreter
             this._registerR = new Uint32Array(
                 [ new Uint32Array(this._registerA)[0] <= new Uint32Array(this._registerB)[0] ? 1 : 0 ]);
         }
-
 
         else if (instruction.operand === "SCMPE")
             this._registerR = new Uint32Array(
@@ -782,15 +803,67 @@ export default class Interpreter
         else if (instruction.operand === "FDEC")
             this._registerR = new Float32Array([ new Float32Array(this._registerA)[0] - 1 ]);
 
+
+        else if (instruction.operand === "REM")
+            this._registerR = new Uint32Array([new Uint32Array(this._registerA)[0] % new Uint32Array(this._registerB)[0]]);
+
+
+        else if (instruction.operand === "AND")
+            this._registerR = new Uint32Array([new Uint32Array(this._registerA)[0] & new Uint32Array(this._registerB)[0]]);
+        else if (instruction.operand === "SHIFTL")
+            this._registerR = new Uint32Array([new Uint32Array(this._registerA)[0] << new Uint32Array(this._registerB)[0]]);
+        else if (instruction.operand === "SHIFTR")
+            this._registerR = new Uint32Array([new Uint32Array(this._registerA)[0] >>> new Uint32Array(this._registerB)[0]]);
+
+        else if (instruction.operand === "NOT")
+            this._registerR = new Uint32Array([~new Uint32Array(this._registerA)[0]]);
+        else if (instruction.operand === "OR")
+            this._registerR = new Uint32Array([new Uint32Array(this._registerA)[0] | new Uint32Array(this._registerB)[0]]);
+        else if (instruction.operand === "XOR")
+            this._registerR = new Uint32Array([new Uint32Array(this._registerA)[0] ^ new Uint32Array(this._registerB)[0]]);
+
+        else if (instruction.operand === "FLTOINT")
+            this._registerR = new Int32Array([ new Float32Array(this._registerA)[0] ]);
+        else if (instruction.operand === "INTTOFL")
+            this._registerR = new Float32Array([ new Int32Array(this._registerA)[0] ]);
+
+        else if (instruction.operand === "LAND")
+            this._registerR = new Uint32Array([
+                (new Uint32Array(this._registerA)[0] != 0 && new Uint32Array(this._registerB)[0] != 0) ? 1 : 0
+            ]);
+        else if (instruction.operand === "LOR")
+            this._registerR = new Uint32Array([
+                (new Uint32Array(this._registerA)[0] != 0 || new Uint32Array(this._registerB)[0] != 0) ? 1 : 0
+            ]);
+
+
         else
         {
             instruction.error(InterpreterLocation.Operand, "Unknown operand for COMPUTE-like instruction.");
         }
     }
 
-    // TODO: Implement InstructionQADD.ts
-    // TODO: Implement InstructionQSTORE.ts
-    // TODO: Implement InstructionSTORE.ts
+    // Implement InstructionQADD.ts
+    // Implement InstructionQSTORE.ts
+    // Implement InstructionSTORE.ts
+    private interpretSTORE(instruction: InterpreterInstruction)
+    {
+        if (instruction.operand === "QADD")
+        {
+            const valueA = this.getNumericValue(instruction, InterpreterLocation.Arg0);
+            const valueB = this.getNumericValue(instruction, InterpreterLocation.Arg1);
+
+            this._registerR = new Uint32Array([new Uint32Array(valueA)[0] + new Uint32Array(valueB)[0]]);
+        }
+        else if (instruction.operand === "STORE" || instruction.operand === "QSTORE")
+        {
+            this.setMemoryValue(instruction, InterpreterLocation.Arg1, InterpreterLocation.Arg0);
+        }
+        else
+        {
+            instruction.error(InterpreterLocation.Operand, "Unknown operand for STORE-like instruction.");
+        }
+    }
 
     // TODO: Implement InstructionRAND.ts
     // TODO: Implement InstructionSETLED.ts

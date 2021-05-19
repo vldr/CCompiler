@@ -692,3 +692,167 @@ test("Test INC, FINC, DEC, FDEC", () => {
     expect(interpreter.stack.pop()).toStrictEqual(new Int32Array([ -1 ]));
     expect(interpreter.stack.pop()).toStrictEqual(new Int32Array([ 129 ]));
 });
+
+test("Test REM, AND, SHIFTL, SHIFTR", () => {
+    const interpreter = new Interpreter(`
+            VGETA 128
+            VGETB 5
+            REM
+            SAVEPUSH
+            
+            VGETA 268435455
+            VGETB 252645135
+            AND
+            SAVEPUSH
+            
+            VGETA 128
+            VGETB 1
+            SHIFTR
+            SAVEPUSH
+            
+            VGETA 128
+            VGETB 1
+            SHIFTL
+            SAVEPUSH
+
+            HALT
+        `);
+    interpreter.run();
+
+    expect(interpreter.stack.pop()).toStrictEqual(new Uint32Array([ 256 ]));
+    expect(interpreter.stack.pop()).toStrictEqual(new Uint32Array([ 64 ]));
+    expect(interpreter.stack.pop()).toStrictEqual(new Uint32Array([ 252645135 ]));
+    expect(interpreter.stack.pop()).toStrictEqual(new Uint32Array([ 3 ]));
+});
+
+test("Test NOT, OR, XOR", () => {
+    const interpreter = new Interpreter(`
+            VGETA 4042322160
+            NOT
+            SAVEPUSH
+            
+            VGETA 0
+            VGETB 4042322160
+            OR
+            SAVEPUSH
+            
+            VGETA 252645135
+            VGETB 4042322160
+            XOR
+            SAVEPUSH
+
+            HALT
+        `);
+    interpreter.run();
+
+    expect(interpreter.stack.pop()).toStrictEqual(new Uint32Array([ 4294967295 ]));
+    expect(interpreter.stack.pop()).toStrictEqual(new Uint32Array([ 4042322160 ]));
+    expect(interpreter.stack.pop()).toStrictEqual(new Uint32Array([ 252645135 ]));
+});
+
+test("Test FLTOINT, INTTOFL", () => {
+    const interpreter = new Interpreter(`
+            VGETA 12.5f
+            FLTOINT
+            SAVEPUSH
+            
+            VGETA 12
+            INTTOFL
+            SAVEPUSH
+
+            HALT
+        `);
+    interpreter.run();
+
+    expect(interpreter.stack.pop()).toStrictEqual(new Float32Array([ 12 ]));
+    expect(interpreter.stack.pop()).toStrictEqual(new Int32Array([ 12 ]));
+});
+
+test("Test LAND", () => {
+    const interpreter = new Interpreter(`
+            VGETA 0
+            VGETB 0
+            LAND
+            SAVEPUSH
+            
+            VGETA 1
+            VGETB 0
+            LAND
+            SAVEPUSH
+            
+            VGETA 0
+            VGETB 1
+            LAND
+            SAVEPUSH
+            
+            VGETA 1
+            VGETB 1
+            LAND
+            SAVEPUSH
+
+            HALT
+        `);
+    interpreter.run();
+
+    expect(interpreter.stack.pop()).toStrictEqual(new Uint32Array([ 1 ]));
+    expect(interpreter.stack.pop()).toStrictEqual(new Uint32Array([ 0 ]));
+    expect(interpreter.stack.pop()).toStrictEqual(new Uint32Array([ 0 ]));
+    expect(interpreter.stack.pop()).toStrictEqual(new Uint32Array([ 0 ]));
+});
+
+test("Test LOR", () => {
+    const interpreter = new Interpreter(`
+            VGETA 0
+            VGETB 0
+            LOR
+            SAVEPUSH
+            
+            VGETA 1
+            VGETB 0
+            LOR
+            SAVEPUSH
+            
+            VGETA 0
+            VGETB 1
+            LOR
+            SAVEPUSH
+            
+            VGETA 1
+            VGETB 1
+            LOR
+            SAVEPUSH
+
+            HALT
+        `);
+    interpreter.run();
+
+    expect(interpreter.stack.pop()).toStrictEqual(new Uint32Array([ 1 ]));
+    expect(interpreter.stack.pop()).toStrictEqual(new Uint32Array([ 1 ]));
+    expect(interpreter.stack.pop()).toStrictEqual(new Uint32Array([ 1 ]));
+    expect(interpreter.stack.pop()).toStrictEqual(new Uint32Array([ 0 ]));
+});
+
+test("Test QADD, QSTORE, STORE", () => {
+    const interpreter = new Interpreter(`
+            QADD 128 32
+            SAVEPUSH
+            
+            QSTORE 64 var_a
+            STORE 128 var_b      
+           
+            HALT
+            
+            var_a:
+            .data 0
+            
+            var_b:
+            .data 0
+
+            HALT
+        `);
+    interpreter.run();
+
+    expect(interpreter.memoryRegions.get("var_a")).toStrictEqual(new Uint32Array([ 64 ]));
+    expect(interpreter.memoryRegions.get("var_b")).toStrictEqual(new Uint32Array([ 128 ]));
+    expect(interpreter.stack.pop()).toStrictEqual(new Uint32Array([ 160 ]));
+});
