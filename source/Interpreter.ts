@@ -7,8 +7,7 @@ export default class Interpreter
     private _callStack = new Array<number>();
     private _programCounter: number;
 
-    private _labels = new Map<string, number>();
-    private _addresses = new Map<number, number>(); // Line numbers -> address
+    private _labels = new Map<string, InterpreterLabel>();
     private _memoryRegions = new Map<string, ArrayBuffer>();
 
     private _instructions: Array<string>;
@@ -32,7 +31,6 @@ export default class Interpreter
 
         this.processLabels();
         this.processMemoryRegions();
-        this.processAddresses();
         this.processInstructions();
     }
 
@@ -61,7 +59,7 @@ export default class Interpreter
         if (!address)
             throw instruction.error(location, "Invalid label location provided.");
 
-        this._programCounter = address;
+        this._programCounter = address.lineNumber;
     }
 
     private jumpToLocationByAddress(instruction: InterpreterInstruction, address: number)
@@ -93,7 +91,7 @@ export default class Interpreter
 
         if (memoryLocation)
         {
-            return new Uint32Array([ memoryLocation ]);
+            return new Uint32Array([ memoryLocation.address ]);
         }
         else
         {
@@ -182,7 +180,7 @@ export default class Interpreter
 
         this._labels.forEach((address_, label_) =>
         {
-            if (address_ === address + 1)
+            if (address_.address === address)
             {
                 label = label_;
             }
@@ -214,7 +212,7 @@ export default class Interpreter
 
         this._labels.forEach((address_, label_) =>
         {
-            if (address_ === address)
+            if (address_.address === address)
             {
                 label = label_;
             }
@@ -273,28 +271,13 @@ export default class Interpreter
         return value.slice(0);
     }
 
-    private processLabels()
-    {
-        for (let i = 0; i < this._instructions.length; i++)
-        {
-            const instruction = new InterpreterInstruction(this._instructions[i], i);
-
-            if (instruction.operand && instruction.operand.endsWith(":"))
-            {
-                const line = instruction.operand.replace(":", "");
-
-                this._labels.set(line, i + 1);
-            }
-        }
-    }
-
     private processMemoryRegions()
     {
         this._labels.forEach((location, label) =>
         {
-            if (location in this._instructions)
+            if (location.lineNumber in this._instructions)
             {
-                const instruction = new InterpreterInstruction(this._instructions[location], location);
+                const instruction = new InterpreterInstruction(this._instructions[location.lineNumber], location.lineNumber );
 
                 if (instruction.arg0 && instruction.operand === ".data")
                 {
@@ -304,13 +287,14 @@ export default class Interpreter
         });
     }
 
-    private processAddresses()
+    private processLabels()
     {
         let addressCount = 0;
 
         for (let i = 0; i < this._instructions.length; i++)
         {
-            const instruction = new InterpreterInstruction(this._instructions[i], i);
+            const line = this._instructions[i];
+            const instruction = new InterpreterInstruction(line, i);
 
             if (
                 instruction.operand === "HALT" ||
@@ -397,8 +381,6 @@ export default class Interpreter
                 instruction.operand === ".data"
             )
             {
-                this._addresses.set(i, addressCount);
-
                 addressCount += 1;
             }
             else if (
@@ -406,16 +388,15 @@ export default class Interpreter
                 instruction.operand === "STOREPUSH"
             )
             {
-                this._addresses.set(i, addressCount);
-
                 addressCount += 2;
             }
-            else
+            else if (line.endsWith(":"))
             {
-                this._addresses.set(i, addressCount);
+                this._labels.set(
+                    line.replace(":", ""),
+                    new InterpreterLabel(addressCount, i + 1)
+                );
             }
-
-            //console.log(i +":", this._instructions[i], "=>", addressCount);
         }
     }
 
@@ -746,12 +727,12 @@ export default class Interpreter
         }
         else if (instruction.operand === "RTN")
         {
-            const poppedAddress = this._callStack.pop();
+            const poppedLineNumber = this._callStack.pop();
 
-            if (!poppedAddress)
+            if (!poppedLineNumber)
                 throw instruction.error(InterpreterLocation.Operand, "Call stack is empty.");
 
-            this.jumpToLocationByAddress(instruction, poppedAddress);
+            this.jumpToLocationByAddress(instruction, poppedLineNumber);
         }
         else if (instruction.operand === "CALL")
         {
@@ -1019,6 +1000,12 @@ enum InterpreterLocation {
     Operand,
     Arg0,
     Arg1
+}
+
+class InterpreterLabel {
+    constructor(public readonly address: number, public readonly lineNumber: number)
+    {
+    }
 }
 
 class InterpreterInstruction
