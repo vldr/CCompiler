@@ -11,6 +11,7 @@ export default class Interpreter
     private _memoryRegions = new Map<string, ArrayBuffer>();
 
     private _instructions: Array<string>;
+    private _didModifyProgramCounter: boolean;
 
     constructor(public readonly content: string)
     {
@@ -59,7 +60,7 @@ export default class Interpreter
         if (!address)
             throw instruction.error(location, "Invalid label location provided.");
 
-        this._programCounter = address.lineNumber;
+        this.jumpToLocationByAddress(instruction, address.lineNumber);
     }
 
     private jumpToLocationByAddress(instruction: InterpreterInstruction, address: number)
@@ -68,6 +69,7 @@ export default class Interpreter
             throw instruction.error(InterpreterLocation.Operand, "Address is out of bounds.");
 
         this._programCounter = address;
+        this._didModifyProgramCounter = true;
     }
 
     private getNumericValue(instruction: InterpreterInstruction, location: InterpreterLocation): ArrayBuffer
@@ -407,7 +409,8 @@ export default class Interpreter
         while (isRunning)
         {
             const instruction = new InterpreterInstruction(this._instructions[this._programCounter], this._programCounter);
-            const previousPC = this._programCounter;
+
+            this._didModifyProgramCounter = false;
 
             if (instruction.operand)
             {
@@ -558,7 +561,7 @@ export default class Interpreter
                 }
             }
 
-            if (this._programCounter === previousPC)
+            if (!this._didModifyProgramCounter)
             {
                 this._programCounter++;
             }
