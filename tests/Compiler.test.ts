@@ -339,6 +339,33 @@ test("Test 'mod_pow.c'.", () => {
     expect(interpreter.memoryRegions.get(`var_result`)).toStrictEqual(new Uint32Array([ 0xe ]));
 });
 
+test("Test 'sqrtf.c'.", () => {
+    const compiler = new Compiler();
+    const result = compiler.compile(`
+        float sqrtf(float n) 
+        { 
+            float x = n; 
+            float y = 1.0; 
+            float e = 0.000001;
+        
+            while (x - y > e) 
+            { 
+                x = (x + y) / 2.0;
+                y = n / x;
+            } 
+        
+            return x; 
+        } 
+        
+        float answer = sqrtf(64.0);
+    `);
+
+    const interpreter = new Interpreter(result);
+    interpreter.run();
+
+    expect(interpreter.memoryRegions.get(`var_answer`)).toStrictEqual(new Float32Array([ 8 ]));
+});
+
 test("Test 'crc32.c'.", () => {
     const compiler = new Compiler();
     const result = compiler.compile(`
@@ -372,6 +399,67 @@ test("Test 'crc32.c'.", () => {
     interpreter.run();
 
     expect(interpreter.memoryRegions.get(`var_crc32`)).toStrictEqual(new Uint32Array([ 0xb3ae97b6 ]));
+});
+
+test("Test 'pascal.c'.", () => {
+    const compiler = new Compiler();
+    const result = compiler.compile(`
+        int binomialCoeff(int n, int k) 
+        { 
+            int res = 1; 
+        
+            if (k > n - k) 
+                k = n - k; 
+        
+            for (int i = 0; i < k; ++i) 
+            { 
+                res *= (n - i); 
+                res /= (i + 1); 
+            } 
+              
+            return res; 
+        } 
+        
+        void run()
+        {
+            int triangle[16];
+        
+            // 1 15 105 455 1365 3003 5005 6435 6435 5005 3003 1365 455 105 15 1
+            for (int i = 0; i < triangle.length; i++) 
+            {
+                triangle[i] = binomialCoeff(triangle.length - 1, i);
+            }
+        }
+        
+        run();
+    `);
+
+    const interpreter = new Interpreter(result);
+    interpreter.run();
+
+    const binomialCoeff = (n: number, k: number): number =>
+    {
+        let res = 1;
+
+        if (k > n - k)
+            k = n - k;
+
+        for (let i = 0; i < k; ++i)
+        {
+            res *= (n - i);
+            res /= (i + 1);
+        }
+
+        return res;
+    };
+
+    for (let i = 0; i < 16; i++)
+    {
+        // @ts-ignore
+        expect(new Uint32Array(interpreter.memoryRegions.get(`run_var_triangle_${i}`))).toStrictEqual(new Uint32Array([ binomialCoeff(15, i) ]))
+    }
+
+
 });
 
 test("Test 'xtea.c'.", () => {
