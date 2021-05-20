@@ -765,3 +765,68 @@ test("Test 'is_multiple_of_3.c'.", () => {
 
     expect(interpreter.registerA).toStrictEqual(new Uint32Array([ 1 ]));
 });
+
+test("Test 'tuxedo_rental_problem.c'.", () => {
+    const compiler = new Compiler();
+    const result = compiler.compile(`
+        // Tuxedo Rental Problem
+        struct RentalRequest 
+        {
+            int start;
+            int finish;
+        };
+        
+        int result[4];
+        RentalRequest A[4];
+        
+        int max(int a, int b) { return a > b ? a : b; }
+        
+        void iterative() 
+        {
+            for (int i = 0; i < A.length; i++) 
+            {
+                if (i == 0)
+                    result[i] = A[i].finish - A[i].start;
+                else if (i > 0) 
+                {
+                    int j = i - 1;
+        
+                    while (j >= 0 && A[j].finish >= A[i].start)
+                        j--;
+        
+                    if (j >= 0)
+                        result[i] = max(result[i - 1], A[i].finish - A[i].start + result[j]);
+                    else
+                        result[i] = max(result[i - 1], A[i].finish - A[i].start);
+                }
+            }
+        }
+        
+        void run() 
+        {
+            A[0].start = 0;
+            A[0].finish = 5;
+        
+            A[1].start = 15;
+            A[1].finish = 25;
+        
+            A[2].start = 6;
+            A[2].finish = 8;
+        
+            A[3].start = 10;
+            A[3].finish = 11;
+        
+            iterative();
+        }
+        
+        run();
+    `);
+
+    const interpreter = new Interpreter(result);
+    interpreter.run();
+
+    expect(interpreter.memoryRegions.get("var_result_0")).toStrictEqual(new Int32Array([ 5 ]));
+    expect(interpreter.memoryRegions.get("var_result_1")).toStrictEqual(new Int32Array([ 15 ]));
+    expect(interpreter.memoryRegions.get("var_result_2")).toStrictEqual(new Int32Array([ 15 ]));
+    expect(interpreter.memoryRegions.get("var_result_3")).toStrictEqual(new Int32Array([ 16 ]));
+});
