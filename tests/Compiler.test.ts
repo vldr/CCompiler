@@ -830,3 +830,100 @@ test("Test 'tuxedo_rental_problem.c'.", () => {
     expect(interpreter.memoryRegions.get("var_result_2")).toStrictEqual(new Int32Array([ 15 ]));
     expect(interpreter.memoryRegions.get("var_result_3")).toStrictEqual(new Int32Array([ 16 ]));
 });
+
+test("Test 'catalan_numbers.c'.", () => {
+    const compiler = new Compiler();
+    const result = compiler.compile(`
+        uint numbers[15];
+
+        uint binomialCoeff(uint n, uint k)
+        {
+            uint res = 1u;
+        
+            if (k > n - k)
+                k = n - k;
+         
+            for (uint i = 0u; i < k; ++i) {
+                res *= (n - i);
+                res /= (i + 1u);
+            }
+         
+            return res;
+        }
+        
+        uint catalan(uint n)
+        {
+            uint c = binomialCoeff(2u * n, n);
+        
+            return c / (n + 1u);
+        }
+        
+        void run()
+        {
+            for (uint i = 0u; i < (uint)numbers.length; i++)
+                numbers[i] = catalan(i);
+        }
+        
+        run();
+    `);
+
+    const interpreter = new Interpreter(result);
+    interpreter.run();
+
+    const catalan = (n: number) =>
+    {
+        if (n <= 1)
+            return 1;
+
+        let res = 0;
+        for(let i = 0; i < n; i++)
+            res += catalan(i) *
+                catalan(n - i - 1);
+
+        return res;
+    }
+
+    for (let i = 0; i < 15; i++)
+        expect(interpreter.memoryRegions.get(`var_numbers_${i}`)).toStrictEqual(new Uint32Array([ catalan(i) ]));
+});
+
+test("Test 'square_free.c'.", () => {
+    const compiler = new Compiler();
+    const result = compiler.compile(`
+        int squareFree(int n)
+        {
+            int cnt = 0;
+        
+            for (int i = 1;; i++)
+            {
+                uint isSqFree = 1u;
+        
+                for (int j=2; j*j<=i; j++)
+                {
+                    if (i % (j*j) == 0)
+                    {
+                        isSqFree = 0u;
+                        break;
+                    }
+                }
+        
+                if (isSqFree == 1u)
+                {
+                    cnt++;
+            
+                    if (cnt == n)
+                        return i;
+                }
+            }
+        
+            return 0;
+        }
+        
+        int result = squareFree(5);
+    `);
+
+    const interpreter = new Interpreter(result);
+    interpreter.run();
+
+    expect(interpreter.memoryRegions.get(`var_result`)).toStrictEqual(new Int32Array([ 6 ]));
+});
