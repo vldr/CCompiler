@@ -980,6 +980,56 @@ test("Test 'nth_root.c'.", () => {
     expect(interpreter.memoryRegions.get(`var_answer`)).toStrictEqual(new Float32Array([ -3.14159 ]));
 });
 
+test("Test 'integer_roots.c'.", () => {
+    const compiler = new Compiler();
+    const result = compiler.compile(`
+        uint pow(uint base, uint exp)
+        {
+            uint result = 1u;
+        
+            while (exp)
+            {
+                if ((exp & 1u) == 1u) result *= base;
+                exp >>= 1u;
+                base *= base;
+            }
+            
+            return result;
+        }
+        
+        uint root(uint base, uint n) 
+        {
+            uint n1, n2, n3, c, d, e;
+         
+            if (base < 2u) return base;
+            if (n == 0u) return 1u;
+         
+            n1 = n - 1u;
+            n2 = n;
+            n3 = n1;
+            c = 1u;
+            d = (n3 + base) / n2;
+            e = (n3 * d + base / (uint)pow(d, n1)) / n2;
+         
+            while (c != d && c != e) {
+                c = d;
+                d = e;
+                e = (n3*e + base / (uint)pow(e, n1)) / n2;
+            }
+         
+            if (d < e) return d;
+            return e;
+        }
+        
+        uint result = root(9u, 3u);
+    `);
+
+    const interpreter = new Interpreter(result);
+    interpreter.run();
+
+    expect(interpreter.memoryRegions.get(`var_result`)).toStrictEqual(new Uint32Array([ 2 ]));
+});
+
 test("Test 'heap_sort.c'.", () => {
     const compiler = new Compiler();
     const result = compiler.compile(`
