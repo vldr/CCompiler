@@ -44,6 +44,11 @@ import InstructionComment from "../Instructions/InstructionComment";
 import ExpressionResultConstant from "./ExpressionResultConstant";
 import Node from "../Nodes/Node";
 import Destination from "../Destinations/Destination";
+import InstructionLabel from "../Instructions/InstructionLabel";
+import InstructionJA from "../Instructions/InstructionJA";
+import InstructionJNA from "../Instructions/InstructionJNA";
+import InstructionVGETA from "../Instructions/InstructionVGETA";
+import InstructionVGETB from "../Instructions/InstructionVGETB";
 
 export default class ExpressionBinary extends Expression
 {
@@ -100,7 +105,7 @@ export default class ExpressionBinary extends Expression
                 (rightExpressionResult.variable.type instanceof TypeStruct || rightExpressionResult.variable.type.size > 1))
                 throw ExternalErrors.CANNOT_COPY_STRUCT(node);
 
-            if (operator != "=")
+            if (operator !== "=")
             {
                 this.loadOperand(expressionResult, left, right, leftExpressionResult, rightExpressionResult);
 
@@ -131,6 +136,10 @@ export default class ExpressionBinary extends Expression
                 }
             }
         }
+        else if (operator === "&&" || operator === "||")
+        {
+            this.generateLogicalExpression(expressionResult, node, left, right, operator);
+        }
         else
         {
             this.loadOperand(expressionResult, left, right, leftExpressionResult, rightExpressionResult);
@@ -139,6 +148,8 @@ export default class ExpressionBinary extends Expression
         switch (operator)
         {
             case "=":
+            case "&&":
+            case "||":
                 break;
 
             case "+":
@@ -188,15 +199,6 @@ export default class ExpressionBinary extends Expression
 
                 expressionResult.pushInstruction(new InstructionSHIFTR());
                 break;
-            case "||":
-                if (expressionResult.type.constructor !== TypeUnsignedInteger &&
-                    expressionResult.type.constructor !== TypeInteger)
-                    throw ExternalErrors.UNSUPPORTED_TYPE_FOR_BINARY_OPERATOR(
-                        node, operator, expressionResult.type.toString()
-                    );
-
-                expressionResult.pushInstruction(new InstructionLOR());
-                break;
             case "|":
             case "|=":
                 if (expressionResult.type.constructor !== TypeUnsignedInteger &&
@@ -206,15 +208,6 @@ export default class ExpressionBinary extends Expression
                     );
 
                 expressionResult.pushInstruction(new InstructionOR());
-                break;
-            case "&&":
-                if (expressionResult.type.constructor !== TypeUnsignedInteger &&
-                    expressionResult.type.constructor !== TypeInteger)
-                    throw ExternalErrors.UNSUPPORTED_TYPE_FOR_BINARY_OPERATOR(
-                        node, operator, expressionResult.type.toString()
-                    );
-
-                expressionResult.pushInstruction(new InstructionLAND());
                 break;
             case "&":
             case "&=":
@@ -236,15 +229,15 @@ export default class ExpressionBinary extends Expression
 
                 expressionResult.pushInstruction(new InstructionXOR());
                 break;
-
-
             case "<":
             case "<=":
             case ">":
             case ">=":
             case "==":
             case "!=":
-                if (destinationType instanceof TypeInteger)
+                if (expressionResult.type instanceof TypeInteger)
+                    expressionResult.type = new TypeInteger(expressionResult.type.qualifer, expressionResult.type.size);
+                else if (expressionResult.type instanceof TypeFloat)
                     expressionResult.type = new TypeInteger(expressionResult.type.qualifer, expressionResult.type.size);
                 else
                     expressionResult.type = new TypeUnsignedInteger(expressionResult.type.qualifer, expressionResult.type.size);
@@ -293,6 +286,59 @@ export default class ExpressionBinary extends Expression
         else
         {
             throw InternalErrors.generateError(`Unknown destination type, ${destination.constructor}.`);
+        }
+
+        return expressionResult;
+    }
+
+    private generateLogicalExpression(
+        expressionResult: ExpressionResult,
+        node: Node,
+        leftNode: Node,
+        rightNode: Node,
+        operator: string
+    )
+    {
+        if (expressionResult.type.constructor !== TypeUnsignedInteger && expressionResult.type.constructor !== TypeInteger)
+        {
+            throw ExternalErrors.UNSUPPORTED_TYPE_FOR_BINARY_OPERATOR(
+                node, operator, expressionResult.type.toString()
+            );
+        }
+
+        const destination = this._destination;
+
+        const leftExpressionResult = this._compiler.generateExpression(new DestinationRegisterA(destination.type), this._scope, leftNode);
+        const rightExpressionResult = this._compiler.generateExpression(new DestinationRegisterA(destination.type), this._scope, rightNode);
+
+        const substatementIndex = this._scope.getNextSubstatementIndex();
+        const expressionName = `${operator === "||" ? "or" : "and"}_expression_${substatementIndex}`;
+        const alternateLabel = `${this._scope.name}_${expressionName}_alternate`;
+        const finishLabel = `${this._scope.name}_${expressionName}_finish`;
+
+        if (operator === "||")
+        {
+            expressionResult.pushExpressionResult(leftExpressionResult);
+            expressionResult.pushInstruction(new InstructionJA(finishLabel));
+            expressionResult.pushExpressionResult(rightExpressionResult);
+
+            expressionResult.pushInstruction(new InstructionLabel(finishLabel));
+            expressionResult.pushInstruction(new InstructionVGETB("0"));
+            expressionResult.pushInstruction(new InstructionLOR());
+        }
+        else if (operator === "&&")
+        {
+            expressionResult.pushExpressionResult(leftExpressionResult);
+            expressionResult.pushInstruction(new InstructionJNA(finishLabel));
+            expressionResult.pushExpressionResult(rightExpressionResult);
+
+            expressionResult.pushInstruction(new InstructionLabel(finishLabel));
+            expressionResult.pushInstruction(new InstructionVGETB("1"));
+            expressionResult.pushInstruction(new InstructionLAND());
+        }
+        else
+        {
+            throw InternalErrors.generateError("Unsupported binary logical operator.");
         }
 
         return expressionResult;

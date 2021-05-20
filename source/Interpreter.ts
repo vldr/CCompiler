@@ -222,8 +222,6 @@ export default class Interpreter
 
         if (!label)
         {
-            console.log(this._labels, address);
-
             throw instruction.error(InterpreterLocation.Operand, "Unable to resolve line number to a label.");
         }
 
@@ -1020,6 +1018,11 @@ class InterpreterInstruction
         this._instructionParts = _instruction.split(" ");
     }
 
+    get lineNumber()
+    {
+        return this._lineNumber;
+    }
+
     public error(location: InterpreterLocation, message: string): Error
     {
         switch (location)
@@ -1037,7 +1040,7 @@ class InterpreterInstruction
     {
         let buffer = String();
 
-        buffer += `line ${lineNumber}: ${message}\n`;
+        buffer += `line ${lineNumber + 1}: ${message}\n`;
         buffer += `\t${line}\n`;
 
         buffer += "\t";

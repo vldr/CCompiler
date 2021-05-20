@@ -927,3 +927,140 @@ test("Test 'square_free.c'.", () => {
 
     expect(interpreter.memoryRegions.get(`var_result`)).toStrictEqual(new Int32Array([ 6 ]));
 });
+
+test("Test 'nth_root.c'.", () => {
+    const compiler = new Compiler();
+    const result = compiler.compile(`
+        const float DBL_EPSILON = 2.2204460492503131e-016;
+
+        float powf(float x, int e)
+        {
+            int i;
+            float r = 1.f;
+        
+            for (i = 0; i < e; i++)
+            {
+                r *= x;
+            }
+        
+            return r;
+        }
+         
+        float root(int n, float x) 
+        {
+            float d, r = 1.f;
+        
+            if (x == 0.f) 
+            {
+                return 0.f;
+            }
+        
+            if (n < 1 || (x < 0.0 && !(n & 1))) 
+            {
+                return 0.0 / 0.0; /* NaN */
+            }
+        
+            do 
+            {
+                d = (x / powf(r, n - 1) - r) / (float)n;
+                r += d;
+            } 
+            while (d >= DBL_EPSILON * 10.0 || d <= -DBL_EPSILON * 10.0);
+        
+            return r;
+        }
+        
+        int n = 15;
+        float answer = root(n, powf(-3.14159, n));
+    `);
+
+    const interpreter = new Interpreter(result);
+    interpreter.run();
+
+    expect(interpreter.memoryRegions.get(`var_answer`)).toStrictEqual(new Float32Array([ -3.14159 ]));
+});
+
+test("Test 'heap_sort.c'.", () => {
+    const compiler = new Compiler();
+    const result = compiler.compile(`
+        int arr[] = {
+            55, 47, 35, 15, 20, 42,
+            52, 30, 58, 15, 13, 19,
+            32, 18, 44, 11, 7, 9,
+            34, 56, 17, 25, 14, 48,
+            40, 4, 5, 7, 36, 1,
+            33, 49, 25, 26, 30, 9
+        };
+        
+        void swap(int i, int j) 
+        {
+            int temp = arr[i];
+            arr[i] = arr[j];
+            arr[j] = temp;
+        }
+        
+        void buildMaxHeap(int n)
+        {
+            for (int i = 1; i < n; i++)
+            {
+                if (arr[i] > arr[(i - 1) / 2])
+                {
+                    int j = i;
+        
+                    while (arr[j] > arr[(j - 1) / 2])
+                    {
+                        swap(j, (j - 1) / 2);
+        
+                        j = (j - 1) / 2;
+                    }
+                }
+            }
+        }
+          
+        void heapSort(int n)
+        {
+            buildMaxHeap(n);
+        
+            for (int i = n - 1; i > 0; i--)
+            {
+                swap(0, i);
+        
+                int j = 0, index;
+        
+                do
+                {
+                    index = 2 * j + 1;
+        
+                    if (index < (i - 1) && arr[index] < arr[index + 1])
+                        index++;
+        
+                    if (index < i && arr[j] < arr[index])
+                        swap(j, index);
+        
+                    j = index;
+        
+                } while (index < i);
+            }
+        }
+        
+        heapSort(arr.length);
+    `);
+
+    const interpreter = new Interpreter(result);
+    interpreter.run();
+
+    const sortedList = [
+        55, 47, 35, 15, 20, 42,
+        52, 30, 58, 15, 13, 19,
+        32, 18, 44, 11, 7, 9,
+        34, 56, 17, 25, 14, 48,
+        40, 4, 5, 7, 36, 1,
+        33, 49, 25, 26, 30, 9
+    ].sort((a, b) => a - b);
+
+    sortedList.forEach((value, index) =>
+    {
+        expect(interpreter.memoryRegions.get(`var_arr_${index}`))
+            .toStrictEqual(new Uint32Array([ value ]));
+    });
+});
