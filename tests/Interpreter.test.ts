@@ -1,6 +1,6 @@
 import Interpreter from "../source/Interpreter";
 
-test("Test GETA, GETB.", () => {
+test("Test GETA, GETB.", async () => {
     const interpreter = new Interpreter(`
             GETA var_a
             GETB var_b
@@ -12,25 +12,25 @@ test("Test GETA, GETB.", () => {
             var_b:
             .data 5
         `);
-    interpreter.run();
+    await interpreter.run();
 
     expect(interpreter.registerA).toStrictEqual(new Float32Array([ 10.25 ]));
     expect(interpreter.registerB).toStrictEqual(new Uint32Array([ 5 ]));
 });
 
-test("Test VGETA, VGETB.", () => {
+test("Test VGETA, VGETB.", async () => {
     const interpreter = new Interpreter(`
             VGETA 7
             VGETB 15.25f
             HALT
         `);
-    interpreter.run();
+    await interpreter.run();
 
     expect(interpreter.registerA).toStrictEqual(new Uint32Array([ 7 ]));
     expect(interpreter.registerB).toStrictEqual(new Float32Array([ 15.25 ]));
 });
 
-test("Test PUSH, VPUSH, STOREPUSH, SAVEPUSH.", () => {
+test("Test PUSH, VPUSH, STOREPUSH, SAVEPUSH.", async () => {
     const interpreter = new Interpreter(`
             STOREPUSH 289f
             PUSH var_a
@@ -45,7 +45,7 @@ test("Test PUSH, VPUSH, STOREPUSH, SAVEPUSH.", () => {
             var_a:
             .data 10.25f
         `);
-    interpreter.run();
+    await interpreter.run();
 
     expect(interpreter.stack.pop()).toStrictEqual(new Uint32Array([ 69 ]));
     expect(interpreter.stack.pop()).toStrictEqual(new Uint32Array([ 12 ]));
@@ -53,7 +53,7 @@ test("Test PUSH, VPUSH, STOREPUSH, SAVEPUSH.", () => {
     expect(interpreter.stack.pop()).toStrictEqual(new Float32Array([ 289 ]));
 });
 
-test("Test MOVOUTPUSH.", () => {
+test("Test MOVOUTPUSH.", async () => {
     const interpreter = new Interpreter(`
             VPUSH var_a
             GETPOPR
@@ -63,12 +63,12 @@ test("Test MOVOUTPUSH.", () => {
             var_a:
             .data 10.25f
         `);
-    interpreter.run();
+    await interpreter.run();
 
     expect(interpreter.stack.pop()).toStrictEqual(new Float32Array([ 10.25 ]));
 });
 
-test("Test POPNOP, POP, GETPOPA, GETPOPB, GETPOPR, MOVINPOP.", () => {
+test("Test POPNOP, POP, GETPOPA, GETPOPB, GETPOPR, MOVINPOP.", async () => {
     const interpreter = new Interpreter(`
             VPUSH var_b
             VPUSH 128
@@ -94,7 +94,7 @@ test("Test POPNOP, POP, GETPOPA, GETPOPB, GETPOPR, MOVINPOP.", () => {
             var_b:
             .data 0
         `);
-    interpreter.run();
+    await interpreter.run();
 
     expect(interpreter.memoryRegions.get("var_a")).toStrictEqual(new Uint32Array([ 16 ]));
     expect(interpreter.memoryRegions.get("var_b")).toStrictEqual(new Uint32Array([ 128 ]));
@@ -103,7 +103,7 @@ test("Test POPNOP, POP, GETPOPA, GETPOPB, GETPOPR, MOVINPOP.", () => {
     expect(interpreter.registerR).toStrictEqual(new Uint32Array([ 128 ]));
 });
 
-test("Test SAVE, SAVEA, SAVEB, SAVETOA, SAVETOB.", () => {
+test("Test SAVE, SAVEA, SAVEB, SAVETOA, SAVETOB.", async () => {
     const interpreter = new Interpreter(`
             VPUSH 128
             VPUSH 64
@@ -131,7 +131,7 @@ test("Test SAVE, SAVEA, SAVEB, SAVETOA, SAVETOB.", () => {
             var_c:
             .data 0
         `);
-    interpreter.run();
+    await interpreter.run();
 
     expect(interpreter.memoryRegions.get("var_a")).toStrictEqual(new Uint32Array([ 128 ]));
     expect(interpreter.memoryRegions.get("var_b")).toStrictEqual(new Uint32Array([ 32 ]));
@@ -141,7 +141,7 @@ test("Test SAVE, SAVEA, SAVEB, SAVETOA, SAVETOB.", () => {
     expect(interpreter.registerR).toStrictEqual(new Uint32Array([ 128 ]));
 });
 
-test("Test JMP.", () => {
+test("Test JMP.", async () => {
     const interpreter = new Interpreter(`
             JMP test
             HALT
@@ -150,12 +150,12 @@ test("Test JMP.", () => {
             VGETA 128
             HALT
         `);
-    interpreter.run();
+    await interpreter.run();
 
     expect(interpreter.registerA).toStrictEqual(new Uint32Array([ 128 ]));
 });
 
-test("Test CALL, RTN.", () => {
+test("Test CALL, RTN.", async () => {
     const interpreter = new Interpreter(`
             CALL test
             VGETB 64
@@ -165,13 +165,13 @@ test("Test CALL, RTN.", () => {
             VGETA 128
             RTN
         `);
-    interpreter.run();
+    await interpreter.run();
 
     expect(interpreter.registerA).toStrictEqual(new Uint32Array([ 128 ]));
     expect(interpreter.registerB).toStrictEqual(new Uint32Array([ 64 ]));
 });
 
-test("Test JA, JNA.", () => {
+test("Test JA, JNA.", async () => {
     let interpreter = new Interpreter(`
                 VGETA 6.4f
                 JA true
@@ -183,7 +183,7 @@ test("Test JA, JNA.", () => {
             finish:
                 HALT
         `);
-    interpreter.run();
+    await interpreter.run();
 
     expect(interpreter.registerB).toStrictEqual(new Uint32Array([ 1 ]));
 
@@ -198,12 +198,12 @@ test("Test JA, JNA.", () => {
             finish:
                 HALT
         `);
-    interpreter.run();
+    await interpreter.run();
 
     expect(interpreter.registerB).toStrictEqual(new Uint32Array([ 1 ]));
 });
 
-test("Test MOV.", () => {
+test("Test MOV.", async () => {
     const interpreter = new Interpreter(`
             MOV var_a var_b
             HALT
@@ -214,13 +214,13 @@ test("Test MOV.", () => {
             var_b:
             .data 0
         `);
-    interpreter.run();
+    await interpreter.run();
 
     expect(interpreter.memoryRegions.get("var_a")).toStrictEqual(new Uint32Array([ 16 ]));
     expect(interpreter.memoryRegions.get("var_b")).toStrictEqual(new Uint32Array([ 16 ]));
 });
 
-test("Test MOVIN.", () => {
+test("Test MOVIN.", async () => {
     const interpreter = new Interpreter(`
             VPUSH var_b
             GETPOPR
@@ -233,13 +233,13 @@ test("Test MOVIN.", () => {
             var_b:
             .data 0
         `);
-    interpreter.run();
+    await interpreter.run();
 
     expect(interpreter.memoryRegions.get("var_a")).toStrictEqual(new Uint32Array([ 16 ]));
     expect(interpreter.memoryRegions.get("var_b")).toStrictEqual(new Uint32Array([ 16 ]));
 });
 
-test("Test MOVOUT.", () => {
+test("Test MOVOUT.", async () => {
     const interpreter = new Interpreter(`
             VPUSH var_a
             GETPOPR
@@ -252,20 +252,20 @@ test("Test MOVOUT.", () => {
             var_b:
             .data 0
         `);
-    interpreter.run();
+    await interpreter.run();
 
     expect(interpreter.memoryRegions.get("var_a")).toStrictEqual(new Uint32Array([ 16 ]));
     expect(interpreter.memoryRegions.get("var_b")).toStrictEqual(new Uint32Array([ 16 ]));
 });
 
-test("Test ADD.", () => {
+test("Test ADD.", async () => {
     let interpreter = new Interpreter(`
             VGETA 10
             VGETB 20
             ADD
             HALT
         `);
-    interpreter.run();
+    await interpreter.run();
 
     expect(interpreter.registerR).toStrictEqual(new Uint32Array([ 30 ]));
 
@@ -275,19 +275,19 @@ test("Test ADD.", () => {
             ADD
             HALT
         `);
-    interpreter.run();
+    await interpreter.run();
 
     expect(interpreter.registerR).toStrictEqual(new Uint32Array([ 10 ]));
 });
 
-test("Test SADD.", () => {
+test("Test SADD.", async () => {
     let interpreter = new Interpreter(`
             VGETA 10
             VGETB 20
             SADD
             HALT
         `);
-    interpreter.run();
+    await interpreter.run();
 
     expect(interpreter.registerR).toStrictEqual(new Int32Array([ 30 ]));
 
@@ -297,19 +297,19 @@ test("Test SADD.", () => {
             SADD
             HALT
         `);
-    interpreter.run();
+    await interpreter.run();
 
     expect(interpreter.registerR).toStrictEqual(new Int32Array([ 10 ]));
 });
 
-test("Test FADD.", () => {
+test("Test FADD.", async () => {
     let interpreter = new Interpreter(`
             VGETA 12.5f
             VGETB 22.5f
             FADD
             HALT
         `);
-    interpreter.run();
+    await interpreter.run();
 
     expect(interpreter.registerR).toStrictEqual(new Float32Array([ 35 ]));
 
@@ -319,19 +319,19 @@ test("Test FADD.", () => {
             FADD
             HALT
         `);
-    interpreter.run();
+    await interpreter.run();
 
     expect(interpreter.registerR).toStrictEqual(new Float32Array([ 10 ]));
 });
 
-test("Test SUB.", () => {
+test("Test SUB.", async () => {
     let interpreter = new Interpreter(`
             VGETA 10
             VGETB 20
             SUB
             HALT
         `);
-    interpreter.run();
+    await interpreter.run();
 
     expect(interpreter.registerR).toStrictEqual(new Uint32Array([ -10 ]));
 
@@ -341,19 +341,19 @@ test("Test SUB.", () => {
             SUB
             HALT
         `);
-    interpreter.run();
+    await interpreter.run();
 
     expect(interpreter.registerR).toStrictEqual(new Uint32Array([ -30 ]));
 });
 
-test("Test SSUB.", () => {
+test("Test SSUB.", async () => {
     let interpreter = new Interpreter(`
             VGETA 10
             VGETB -20
             SSUB
             HALT
         `);
-    interpreter.run();
+    await interpreter.run();
 
     expect(interpreter.registerR).toStrictEqual(new Int32Array([ 30 ]));
 
@@ -363,19 +363,19 @@ test("Test SSUB.", () => {
             SSUB
             HALT
         `);
-    interpreter.run();
+    await interpreter.run();
 
     expect(interpreter.registerR).toStrictEqual(new Int32Array([ -30 ]));
 });
 
-test("Test FSUB.", () => {
+test("Test FSUB.", async () => {
     let interpreter = new Interpreter(`
             VGETA 10.5f
             VGETB -20.5f
             FSUB
             HALT
         `);
-    interpreter.run();
+    await interpreter.run();
 
     expect(interpreter.registerR).toStrictEqual(new Float32Array([ 31 ]));
 
@@ -385,19 +385,19 @@ test("Test FSUB.", () => {
             FSUB
             HALT
         `);
-    interpreter.run();
+    await interpreter.run();
 
     expect(interpreter.registerR).toStrictEqual(new Float32Array([ -31 ]));
 });
 
-test("Test DIV.", () => {
+test("Test DIV.", async () => {
     let interpreter = new Interpreter(`
             VGETA 10
             VGETB 2
             DIV
             HALT
         `);
-    interpreter.run();
+    await interpreter.run();
 
     expect(interpreter.registerR).toStrictEqual(new Uint32Array([ 5 ]));
 
@@ -407,19 +407,19 @@ test("Test DIV.", () => {
             DIV
             HALT
         `);
-    interpreter.run();
+    await interpreter.run();
 
     expect(interpreter.registerR).toStrictEqual(new Uint32Array([ 0 ]));
 });
 
-test("Test SDIV.", () => {
+test("Test SDIV.", async () => {
     let interpreter = new Interpreter(`
             VGETA 10
             VGETB -2
             SDIV
             HALT
         `);
-    interpreter.run();
+    await interpreter.run();
 
     expect(interpreter.registerR).toStrictEqual(new Int32Array([ -5 ]));
 
@@ -429,19 +429,19 @@ test("Test SDIV.", () => {
             SDIV
             HALT
         `);
-    interpreter.run();
+    await interpreter.run();
 
     expect(interpreter.registerR).toStrictEqual(new Int32Array([ 1 ]));
 });
 
-test("Test FDIV.", () => {
+test("Test FDIV.", async () => {
     let interpreter = new Interpreter(`
             VGETA 11f
             VGETB -2f
             FDIV
             HALT
         `);
-    interpreter.run();
+    await interpreter.run();
 
     expect(interpreter.registerR).toStrictEqual(new Float32Array([ -5.5 ]));
 
@@ -451,19 +451,19 @@ test("Test FDIV.", () => {
             FDIV
             HALT
         `);
-    interpreter.run();
+    await interpreter.run();
 
     expect(interpreter.registerR).toStrictEqual(new Float32Array([ 1 ]));
 });
 
-test("Test MULT.", () => {
+test("Test MULT.", async () => {
     let interpreter = new Interpreter(`
             VGETA 10
             VGETB 2
             MULT
             HALT
         `);
-    interpreter.run();
+    await interpreter.run();
 
     expect(interpreter.registerR).toStrictEqual(new Uint32Array([ 20 ]));
 
@@ -473,19 +473,19 @@ test("Test MULT.", () => {
             MULT
             HALT
         `);
-    interpreter.run();
+    await interpreter.run();
 
     expect(interpreter.registerR).toStrictEqual(new Uint32Array([ 0 ]));
 });
 
-test("Test SMULT.", () => {
+test("Test SMULT.", async () => {
     let interpreter = new Interpreter(`
             VGETA 10
             VGETB -2
             SMULT
             HALT
         `);
-    interpreter.run();
+    await interpreter.run();
 
     expect(interpreter.registerR).toStrictEqual(new Int32Array([ -20 ]));
 
@@ -495,19 +495,19 @@ test("Test SMULT.", () => {
             SMULT
             HALT
         `);
-    interpreter.run();
+    await interpreter.run();
 
     expect(interpreter.registerR).toStrictEqual(new Int32Array([ 100 ]));
 });
 
-test("Test FMULT.", () => {
+test("Test FMULT.", async () => {
     let interpreter = new Interpreter(`
             VGETA 10f
             VGETB -2f
             FMULT
             HALT
         `);
-    interpreter.run();
+    await interpreter.run();
 
     expect(interpreter.registerR).toStrictEqual(new Float32Array([ -20 ]));
 
@@ -517,12 +517,12 @@ test("Test FMULT.", () => {
             FMULT
             HALT
         `);
-    interpreter.run();
+    await interpreter.run();
 
     expect(interpreter.registerR).toStrictEqual(new Float32Array([ 100 ]));
 });
 
-test("Test CMPE, CMPNE, CMPLT, CMPLTE, CMPGT, CMPGTE", () => {
+test("Test CMPE, CMPNE, CMPLT, CMPLTE, CMPGT, CMPGTE", async () => {
     const interpreter = new Interpreter(`
             VGETA 10
             VGETB 20
@@ -547,7 +547,7 @@ test("Test CMPE, CMPNE, CMPLT, CMPLTE, CMPGT, CMPGTE", () => {
 
             HALT
         `);
-    interpreter.run();
+    await interpreter.run();
 
     expect(interpreter.stack.pop()).toStrictEqual(new Uint32Array([ 0 ]));
     expect(interpreter.stack.pop()).toStrictEqual(new Uint32Array([ 0 ]));
@@ -557,7 +557,7 @@ test("Test CMPE, CMPNE, CMPLT, CMPLTE, CMPGT, CMPGTE", () => {
     expect(interpreter.stack.pop()).toStrictEqual(new Uint32Array([ 0 ]));
 });
 
-test("Test SCMPE, SCMPNE, SCMPLT, SCMPLTE, SCMPGT, SCMPGTE", () => {
+test("Test SCMPE, SCMPNE, SCMPLT, SCMPLTE, SCMPGT, SCMPGTE", async () => {
     const interpreter = new Interpreter(`
             VGETA 10
             VGETB -20
@@ -582,7 +582,7 @@ test("Test SCMPE, SCMPNE, SCMPLT, SCMPLTE, SCMPGT, SCMPGTE", () => {
 
             HALT
         `);
-    interpreter.run();
+    await interpreter.run();
 
     expect(interpreter.stack.pop()).toStrictEqual(new Uint32Array([ 1 ]));
     expect(interpreter.stack.pop()).toStrictEqual(new Uint32Array([ 1 ]));
@@ -592,7 +592,7 @@ test("Test SCMPE, SCMPNE, SCMPLT, SCMPLTE, SCMPGT, SCMPGTE", () => {
     expect(interpreter.stack.pop()).toStrictEqual(new Uint32Array([ 0 ]));
 });
 
-test("Test FCMPE, FCMPNE, FCMPLT, FCMPLTE, FCMPGT, FCMPGTE", () => {
+test("Test FCMPE, FCMPNE, FCMPLT, FCMPLTE, FCMPGT, FCMPGTE", async () => {
     const interpreter = new Interpreter(`
             VGETA 10.25f
             VGETB -20f
@@ -617,7 +617,7 @@ test("Test FCMPE, FCMPNE, FCMPLT, FCMPLTE, FCMPGT, FCMPGTE", () => {
 
             HALT
         `);
-    interpreter.run();
+    await interpreter.run();
 
     expect(interpreter.stack.pop()).toStrictEqual(new Uint32Array([ 1 ]));
     expect(interpreter.stack.pop()).toStrictEqual(new Uint32Array([ 1 ]));
@@ -627,7 +627,7 @@ test("Test FCMPE, FCMPNE, FCMPLT, FCMPLTE, FCMPGT, FCMPGTE", () => {
     expect(interpreter.stack.pop()).toStrictEqual(new Uint32Array([ 0 ]));
 });
 
-test("Test NEG, SNEG, FNEG", () => {
+test("Test NEG, SNEG, FNEG", async () => {
     const interpreter = new Interpreter(`
             VGETA 128
             NEG
@@ -655,7 +655,7 @@ test("Test NEG, SNEG, FNEG", () => {
 
             HALT
         `);
-    interpreter.run();
+    await interpreter.run();
 
     expect(interpreter.stack.pop()).toStrictEqual(new Float32Array([ 10.5 ]));
     expect(interpreter.stack.pop()).toStrictEqual(new Float32Array([ -10.5 ]));
@@ -665,7 +665,7 @@ test("Test NEG, SNEG, FNEG", () => {
     expect(interpreter.stack.pop()).toStrictEqual(new Uint32Array([ 0 ]));
 });
 
-test("Test INC, FINC, DEC, FDEC", () => {
+test("Test INC, FINC, DEC, FDEC", async () => {
     const interpreter = new Interpreter(`
             VGETA 128
             INC
@@ -685,7 +685,7 @@ test("Test INC, FINC, DEC, FDEC", () => {
 
             HALT
         `);
-    interpreter.run();
+    await interpreter.run();
 
     expect(interpreter.stack.pop()).toStrictEqual(new Float32Array([ 49.5 ]));
     expect(interpreter.stack.pop()).toStrictEqual(new Float32Array([ 101.5 ]));
@@ -693,7 +693,7 @@ test("Test INC, FINC, DEC, FDEC", () => {
     expect(interpreter.stack.pop()).toStrictEqual(new Int32Array([ 129 ]));
 });
 
-test("Test REM, AND, SHIFTL, SHIFTR", () => {
+test("Test REM, AND, SHIFTL, SHIFTR", async () => {
     const interpreter = new Interpreter(`
             VGETA 128
             VGETB 5
@@ -717,7 +717,7 @@ test("Test REM, AND, SHIFTL, SHIFTR", () => {
 
             HALT
         `);
-    interpreter.run();
+    await interpreter.run();
 
     expect(interpreter.stack.pop()).toStrictEqual(new Uint32Array([ 256 ]));
     expect(interpreter.stack.pop()).toStrictEqual(new Uint32Array([ 64 ]));
@@ -725,7 +725,7 @@ test("Test REM, AND, SHIFTL, SHIFTR", () => {
     expect(interpreter.stack.pop()).toStrictEqual(new Uint32Array([ 3 ]));
 });
 
-test("Test NOT, OR, XOR", () => {
+test("Test NOT, OR, XOR", async () => {
     const interpreter = new Interpreter(`
             VGETA 4042322160
             NOT
@@ -743,14 +743,14 @@ test("Test NOT, OR, XOR", () => {
 
             HALT
         `);
-    interpreter.run();
+    await interpreter.run();
 
     expect(interpreter.stack.pop()).toStrictEqual(new Uint32Array([ 4294967295 ]));
     expect(interpreter.stack.pop()).toStrictEqual(new Uint32Array([ 4042322160 ]));
     expect(interpreter.stack.pop()).toStrictEqual(new Uint32Array([ 252645135 ]));
 });
 
-test("Test FLTOINT, INTTOFL", () => {
+test("Test FLTOINT, INTTOFL", async () => {
     const interpreter = new Interpreter(`
             VGETA 12.5f
             FLTOINT
@@ -762,13 +762,13 @@ test("Test FLTOINT, INTTOFL", () => {
 
             HALT
         `);
-    interpreter.run();
+    await interpreter.run();
 
     expect(interpreter.stack.pop()).toStrictEqual(new Float32Array([ 12 ]));
     expect(interpreter.stack.pop()).toStrictEqual(new Int32Array([ 12 ]));
 });
 
-test("Test LAND", () => {
+test("Test LAND", async () => {
     const interpreter = new Interpreter(`
             VGETA 0
             VGETB 0
@@ -792,7 +792,7 @@ test("Test LAND", () => {
 
             HALT
         `);
-    interpreter.run();
+    await interpreter.run();
 
     expect(interpreter.stack.pop()).toStrictEqual(new Uint32Array([ 1 ]));
     expect(interpreter.stack.pop()).toStrictEqual(new Uint32Array([ 0 ]));
@@ -800,7 +800,7 @@ test("Test LAND", () => {
     expect(interpreter.stack.pop()).toStrictEqual(new Uint32Array([ 0 ]));
 });
 
-test("Test LOR", () => {
+test("Test LOR", async () => {
     const interpreter = new Interpreter(`
             VGETA 0
             VGETB 0
@@ -824,7 +824,7 @@ test("Test LOR", () => {
 
             HALT
         `);
-    interpreter.run();
+    await interpreter.run();
 
     expect(interpreter.stack.pop()).toStrictEqual(new Uint32Array([ 1 ]));
     expect(interpreter.stack.pop()).toStrictEqual(new Uint32Array([ 1 ]));
@@ -832,7 +832,7 @@ test("Test LOR", () => {
     expect(interpreter.stack.pop()).toStrictEqual(new Uint32Array([ 0 ]));
 });
 
-test("Test QADD, QSTORE, STORE", () => {
+test("Test QADD, QSTORE, STORE", async () => {
     const interpreter = new Interpreter(`
             QADD 128 32
             SAVEPUSH
@@ -850,7 +850,7 @@ test("Test QADD, QSTORE, STORE", () => {
 
             HALT
         `);
-    interpreter.run();
+    await interpreter.run();
 
     expect(interpreter.memoryRegions.get("var_a")).toStrictEqual(new Uint32Array([ 64 ]));
     expect(interpreter.memoryRegions.get("var_b")).toStrictEqual(new Uint32Array([ 128 ]));

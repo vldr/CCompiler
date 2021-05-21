@@ -1,7 +1,7 @@
 import Interpreter from "../source/Interpreter";
 import Compiler from "../source/Compiler";
 
-test("Test 'fib.c'.", () => {
+test("Test 'fib.c'.", async () => {
     const compiler = new Compiler();
     const result = compiler.compile(
         `/* Iterative fibonacci */
@@ -24,12 +24,12 @@ test("Test 'fib.c'.", () => {
     );
 
     const interpreter = new Interpreter(result);
-    interpreter.run();
+    await await interpreter.run();
 
     expect(interpreter.memoryRegions.get("var_result")).toStrictEqual(new Int32Array([ 2584 ]));
 });
 
-test("Test 'sqrt.c'.", () => {
+test("Test 'sqrt.c'.", async () => {
     const compiler = new Compiler();
     const result = compiler.compile(`
         int sqrt(int x) 
@@ -67,12 +67,12 @@ test("Test 'sqrt.c'.", () => {
     `);
 
     const interpreter = new Interpreter(result);
-    interpreter.run();
+    await interpreter.run();
 
     expect(interpreter.memoryRegions.get("var_result")).toStrictEqual(new Int32Array([ 0x1b346c90 ]));
 });
 
-test("Test 'quick_sort.c'.", () => {
+test("Test 'quick_sort.c'.", async () => {
     const compiler = new Compiler();
     const result = compiler.compile(`
         int array[] = {
@@ -147,7 +147,7 @@ test("Test 'quick_sort.c'.", () => {
     `);
 
     const interpreter = new Interpreter(result);
-    interpreter.run();
+    await interpreter.run();
 
     const sortedList = [
         55, 47, 35, 15, 20, 42,
@@ -165,7 +165,7 @@ test("Test 'quick_sort.c'.", () => {
     });
 });
 
-test("Test 'selection_sort.c'.", () => {
+test("Test 'selection_sort.c'.", async () => {
     const compiler = new Compiler();
     const result = compiler.compile(`
         int array[] = {
@@ -215,7 +215,7 @@ test("Test 'selection_sort.c'.", () => {
     `);
 
     const interpreter = new Interpreter(result);
-    interpreter.run();
+    await interpreter.run();
 
     const sortedList = [
         55, 47, 35, 15, 20, 42,
@@ -233,11 +233,11 @@ test("Test 'selection_sort.c'.", () => {
     });
 });
 
-test("Test 'cosine.c'.", () => {
+test("Test 'cosine.c'.", async () => {
     const compiler = new Compiler();
     const result = compiler.compile(`
         /* Credits to http://web.eecs.utk.edu/~azh/blog/cosine.html */
-        const float CONST_PI = 3.141592653589793;
+        const float CONST_PI = 3.1415927410125732;
         const int ITERATIONS = 100;
         
         float cosine(float x)
@@ -296,7 +296,7 @@ test("Test 'cosine.c'.", () => {
     `);
 
     const interpreter = new Interpreter(result);
-    interpreter.run();
+    await interpreter.run();
 
     expect(interpreter.memoryRegions.get(`var_angles_0`)).toStrictEqual(new Float32Array([ 1.000000 ]));
     expect(interpreter.memoryRegions.get(`var_angles_1`)).toStrictEqual(new Float32Array([ 0.9092974662780762 ]));
@@ -305,7 +305,7 @@ test("Test 'cosine.c'.", () => {
     expect(interpreter.memoryRegions.get(`var_angles_4`)).toStrictEqual(new Float32Array([ -6.247336870046638e-8 ]));
 });
 
-test("Test 'mod_pow.c'.", () => {
+test("Test 'mod_pow.c'.", async () => {
     const compiler = new Compiler();
     const result = compiler.compile(`
         uint modPow(uint b, uint e, uint m)
@@ -334,12 +334,12 @@ test("Test 'mod_pow.c'.", () => {
     `);
 
     const interpreter = new Interpreter(result);
-    interpreter.run();
+    await interpreter.run();
 
     expect(interpreter.memoryRegions.get(`var_result`)).toStrictEqual(new Uint32Array([ 0xe ]));
 });
 
-test("Test 'sqrtf.c'.", () => {
+test("Test 'sqrtf.c'.", async () => {
     const compiler = new Compiler();
     const result = compiler.compile(`
         float sqrtf(float n) 
@@ -361,12 +361,12 @@ test("Test 'sqrtf.c'.", () => {
     `);
 
     const interpreter = new Interpreter(result);
-    interpreter.run();
+    await interpreter.run();
 
     expect(interpreter.memoryRegions.get(`var_answer`)).toStrictEqual(new Float32Array([ 8 ]));
 });
 
-test("Test 'crc32.c'.", () => {
+test("Test 'crc32.c'.", async () => {
     const compiler = new Compiler();
     const result = compiler.compile(`
         uint data[] = { 0x69u, 0x68u };
@@ -396,12 +396,12 @@ test("Test 'crc32.c'.", () => {
     `);
 
     const interpreter = new Interpreter(result);
-    interpreter.run();
+    await interpreter.run();
 
     expect(interpreter.memoryRegions.get(`var_crc32`)).toStrictEqual(new Uint32Array([ 0xb3ae97b6 ]));
 });
 
-test("Test 'pascal.c'.", () => {
+test("Test 'pascal.c'.", async () => {
     const compiler = new Compiler();
     const result = compiler.compile(`
         int binomialCoeff(int n, int k) 
@@ -435,7 +435,7 @@ test("Test 'pascal.c'.", () => {
     `);
 
     const interpreter = new Interpreter(result);
-    interpreter.run();
+    await interpreter.run();
 
     const binomialCoeff = (n: number, k: number): number =>
     {
@@ -462,7 +462,7 @@ test("Test 'pascal.c'.", () => {
 
 });
 
-test("Test 'xtea.c'.", () => {
+test("Test 'xtea.c'.", async () => {
     const compiler = new Compiler();
     const result = compiler.compile(`
         uint key[] = { 0x2399ab3du, 0x19283939u, 0x7828a829u, 0x19283938u };
@@ -504,13 +504,13 @@ test("Test 'xtea.c'.", () => {
     `);
 
     const interpreter = new Interpreter(result);
-    interpreter.run();
+    await interpreter.run();
 
     expect(interpreter.memoryRegions.get(`var_v_0`)).toStrictEqual(new Uint32Array([ 104 ]));
     expect(interpreter.memoryRegions.get(`var_v_1`)).toStrictEqual(new Uint32Array([ 105 ]));
 });
 
-test("Test 'bcd.c'.", () => {
+test("Test 'bcd.c'.", async () => {
     const compiler = new Compiler();
     const result = compiler.compile(`
         int month = 5;
@@ -545,12 +545,12 @@ test("Test 'bcd.c'.", () => {
     `);
 
     const interpreter = new Interpreter(result);
-    interpreter.run();
+    await interpreter.run();
 
     expect(interpreter.memoryRegions.get(`var_bcd`)).toStrictEqual(new Uint32Array([ 0x05122021 ]));
 });
 
-test("Test 'tonelli_shanks.c'.", () => {
+test("Test 'tonelli_shanks.c'.", async () => {
     const compiler = new Compiler();
     const result = compiler.compile(`
         // Credits to http://www.rosettacode.org/wiki/Tonelli-Shanks_algorithm#C
@@ -641,13 +641,13 @@ test("Test 'tonelli_shanks.c'.", () => {
     `);
 
     const interpreter = new Interpreter(result);
-    interpreter.run();
+    await interpreter.run();
 
     expect(interpreter.memoryRegions.get(`var_sol__root1`)).toStrictEqual(new Uint32Array([ 1632 ]));
     expect(interpreter.memoryRegions.get(`var_sol__root2`)).toStrictEqual(new Uint32Array([ 8377 ]));
 });
 
-test("Test 'russian_peasant.c'.", () => {
+test("Test 'russian_peasant.c'.", async () => {
     const compiler = new Compiler();
     const result = compiler.compile(`
         struct Result {
@@ -685,13 +685,13 @@ test("Test 'russian_peasant.c'.", () => {
     `);
 
     const interpreter = new Interpreter(result);
-    interpreter.run();
+    await interpreter.run();
 
     expect(interpreter.memoryRegions.get(`run_var_result__a`)).toStrictEqual(new Uint32Array([ 18 ]));
     expect(interpreter.memoryRegions.get(`run_var_result__b`)).toStrictEqual(new Uint32Array([ 240 ]));
 });
 
-test("Test 'approxE.c'.", () => {
+test("Test 'approxE.c'.", async () => {
     const compiler = new Compiler();
     const result = compiler.compile(`
         float exponential(int n, float x)  
@@ -714,12 +714,12 @@ test("Test 'approxE.c'.", () => {
     `);
 
     const interpreter = new Interpreter(result);
-    interpreter.run();
+    await interpreter.run();
 
     expect(interpreter.registerA).toStrictEqual(new Float32Array([ 2.7182815074920654 ]));
 });
 
-test("Test 'is_multiple_of_3.c'.", () => {
+test("Test 'is_multiple_of_3.c'.", async () => {
     const compiler = new Compiler();
     const result = compiler.compile(`
         uint is_multiple_of_3(int n) 
@@ -761,12 +761,12 @@ test("Test 'is_multiple_of_3.c'.", () => {
     `);
 
     const interpreter = new Interpreter(result);
-    interpreter.run();
+    await interpreter.run();
 
     expect(interpreter.registerA).toStrictEqual(new Uint32Array([ 1 ]));
 });
 
-test("Test 'tuxedo_rental_problem.c'.", () => {
+test("Test 'tuxedo_rental_problem.c'.", async () => {
     const compiler = new Compiler();
     const result = compiler.compile(`
         // Tuxedo Rental Problem
@@ -823,7 +823,7 @@ test("Test 'tuxedo_rental_problem.c'.", () => {
     `);
 
     const interpreter = new Interpreter(result);
-    interpreter.run();
+    await interpreter.run();
 
     expect(interpreter.memoryRegions.get("var_result_0")).toStrictEqual(new Int32Array([ 5 ]));
     expect(interpreter.memoryRegions.get("var_result_1")).toStrictEqual(new Int32Array([ 15 ]));
@@ -831,7 +831,7 @@ test("Test 'tuxedo_rental_problem.c'.", () => {
     expect(interpreter.memoryRegions.get("var_result_3")).toStrictEqual(new Int32Array([ 16 ]));
 });
 
-test("Test 'catalan_numbers.c'.", () => {
+test("Test 'catalan_numbers.c'.", async () => {
     const compiler = new Compiler();
     const result = compiler.compile(`
         uint numbers[15];
@@ -868,7 +868,7 @@ test("Test 'catalan_numbers.c'.", () => {
     `);
 
     const interpreter = new Interpreter(result);
-    interpreter.run();
+    await interpreter.run();
 
     const catalan = (n: number) =>
     {
@@ -887,7 +887,7 @@ test("Test 'catalan_numbers.c'.", () => {
         expect(interpreter.memoryRegions.get(`var_numbers_${i}`)).toStrictEqual(new Uint32Array([ catalan(i) ]));
 });
 
-test("Test 'square_free.c'.", () => {
+test("Test 'square_free.c'.", async () => {
     const compiler = new Compiler();
     const result = compiler.compile(`
         int squareFree(int n)
@@ -923,12 +923,12 @@ test("Test 'square_free.c'.", () => {
     `);
 
     const interpreter = new Interpreter(result);
-    interpreter.run();
+    await interpreter.run();
 
     expect(interpreter.memoryRegions.get(`var_result`)).toStrictEqual(new Int32Array([ 6 ]));
 });
 
-test("Test 'nth_root.c'.", () => {
+test("Test 'nth_root.c'.", async () => {
     const compiler = new Compiler();
     const result = compiler.compile(`
         const float DBL_EPSILON = 2.2204460492503131e-016;
@@ -975,12 +975,12 @@ test("Test 'nth_root.c'.", () => {
     `);
 
     const interpreter = new Interpreter(result);
-    interpreter.run();
+    await interpreter.run();
 
     expect(interpreter.memoryRegions.get(`var_answer`)).toStrictEqual(new Float32Array([ -3.14159 ]));
 });
 
-test("Test 'integer_roots.c'.", () => {
+test("Test 'integer_roots.c'.", async () => {
     const compiler = new Compiler();
     const result = compiler.compile(`
         uint pow(uint base, uint exp)
@@ -1025,12 +1025,12 @@ test("Test 'integer_roots.c'.", () => {
     `);
 
     const interpreter = new Interpreter(result);
-    interpreter.run();
+    await interpreter.run();
 
     expect(interpreter.memoryRegions.get(`var_result`)).toStrictEqual(new Uint32Array([ 2 ]));
 });
 
-test("Test 'monte_carlo_pi.c'.", () => {
+test("Test 'monte_carlo_pi.c'.", async () => {
     const compiler = new Compiler();
     const result = compiler.compile(`
         uint z1 = 687u, z2 = 10340u, z3 = 2828u, z4 = 30705u;
@@ -1089,12 +1089,12 @@ test("Test 'monte_carlo_pi.c'.", () => {
     `);
 
     const interpreter = new Interpreter(result);
-    interpreter.run();
+    await interpreter.run();
 
     expect(interpreter.memoryRegions.get(`var_answer`)).toStrictEqual(new Float32Array([ 3.147599935531616 ]));
 });
 
-test("Test 'jenkins_hash.c'.", () => {
+test("Test 'jenkins_hash.c'.", async () => {
     const compiler = new Compiler();
     const result = compiler.compile(`
         // "The quick brown fox jumps over the lazy dog"
@@ -1130,12 +1130,12 @@ test("Test 'jenkins_hash.c'.", () => {
     `);
 
     const interpreter = new Interpreter(result);
-    interpreter.run();
+    await interpreter.run();
 
     expect(interpreter.memoryRegions.get(`var_result`)).toStrictEqual(new Uint32Array([ 0x519e91f5 ]));
 });
 
-test("Test 'PJW_hash.c'.", () => {
+test("Test 'PJW_hash.c'.", async () => {
     const compiler = new Compiler();
     const result = compiler.compile(`
         // "The quick brown fox jumps over the lazy dog"
@@ -1171,12 +1171,46 @@ test("Test 'PJW_hash.c'.", () => {
     `);
 
     const interpreter = new Interpreter(result);
-    interpreter.run();
+    await interpreter.run();
 
     expect(interpreter.memoryRegions.get(`var_result`)).toStrictEqual(new Uint32Array([ 69733463 ]));
 });
 
-test("Test 'heap_sort.c'.", () => {
+test("Test 'fnv_hash.c'.", async () => {
+    const compiler = new Compiler();
+    const result = compiler.compile(`
+        // "The quick brown fox"
+        uint buf[] = { 
+            0x54u, 0x68u, 0x65u, 0x20u, 0x71u, 0x75u, 0x69u, 
+            0x63u, 0x6bu, 0x20u, 0x62u, 0x72u, 0x6fu, 0x77u, 
+            0x6eu, 0x20u, 0x66u, 0x6fu, 0x78u
+        };
+        
+        uint fnv_32_buf()
+        {
+            uint hval = 0x811c9dc5u;
+            uint bp = 0u;
+            uint be = bp + (uint)buf.length;
+        
+            while (bp < be) {
+                hval *= 0x01000193u;
+                hval ^= buf[bp++];
+            }
+        
+            return hval;
+        }
+        
+        uint result = fnv_32_buf();
+    `);
+
+    const interpreter = new Interpreter(result);
+    await interpreter.run();
+
+    expect(interpreter.memoryRegions.get(`var_result`)).toStrictEqual(new Uint32Array([ 0xcb423604 ]));
+    //expect(interpreter.memoryRegions.get(`var_result_a`)).toStrictEqual(new Uint32Array([ 0xae4d67e2 ]));
+});
+
+test("Test 'heap_sort.c'.", async () => {
     const compiler = new Compiler();
     const result = compiler.compile(`
         int arr[] = {
@@ -1243,7 +1277,7 @@ test("Test 'heap_sort.c'.", () => {
     `);
 
     const interpreter = new Interpreter(result);
-    interpreter.run();
+    await interpreter.run();
 
     const sortedList = [
         55, 47, 35, 15, 20, 42,

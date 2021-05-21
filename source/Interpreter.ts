@@ -12,6 +12,7 @@ export default class Interpreter
 
     private _instructions: Array<string>;
     private _didModifyProgramCounter: boolean;
+    private _exports: InterpreterWasmExport;
 
     constructor(public readonly content: string)
     {
@@ -26,13 +27,42 @@ export default class Interpreter
     get stack() { return this._stack; }
     get memoryRegions() { return this._memoryRegions; }
 
-    public run()
+    public async run()
     {
         this._programCounter = 0;
+
+        await this.initExports();
 
         this.processLabels();
         this.processMemoryRegions();
         this.processInstructions();
+    }
+
+    private async initExports()
+    {
+        const data = Buffer.from([
+            0x00, 0x61, 0x73, 0x6D, 0x01, 0x00, 0x00, 0x00, 0x01, 0x0D, 0x02, 0x60,
+            0x02, 0x7F, 0x7F, 0x01, 0x7F, 0x60, 0x02, 0x7D, 0x7D, 0x01, 0x7D, 0x03,
+            0x0B, 0x0A, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x01, 0x01, 0x01,
+            0x07, 0x43, 0x0A, 0x03, 0x61, 0x64, 0x64, 0x00, 0x00, 0x03, 0x73, 0x75,
+            0x62, 0x00, 0x01, 0x03, 0x6D, 0x75, 0x6C, 0x00, 0x02, 0x03, 0x72, 0x65,
+            0x6D, 0x00, 0x05, 0x04, 0x69, 0x64, 0x69, 0x76, 0x00, 0x03, 0x04, 0x75,
+            0x64, 0x69, 0x76, 0x00, 0x04, 0x04, 0x66, 0x61, 0x64, 0x64, 0x00, 0x06,
+            0x04, 0x66, 0x73, 0x75, 0x62, 0x00, 0x07, 0x04, 0x66, 0x6D, 0x75, 0x6C,
+            0x00, 0x08, 0x04, 0x66, 0x64, 0x69, 0x76, 0x00, 0x09, 0x0A, 0x51, 0x0A,
+            0x07, 0x00, 0x20, 0x00, 0x20, 0x01, 0x6A, 0x0B, 0x07, 0x00, 0x20, 0x00,
+            0x20, 0x01, 0x6B, 0x0B, 0x07, 0x00, 0x20, 0x00, 0x20, 0x01, 0x6C, 0x0B,
+            0x07, 0x00, 0x20, 0x00, 0x20, 0x01, 0x6D, 0x0B, 0x07, 0x00, 0x20, 0x00,
+            0x20, 0x01, 0x6E, 0x0B, 0x07, 0x00, 0x20, 0x00, 0x20, 0x01, 0x70, 0x0B,
+            0x07, 0x00, 0x20, 0x00, 0x20, 0x01, 0x92, 0x0B, 0x07, 0x00, 0x20, 0x00,
+            0x20, 0x01, 0x93, 0x0B, 0x07, 0x00, 0x20, 0x00, 0x20, 0x01, 0x94, 0x0B,
+            0x07, 0x00, 0x20, 0x00, 0x20, 0x01, 0x95, 0x0B
+        ]);
+
+        const wasm = await WebAssembly.compile(data);
+        const instance = await WebAssembly.instantiate(wasm, {});
+
+        this._exports = instance.exports as unknown as InterpreterWasmExport;
     }
 
     private getFloatingPointValue(arrayBuffer: ArrayBuffer): number
@@ -852,32 +882,34 @@ export default class Interpreter
     private interpretCOMPUTE(instruction: InterpreterInstruction)
     {
         if (instruction.operand === "SADD")
-            this._registerR = new Int32Array([ this.getIntegerValue(this._registerA) + this.getIntegerValue(this._registerB) ]);
+            this._registerR = new Int32Array([ this._exports.add(this.getIntegerValue(this._registerA), this.getIntegerValue(this._registerB)) ]);
         else if (instruction.operand === "FADD")
-            this._registerR = new Float32Array([ this.getFloatingPointValue(this._registerA) + this.getFloatingPointValue(this._registerB) ]);
+            this._registerR = new Float32Array([ this._exports.fadd(this.getFloatingPointValue(this._registerA), this.getFloatingPointValue(this._registerB)) ]);
         else if (instruction.operand === "ADD")
-            this._registerR = new Uint32Array([this.getUnsignedIntegerValue(this._registerA) + this.getUnsignedIntegerValue(this._registerB)]);
+            this._registerR = new Uint32Array([ this._exports.add(this.getUnsignedIntegerValue(this._registerA), this.getUnsignedIntegerValue(this._registerB)) ]);
 
         else if (instruction.operand === "SSUB")
-            this._registerR = new Int32Array([ this.getIntegerValue(this._registerA) - this.getIntegerValue(this._registerB) ]);
+            this._registerR = new Int32Array([ this._exports.sub(this.getIntegerValue(this._registerA), this.getIntegerValue(this._registerB)) ]);
         else if (instruction.operand === "FSUB")
-            this._registerR = new Float32Array([ this.getFloatingPointValue(this._registerA) - this.getFloatingPointValue(this._registerB) ]);
+            this._registerR = new Float32Array([ this._exports.fsub(this.getFloatingPointValue(this._registerA), this.getFloatingPointValue(this._registerB)) ]);
         else if (instruction.operand === "SUB")
-            this._registerR = new Uint32Array([this.getUnsignedIntegerValue(this._registerA) - this.getUnsignedIntegerValue(this._registerB)]);
+            this._registerR = new Uint32Array([ this._exports.sub(this.getUnsignedIntegerValue(this._registerA), this.getUnsignedIntegerValue(this._registerB)) ]);
 
         else if (instruction.operand === "SDIV")
-            this._registerR = new Int32Array([ this.getIntegerValue(this._registerA) / this.getIntegerValue(this._registerB) ]);
+            this._registerR = new Int32Array([ this._exports.idiv(this.getIntegerValue(this._registerA), this.getIntegerValue(this._registerB)) ]);
         else if (instruction.operand === "FDIV")
-            this._registerR = new Float32Array([ this.getFloatingPointValue(this._registerA) / this.getFloatingPointValue(this._registerB) ]);
+            this._registerR = new Float32Array([ this._exports.fdiv(this.getFloatingPointValue(this._registerA), this.getFloatingPointValue(this._registerB)) ]);
         else if (instruction.operand === "DIV")
-            this._registerR = new Uint32Array([this.getUnsignedIntegerValue(this._registerA) / this.getUnsignedIntegerValue(this._registerB)]);
+            this._registerR = new Uint32Array([ this._exports.udiv(this.getUnsignedIntegerValue(this._registerA), this.getUnsignedIntegerValue(this._registerB)) ]);
 
         else if (instruction.operand === "SMULT")
-            this._registerR = new Int32Array([ this.getIntegerValue(this._registerA) * this.getIntegerValue(this._registerB) ]);
+            this._registerR = new Int32Array([ this._exports.mul(this.getIntegerValue(this._registerA), this.getIntegerValue(this._registerB)) ]);
         else if (instruction.operand === "FMULT")
-            this._registerR = new Float32Array([ this.getFloatingPointValue(this._registerA) * this.getFloatingPointValue(this._registerB) ]);
+            this._registerR = new Float32Array([ this._exports.fmul(this.getFloatingPointValue(this._registerA), this.getFloatingPointValue(this._registerB)) ]);
         else if (instruction.operand === "MULT")
-            this._registerR = new Uint32Array([this.getUnsignedIntegerValue(this._registerA) * this.getUnsignedIntegerValue(this._registerB)]);
+            this._registerR = new Uint32Array([
+                this._exports.mul(this.getUnsignedIntegerValue(this._registerA), this.getUnsignedIntegerValue(this._registerB))
+            ]);
 
         else if (instruction.operand === "CMPE")
             this._registerR = new Uint32Array(
@@ -894,10 +926,9 @@ export default class Interpreter
         else if (instruction.operand === "CMPLT")
                     this._registerR = new Uint32Array(
                         [ this.getUnsignedIntegerValue(this._registerA) < this.getUnsignedIntegerValue(this._registerB) ? 1 : 0 ]);
-        else if (instruction.operand === "CMPLTE") {
+        else if (instruction.operand === "CMPLTE")
             this._registerR = new Uint32Array(
                 [ this.getUnsignedIntegerValue(this._registerA) <= this.getUnsignedIntegerValue(this._registerB) ? 1 : 0 ]);
-        }
 
         else if (instruction.operand === "SCMPE")
             this._registerR = new Uint32Array(
@@ -956,7 +987,7 @@ export default class Interpreter
 
 
         else if (instruction.operand === "REM")
-            this._registerR = new Uint32Array([this.getUnsignedIntegerValue(this._registerA) % this.getUnsignedIntegerValue(this._registerB)]);
+            this._registerR = new Uint32Array([ this._exports.rem(this.getUnsignedIntegerValue(this._registerA), this.getUnsignedIntegerValue(this._registerB)) ]);
 
 
         else if (instruction.operand === "AND")
@@ -1043,10 +1074,26 @@ enum InterpreterLocation {
     Arg1
 }
 
-class InterpreterLabel {
+class InterpreterLabel
+{
     constructor(public readonly address: number, public readonly lineNumber: number)
     {
     }
+}
+
+class InterpreterWasmExport
+{
+    public readonly add: (x: number, y: number) => number;
+    public readonly sub: (x: number, y: number) => number;
+    public readonly mul: (x: number, y: number) => number;
+    public readonly rem: (x: number, y: number) => number;
+    public readonly idiv: (x: number, y: number) => number;
+    public readonly udiv: (x: number, y: number) => number;
+
+    public readonly fadd: (x: number, y: number) => number;
+    public readonly fsub: (x: number, y: number) => number;
+    public readonly fmul: (x: number, y: number) => number;
+    public readonly fdiv: (x: number, y: number) => number;
 }
 
 class InterpreterInstruction
