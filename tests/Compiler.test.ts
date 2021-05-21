@@ -1194,20 +1194,35 @@ test("Test 'fnv_hash.c'.", async () => {
         
             while (bp < be) {
                 hval *= 0x01000193u;
+        \t    hval ^= buf[bp++];
+            }
+        
+            return hval;
+        }
+        
+        uint fnv_32a_buf()
+        {
+            uint hval = 0x811c9dc5u;
+            uint bp = 0u;
+            uint be = bp + (uint)buf.length;
+        
+            while (bp < be) {
                 hval ^= buf[bp++];
+                hval *= 0x01000193u;
             }
         
             return hval;
         }
         
         uint result = fnv_32_buf();
+        uint result_a = fnv_32a_buf();
     `);
 
     const interpreter = new Interpreter(result);
     await interpreter.run();
 
     expect(interpreter.memoryRegions.get(`var_result`)).toStrictEqual(new Uint32Array([ 0xcb423604 ]));
-    //expect(interpreter.memoryRegions.get(`var_result_a`)).toStrictEqual(new Uint32Array([ 0xae4d67e2 ]));
+    expect(interpreter.memoryRegions.get(`var_result_a`)).toStrictEqual(new Uint32Array([ 0xae4d67e2 ]));
 });
 
 test("Test 'heap_sort.c'.", async () => {
