@@ -1094,6 +1094,88 @@ test("Test 'monte_carlo_pi.c'.", () => {
     expect(interpreter.memoryRegions.get(`var_answer`)).toStrictEqual(new Float32Array([ 3.147599935531616 ]));
 });
 
+test("Test 'jenkins_hash.c'.", () => {
+    const compiler = new Compiler();
+    const result = compiler.compile(`
+        // "The quick brown fox jumps over the lazy dog"
+        uint key[] = { 
+            0x54u, 0x68u, 0x65u, 0x20u, 0x71u, 0x75u, 0x69u, 
+            0x63u, 0x6bu, 0x20u, 0x62u, 0x72u, 0x6fu, 0x77u, 
+            0x6eu, 0x20u, 0x66u, 0x6fu, 0x78u, 0x20u, 0x6au, 
+            0x75u, 0x6du, 0x70u, 0x73u, 0x20u, 0x6fu, 0x76u,
+            0x65u, 0x72u, 0x20u, 0x74u, 0x68u, 0x65u, 0x20u, 
+            0x6cu, 0x61u, 0x7au, 0x79u, 0x20u, 0x64u, 0x6fu,
+            0x67u 
+        };
+        
+        uint jenkins_one_at_a_time_hash() 
+        {
+            int i = 0;
+            uint hash = 0u;
+        
+            while (i != key.length) {
+                hash += key[i++];
+                hash += hash << 10u;
+                hash ^= hash >> 6u;
+            }
+        
+            hash += hash << 3u;
+            hash ^= hash >> 11u;
+            hash += hash << 15u;
+        
+            return hash;
+        }
+        
+        uint result = jenkins_one_at_a_time_hash();
+    `);
+
+    const interpreter = new Interpreter(result);
+    interpreter.run();
+
+    expect(interpreter.memoryRegions.get(`var_result`)).toStrictEqual(new Uint32Array([ 0x519e91f5 ]));
+});
+
+test("Test 'PJW_hash.c'.", () => {
+    const compiler = new Compiler();
+    const result = compiler.compile(`
+        // "The quick brown fox jumps over the lazy dog"
+        uint key[] = { 
+            0x54u, 0x68u, 0x65u, 0x20u, 0x71u, 0x75u, 0x69u, 
+            0x63u, 0x6bu, 0x20u, 0x62u, 0x72u, 0x6fu, 0x77u, 
+            0x6eu, 0x20u, 0x66u, 0x6fu, 0x78u, 0x20u, 0x6au, 
+            0x75u, 0x6du, 0x70u, 0x73u, 0x20u, 0x6fu, 0x76u,
+            0x65u, 0x72u, 0x20u, 0x74u, 0x68u, 0x65u, 0x20u, 
+            0x6cu, 0x61u, 0x7au, 0x79u, 0x20u, 0x64u, 0x6fu,
+            0x67u, 0x00u
+        };
+        
+        uint PJWHash()
+        {
+            uint h = 0u, high;
+            uint s = 0u;
+        
+            while (key[s])
+            {
+                h = (h << 4u) + key[s++];
+        
+                if (high = h & 0xF0000000u)
+                    h ^= high >> 24u;
+        
+                h &= ~high;
+            }
+        
+            return h;
+        }
+        
+        uint result = PJWHash();
+    `);
+
+    const interpreter = new Interpreter(result);
+    interpreter.run();
+
+    expect(interpreter.memoryRegions.get(`var_result`)).toStrictEqual(new Uint32Array([ 69733463 ]));
+});
+
 test("Test 'heap_sort.c'.", () => {
     const compiler = new Compiler();
     const result = compiler.compile(`

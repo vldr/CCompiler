@@ -8,59 +8,142 @@ class Main
     {
         const compiler = new Compiler();
         const result = compiler.compile(`
-            uint z1 = 687u, z2 = 10340u, z3 = 2828u, z4 = 30705u;
+            uint data[] = { 0xAu, 0xBu };
+uint digest[20];
 
-uint rand()
+int sha1digest()
 {
-    uint b  = ((z1 << 6u) ^ z1) >> 13u;
-    z1 = ((z1 & 4294967294u) << 18u) ^ b;
-    b  = ((z2 << 2u) ^ z2) >> 27u; 
-    z2 = ((z2 & 4294967288u) << 2u) ^ b;
-    b  = ((z3 << 13u) ^ z3) >> 21u;
-    z3 = ((z3 & 4294967280u) << 7u) ^ b;
-    b  = ((z4 << 3u) ^ z4) >> 12u;
-    z4 = ((z4 & 4294967168u) << 13u) ^ b;
+  uint databytes = 2u;
+  uint W[80];
+  uint H[] = {0x67452301u,
+                  0xEFCDAB89u,
+                  0x98BADCFEu,
+                  0x10325476u,
+                  0xC3D2E1F0u};
+  uint a;
+  uint b;
+  uint c;
+  uint d;
+  uint e;
+  uint f = 0u;
+  uint k = 0u;
 
-    return (z1 ^ z2 ^ z3 ^ z4);
-}
+  uint idx;
+  uint lidx;
+  uint widx;
+  uint didx = 0u;
 
-float sqrt(float number)
-{
-	uint i;
-	float x2, y;
-	const float threehalfs = 1.5F;
+  int wcount;
+  uint temp;
+  uint databits = ((uint)databytes) * 8u;
+  uint loopcount = (databytes + 8u) / 64u + 1u;
+  uint tailbytes = 64u * loopcount - databytes;
+  uint datatail[128];
 
-	x2 = number * 0.5F;
-	y  = number;
-	i  = (uint)y;     
-	i  = 0x5f3759dfu - ( i >> 1u );
-	y  = (float)i;
-	y  = y * ( threehalfs - ( x2 * y * y ) );
+  datatail[0] = 0x80u;
+  datatail[tailbytes - 8u] = (uint) (databits >> 56u & 0xFFu);
+  datatail[tailbytes - 7u] = (uint) (databits >> 48u & 0xFFu);
+  datatail[tailbytes - 6u] = (uint) (databits >> 40u & 0xFFu);
+  datatail[tailbytes - 5u] = (uint) (databits >> 32u & 0xFFu);
+  datatail[tailbytes - 4u] = (uint) (databits >> 24u & 0xFFu);
+  datatail[tailbytes - 3u] = (uint) (databits >> 16u & 0xFFu);
+  datatail[tailbytes - 2u] = (uint) (databits >> 8u & 0xFFu);
+  datatail[tailbytes - 1u] = (uint) (databits >> 0u & 0xFFu);
 
-	return 1.0 / y;
-}
 
-float estimatePi(int numThrows)
-{
-    int inCircle = 0;
-    
-    for (int i = 0; i < numThrows; i++) 
+  for (lidx = 0u; lidx < loopcount; lidx++)
+  {
+
+
+
+
+    for (widx = 0u; widx <= 15u; widx++)
     {
-        const float MAX_RAND = (float)0x4f800000u;
+      wcount = 24;
 
-        float x = (float)(int)rand() / MAX_RAND;
-		float y = (float)(int)rand() / MAX_RAND;
 
-        float dist = sqrt(x * x + y * y);
- 
-        if (dist < 0.5) 
-            inCircle++;
+      while (didx < databytes && (uint)(wcount >= 0))
+      {
+        W[widx] += (((uint)data[didx]) << (uint)wcount);
+        didx++;
+        wcount -= 8;
+      }
+
+      while (wcount >= 0)
+      {
+        W[widx] += (((uint)datatail[didx - databytes]) << (uint)wcount);
+        didx++;
+        wcount -= 8;
+      }
     }
 
-    return 4.0 * ((float)inCircle / (float)numThrows);
+
+
+     for (widx = 16u; widx <= 31u; widx++)
+    {
+      W[widx] = ((((W[widx - 3u] ^ W[widx - 8u] ^ W[widx - 14u] ^ W[widx - 16u])) << (1u)) | (((W[widx - 3u] ^ W[widx - 8u] ^ W[widx - 14u] ^ W[widx - 16u])) >> (32u - (1u))));
+    }
+    for (widx = 32u; widx <= 79u; widx++)
+    {
+      W[widx] = ((((W[widx - 6u] ^ W[widx - 16u] ^ W[widx - 28u] ^ W[widx - 32u])) << (2u)) | (((W[widx - 6u] ^ W[widx - 16u] ^ W[widx - 28u] ^ W[widx - 32u])) >> (32u - (2u))));
+    }
+
+
+    a = H[0];
+    b = H[1];
+    c = H[2];
+    d = H[3];
+    e = H[4];
+
+    for (idx = 0u; idx <= 79u; idx++)
+    {
+      if (idx <= 19u)
+      {
+        f = (b & c) | ((~b) & d);
+        k = 0x5A827999u;
+      }
+      else if (idx >= 20u && idx <= 39u)
+      {
+        f = b ^ c ^ d;
+        k = 0x6ED9EBA1u;
+      }
+      else if (idx >= 40u && idx <= 59u)
+      {
+        f = (b & c) | (b & d) | (c & d);
+        k = 0x8F1BBCDCu;
+      }
+      else if (idx >= 60u && idx <= 79u)
+      {
+        f = b ^ c ^ d;
+        k = 0xCA62C1D6u;
+      }
+      temp = (((a) << (5u)) | ((a) >> (32u - (5u)))) + f + e + k + W[idx];
+      e = d;
+      d = c;
+      c = (((b) << (30u)) | ((b) >> (32u - (30u))));
+      b = a;
+      a = temp;
+    }
+
+    H[0] += a;
+    H[1] += b;
+    H[2] += c;
+    H[3] += d;
+    H[4] += e;
+  }
+
+    for (idx = 0u; idx < 5u; idx++)
+    {
+        digest[idx * 4u + 0u] = (uint) (H[idx] >> 24u);
+        digest[idx * 4u + 1u] = (uint) (H[idx] >> 16u);
+        digest[idx * 4u + 2u] = (uint) (H[idx] >> 8u);
+        digest[idx * 4u + 3u] = (uint) (H[idx]);
+    }
+
+  return 0;
 }
 
-float answer = estimatePi(10000);
+sha1digest();
         `);
 
         const interpreter = new Interpreter(result);
@@ -69,7 +152,7 @@ float answer = estimatePi(10000);
         console.log(result);
 
         // @ts-ignore
-        console.log(interpreter.memoryRegions.get("var_answer"));
+        //console.log(interpreter.memoryRegions.get("var_answer"));
     }
 }
 
