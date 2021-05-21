@@ -35,6 +35,46 @@ export default class Interpreter
         this.processInstructions();
     }
 
+    private getFloatingPointValue(arrayBuffer: ArrayBuffer): number
+    {
+        if (arrayBuffer instanceof Uint32Array || arrayBuffer instanceof Int32Array)
+        {
+            return new DataView(arrayBuffer.buffer).getFloat32(0, true);
+        }
+        else if (arrayBuffer instanceof Float32Array)
+        {
+            return arrayBuffer[0];
+        }
+        else
+        {
+            throw new Error("Unknown datatype to convert to floating point value.");
+        }
+    }
+
+    private getIntegerValue(arrayBuffer: ArrayBuffer): number
+    {
+        if (arrayBuffer instanceof Uint32Array || arrayBuffer instanceof Int32Array || arrayBuffer instanceof Float32Array)
+        {
+            return new DataView(arrayBuffer.buffer).getInt32(0, true);
+        }
+        else
+        {
+            throw new Error("Unknown datatype to convert to floating point value.");
+        }
+    }
+
+    private getUnsignedIntegerValue(arrayBuffer: ArrayBuffer): number
+    {
+        if (arrayBuffer instanceof Uint32Array || arrayBuffer instanceof Int32Array || arrayBuffer instanceof Float32Array)
+        {
+            return new DataView(arrayBuffer.buffer).getUint32(0, true);
+        }
+        else
+        {
+            throw new Error("Unknown datatype to convert to floating point value.");
+        }
+    }
+
     private jumpToLocation(instruction: InterpreterInstruction, location: InterpreterLocation)
     {
         let label = String();
@@ -710,14 +750,14 @@ export default class Interpreter
     {
         if (instruction.operand === "JA")
         {
-            if (new Uint32Array(this._registerA)[0] != 0)
+            if (this.getUnsignedIntegerValue(this._registerA) != 0)
             {
                 this.jumpToLocation(instruction, InterpreterLocation.Arg0);
             }
         }
         else if (instruction.operand === "JNA")
         {
-            if (new Uint32Array(this._registerA)[0] == 0)
+            if (this.getUnsignedIntegerValue(this._registerA) == 0)
             {
                 this.jumpToLocation(instruction, InterpreterLocation.Arg0);
             }
@@ -812,139 +852,139 @@ export default class Interpreter
     private interpretCOMPUTE(instruction: InterpreterInstruction)
     {
         if (instruction.operand === "SADD")
-            this._registerR = new Int32Array([ new Int32Array(this._registerA)[0] + new Int32Array(this._registerB)[0] ]);
+            this._registerR = new Int32Array([ this.getIntegerValue(this._registerA) + this.getIntegerValue(this._registerB) ]);
         else if (instruction.operand === "FADD")
-            this._registerR = new Float32Array([ new Float32Array(this._registerA)[0] + new Float32Array(this._registerB)[0] ]);
+            this._registerR = new Float32Array([ this.getFloatingPointValue(this._registerA) + this.getFloatingPointValue(this._registerB) ]);
         else if (instruction.operand === "ADD")
-            this._registerR = new Uint32Array([new Uint32Array(this._registerA)[0] + new Uint32Array(this._registerB)[0]]);
+            this._registerR = new Uint32Array([this.getUnsignedIntegerValue(this._registerA) + this.getUnsignedIntegerValue(this._registerB)]);
 
         else if (instruction.operand === "SSUB")
-            this._registerR = new Int32Array([ new Int32Array(this._registerA)[0] - new Int32Array(this._registerB)[0] ]);
+            this._registerR = new Int32Array([ this.getIntegerValue(this._registerA) - this.getIntegerValue(this._registerB) ]);
         else if (instruction.operand === "FSUB")
-            this._registerR = new Float32Array([ new Float32Array(this._registerA)[0] - new Float32Array(this._registerB)[0] ]);
+            this._registerR = new Float32Array([ this.getFloatingPointValue(this._registerA) - this.getFloatingPointValue(this._registerB) ]);
         else if (instruction.operand === "SUB")
-            this._registerR = new Uint32Array([new Uint32Array(this._registerA)[0] - new Uint32Array(this._registerB)[0]]);
+            this._registerR = new Uint32Array([this.getUnsignedIntegerValue(this._registerA) - this.getUnsignedIntegerValue(this._registerB)]);
 
         else if (instruction.operand === "SDIV")
-            this._registerR = new Int32Array([ new Int32Array(this._registerA)[0] / new Int32Array(this._registerB)[0] ]);
+            this._registerR = new Int32Array([ this.getIntegerValue(this._registerA) / this.getIntegerValue(this._registerB) ]);
         else if (instruction.operand === "FDIV")
-            this._registerR = new Float32Array([ new Float32Array(this._registerA)[0] / new Float32Array(this._registerB)[0] ]);
+            this._registerR = new Float32Array([ this.getFloatingPointValue(this._registerA) / this.getFloatingPointValue(this._registerB) ]);
         else if (instruction.operand === "DIV")
-            this._registerR = new Uint32Array([new Uint32Array(this._registerA)[0] / new Uint32Array(this._registerB)[0]]);
+            this._registerR = new Uint32Array([this.getUnsignedIntegerValue(this._registerA) / this.getUnsignedIntegerValue(this._registerB)]);
 
         else if (instruction.operand === "SMULT")
-            this._registerR = new Int32Array([ new Int32Array(this._registerA)[0] * new Int32Array(this._registerB)[0] ]);
+            this._registerR = new Int32Array([ this.getIntegerValue(this._registerA) * this.getIntegerValue(this._registerB) ]);
         else if (instruction.operand === "FMULT")
-            this._registerR = new Float32Array([ new Float32Array(this._registerA)[0] * new Float32Array(this._registerB)[0] ]);
+            this._registerR = new Float32Array([ this.getFloatingPointValue(this._registerA) * this.getFloatingPointValue(this._registerB) ]);
         else if (instruction.operand === "MULT")
-            this._registerR = new Uint32Array([new Uint32Array(this._registerA)[0] * new Uint32Array(this._registerB)[0]]);
+            this._registerR = new Uint32Array([this.getUnsignedIntegerValue(this._registerA) * this.getUnsignedIntegerValue(this._registerB)]);
 
         else if (instruction.operand === "CMPE")
             this._registerR = new Uint32Array(
-                [ new Uint32Array(this._registerA)[0] == new Uint32Array(this._registerB)[0] ? 1 : 0 ]);
+                [ this.getUnsignedIntegerValue(this._registerA) == this.getUnsignedIntegerValue(this._registerB) ? 1 : 0 ]);
         else if (instruction.operand === "CMPNE")
             this._registerR = new Uint32Array(
-                [ new Uint32Array(this._registerA)[0] != new Uint32Array(this._registerB)[0]  ? 1 : 0 ]);
+                [ this.getUnsignedIntegerValue(this._registerA) != this.getUnsignedIntegerValue(this._registerB)  ? 1 : 0 ]);
         else if (instruction.operand === "CMPGT")
             this._registerR = new Uint32Array(
-                [ new Uint32Array(this._registerA)[0] > new Uint32Array(this._registerB)[0] ? 1 : 0 ]);
+                [ this.getUnsignedIntegerValue(this._registerA) > this.getUnsignedIntegerValue(this._registerB) ? 1 : 0 ]);
         else if (instruction.operand === "CMPGTE")
                     this._registerR = new Uint32Array(
-                        [ new Uint32Array(this._registerA)[0] >= new Uint32Array(this._registerB)[0] ? 1 : 0 ]);
+                        [ this.getUnsignedIntegerValue(this._registerA) >= this.getUnsignedIntegerValue(this._registerB) ? 1 : 0 ]);
         else if (instruction.operand === "CMPLT")
                     this._registerR = new Uint32Array(
-                        [ new Uint32Array(this._registerA)[0] < new Uint32Array(this._registerB)[0] ? 1 : 0 ]);
+                        [ this.getUnsignedIntegerValue(this._registerA) < this.getUnsignedIntegerValue(this._registerB) ? 1 : 0 ]);
         else if (instruction.operand === "CMPLTE") {
             this._registerR = new Uint32Array(
-                [ new Uint32Array(this._registerA)[0] <= new Uint32Array(this._registerB)[0] ? 1 : 0 ]);
+                [ this.getUnsignedIntegerValue(this._registerA) <= this.getUnsignedIntegerValue(this._registerB) ? 1 : 0 ]);
         }
 
         else if (instruction.operand === "SCMPE")
             this._registerR = new Uint32Array(
-                [ new Int32Array(this._registerA)[0] == new Int32Array(this._registerB)[0] ? 1 : 0 ]);
+                [ this.getIntegerValue(this._registerA) == this.getIntegerValue(this._registerB) ? 1 : 0 ]);
         else if (instruction.operand === "SCMPNE")
             this._registerR = new Uint32Array(
-                [ new Int32Array(this._registerA)[0] != new Int32Array(this._registerB)[0]  ? 1 : 0 ]);
+                [ this.getIntegerValue(this._registerA) != this.getIntegerValue(this._registerB)  ? 1 : 0 ]);
         else if (instruction.operand === "SCMPGT")
             this._registerR = new Uint32Array(
-                [new Int32Array(this._registerA)[0] > new Int32Array(this._registerB)[0] ? 1 : 0]);
+                [this.getIntegerValue(this._registerA) > this.getIntegerValue(this._registerB) ? 1 : 0]);
         else if (instruction.operand === "SCMPGTE")
             this._registerR = new Uint32Array(
-                [new Int32Array(this._registerA)[0] >= new Int32Array(this._registerB)[0] ? 1 : 0]);
+                [this.getIntegerValue(this._registerA) >= this.getIntegerValue(this._registerB) ? 1 : 0]);
         else if (instruction.operand === "SCMPLT")
             this._registerR = new Uint32Array(
-                [new Int32Array(this._registerA)[0] < new Int32Array(this._registerB)[0] ? 1 : 0]);
+                [this.getIntegerValue(this._registerA) < this.getIntegerValue(this._registerB) ? 1 : 0]);
         else if (instruction.operand === "SCMPLTE")
             this._registerR = new Uint32Array(
-                [new Int32Array(this._registerA)[0] <= new Int32Array(this._registerB)[0] ? 1 : 0]);
+                [this.getIntegerValue(this._registerA) <= this.getIntegerValue(this._registerB) ? 1 : 0]);
 
         else if (instruction.operand === "FCMPE")
             this._registerR = new Uint32Array(
-                [ new Float32Array(this._registerA)[0] == new Float32Array(this._registerB)[0] ? 1 : 0 ]);
+                [ this.getFloatingPointValue(this._registerA) == this.getFloatingPointValue(this._registerB) ? 1 : 0 ]);
         else if (instruction.operand === "FCMPNE")
             this._registerR = new Uint32Array(
-                [ new Float32Array(this._registerA)[0] != new Float32Array(this._registerB)[0]  ? 1 : 0 ]);
+                [ this.getFloatingPointValue(this._registerA) != this.getFloatingPointValue(this._registerB)  ? 1 : 0 ]);
         else if (instruction.operand === "FCMPGT")
             this._registerR = new Uint32Array(
-                [new Float32Array(this._registerA)[0] > new Float32Array(this._registerB)[0] ? 1 : 0]);
+                [this.getFloatingPointValue(this._registerA) > this.getFloatingPointValue(this._registerB) ? 1 : 0]);
         else if (instruction.operand === "FCMPGTE")
             this._registerR = new Uint32Array(
-                [new Float32Array(this._registerA)[0] >= new Float32Array(this._registerB)[0] ? 1 : 0]);
+                [this.getFloatingPointValue(this._registerA) >= this.getFloatingPointValue(this._registerB) ? 1 : 0]);
         else if (instruction.operand === "FCMPLT")
             this._registerR = new Uint32Array(
-                [new Float32Array(this._registerA)[0] < new Float32Array(this._registerB)[0] ? 1 : 0]);
+                [this.getFloatingPointValue(this._registerA) < this.getFloatingPointValue(this._registerB) ? 1 : 0]);
         else if (instruction.operand === "FCMPLTE")
             this._registerR = new Uint32Array(
-                [new Float32Array(this._registerA)[0] <= new Float32Array(this._registerB)[0] ? 1 : 0]);
+                [this.getFloatingPointValue(this._registerA) <= this.getFloatingPointValue(this._registerB) ? 1 : 0]);
 
         else if (instruction.operand === "NEG")
             this._registerR = new Uint32Array(
-                [ new Uint32Array(this._registerA)[0] != 0 ? 0 : 1 ]);
+                [ this.getUnsignedIntegerValue(this._registerA) != 0 ? 0 : 1 ]);
         else if (instruction.operand === "SNEG")
-            this._registerR = new Int32Array([ -new Int32Array(this._registerA)[0] ]);
+            this._registerR = new Int32Array([ -this.getIntegerValue(this._registerA) ]);
         else if (instruction.operand === "FNEG")
-            this._registerR = new Float32Array([ -new Float32Array(this._registerA)[0] ]);
+            this._registerR = new Float32Array([ -this.getFloatingPointValue(this._registerA) ]);
 
         else if (instruction.operand === "INC")
-            this._registerR = new Int32Array([ new Int32Array(this._registerA)[0] + 1 ]);
+            this._registerR = new Int32Array([ this.getIntegerValue(this._registerA) + 1 ]);
         else if (instruction.operand === "DEC")
-            this._registerR = new Int32Array([ new Int32Array(this._registerA)[0] - 1 ]);
+            this._registerR = new Int32Array([ this.getIntegerValue(this._registerA) - 1 ]);
         else if (instruction.operand === "FINC")
-            this._registerR = new Float32Array([ new Float32Array(this._registerA)[0] + 1 ]);
+            this._registerR = new Float32Array([ this.getFloatingPointValue(this._registerA) + 1 ]);
         else if (instruction.operand === "FDEC")
-            this._registerR = new Float32Array([ new Float32Array(this._registerA)[0] - 1 ]);
+            this._registerR = new Float32Array([ this.getFloatingPointValue(this._registerA) - 1 ]);
 
 
         else if (instruction.operand === "REM")
-            this._registerR = new Uint32Array([new Uint32Array(this._registerA)[0] % new Uint32Array(this._registerB)[0]]);
+            this._registerR = new Uint32Array([this.getUnsignedIntegerValue(this._registerA) % this.getUnsignedIntegerValue(this._registerB)]);
 
 
         else if (instruction.operand === "AND")
-            this._registerR = new Uint32Array([new Uint32Array(this._registerA)[0] & new Uint32Array(this._registerB)[0]]);
+            this._registerR = new Uint32Array([this.getUnsignedIntegerValue(this._registerA) & this.getUnsignedIntegerValue(this._registerB)]);
         else if (instruction.operand === "SHIFTL")
-            this._registerR = new Uint32Array([new Uint32Array(this._registerA)[0] << new Uint32Array(this._registerB)[0]]);
+            this._registerR = new Uint32Array([this.getUnsignedIntegerValue(this._registerA) << this.getUnsignedIntegerValue(this._registerB)]);
         else if (instruction.operand === "SHIFTR")
-            this._registerR = new Uint32Array([new Uint32Array(this._registerA)[0] >>> new Uint32Array(this._registerB)[0]]);
+            this._registerR = new Uint32Array([this.getUnsignedIntegerValue(this._registerA) >>> this.getUnsignedIntegerValue(this._registerB)]);
 
         else if (instruction.operand === "NOT")
-            this._registerR = new Uint32Array([~new Uint32Array(this._registerA)[0]]);
+            this._registerR = new Uint32Array([~this.getUnsignedIntegerValue(this._registerA)]);
         else if (instruction.operand === "OR")
-            this._registerR = new Uint32Array([new Uint32Array(this._registerA)[0] | new Uint32Array(this._registerB)[0]]);
+            this._registerR = new Uint32Array([this.getUnsignedIntegerValue(this._registerA) | this.getUnsignedIntegerValue(this._registerB)]);
         else if (instruction.operand === "XOR")
-            this._registerR = new Uint32Array([new Uint32Array(this._registerA)[0] ^ new Uint32Array(this._registerB)[0]]);
+            this._registerR = new Uint32Array([this.getUnsignedIntegerValue(this._registerA) ^ this.getUnsignedIntegerValue(this._registerB)]);
 
         else if (instruction.operand === "FLTOINT")
-            this._registerR = new Int32Array([ new Float32Array(this._registerA)[0] ]);
+            this._registerR = new Int32Array([ this.getFloatingPointValue(this._registerA) ]);
         else if (instruction.operand === "INTTOFL")
-            this._registerR = new Float32Array([ new Int32Array(this._registerA)[0] ]);
+            this._registerR = new Float32Array([ this.getIntegerValue(this._registerA) ]);
 
         else if (instruction.operand === "LAND")
             this._registerR = new Uint32Array([
-                (new Uint32Array(this._registerA)[0] != 0 && new Uint32Array(this._registerB)[0] != 0) ? 1 : 0
+                (this.getUnsignedIntegerValue(this._registerA) != 0 && this.getUnsignedIntegerValue(this._registerB) != 0) ? 1 : 0
             ]);
         else if (instruction.operand === "LOR")
             this._registerR = new Uint32Array([
-                (new Uint32Array(this._registerA)[0] != 0 || new Uint32Array(this._registerB)[0] != 0) ? 1 : 0
+                (this.getUnsignedIntegerValue(this._registerA) != 0 || this.getUnsignedIntegerValue(this._registerB) != 0) ? 1 : 0
             ]);
 
 
