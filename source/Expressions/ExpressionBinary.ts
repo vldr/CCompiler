@@ -107,12 +107,7 @@ export default class ExpressionBinary extends Expression
 
             if (operator !== "=")
             {
-                this.loadOperand(expressionResult, left, right, leftExpressionResult, rightExpressionResult);
-
-                if (leftExpressionResult instanceof ExpressionResultAccessor)
-                {
-                    expressionResult.pushInstruction(new InstructionSAVEPUSH());
-                }
+                this.loadOperand(expressionResult, isAssignment, left, right, leftExpressionResult, rightExpressionResult);
             }
             else
             {
@@ -142,7 +137,7 @@ export default class ExpressionBinary extends Expression
         }
         else
         {
-            this.loadOperand(expressionResult, left, right, leftExpressionResult, rightExpressionResult);
+            this.loadOperand(expressionResult, isAssignment, left, right, leftExpressionResult, rightExpressionResult);
         }
 
         switch (operator)
@@ -346,6 +341,7 @@ export default class ExpressionBinary extends Expression
 
     private loadOperand(
         expressionResult: ExpressionResult,
+        isAssignment: boolean,
         leftNode: Node,
         rightNode: Node,
         leftExpressionResult: ExpressionResult,
@@ -371,6 +367,10 @@ export default class ExpressionBinary extends Expression
         if (!isLeftInlinable && isRightInlinable)
         {
             generateLeft(new DestinationRegisterA(this._destination.type));
+
+            if (isAssignment && leftExpressionResult instanceof ExpressionResultAccessor)
+                expressionResult.pushInstruction(new InstructionSAVEPUSH());
+
             generateRight(new DestinationRegisterB(this._destination.type));
         }
         else if (isLeftInlinable && !isRightInlinable)
@@ -385,10 +385,13 @@ export default class ExpressionBinary extends Expression
         }
         else
         {
-            generateLeft(new DestinationStack(this._destination.type));
-            generateRight(new DestinationRegisterB(this._destination.type));
+            generateRight(new DestinationStack(this._destination.type));
+            generateLeft(new DestinationRegisterA(this._destination.type));
 
-            expressionResult.pushInstruction(new InstructionGETPOPA());
+            expressionResult.pushInstruction(new InstructionGETPOPB());
+
+            if (isAssignment && leftExpressionResult instanceof ExpressionResultAccessor)
+                expressionResult.pushInstruction(new InstructionSAVEPUSH());
         }
     }
 }
