@@ -1451,3 +1451,56 @@ test("Test 'odd_even_sort.c'.", async () => {
             .toStrictEqual(new Uint32Array([ value ]));
     });
 });
+
+test("Test 'shell_sort.c'.", async () => {
+    const compiler = new Compiler();
+    const result = compiler.compile(`
+        int arr[] = {
+            55, 47, 35, 15, 20, 42,
+            52, 30, 58, 15, 13, 19,
+            32, 18, 44, 11, 7, 9,
+            34, 56, 17, 25, 14, 48,
+            40, 4, 5, 7, 36, 1,
+            33, 49, 25, 26, 30, 9
+        };
+        
+        void shellSort()
+        {
+            int n = arr.length;
+        
+            for (int gap = n/2; gap > 0; gap /= 2)
+            {
+                for (int i = gap; i < n; i += 1)
+                {
+                    int temp = arr[i];
+         
+                    int j;           
+                    for (j = i; j >= gap && arr[j - gap] > temp; j -= gap)
+                        arr[j] = arr[j - gap];
+        
+                    arr[j] = temp;
+                }
+            }
+        }
+        
+        shellSort();
+    `);
+
+    const interpreter = new Interpreter(result);
+    await interpreter.run();
+
+    const sortedList = [
+        55, 47, 35, 15, 20, 42,
+        52, 30, 58, 15, 13, 19,
+        32, 18, 44, 11, 7, 9,
+        34, 56, 17, 25, 14, 48,
+        40, 4, 5, 7, 36, 1,
+        33, 49, 25, 26, 30, 9
+    ].sort((a, b) => a - b);
+
+    sortedList.forEach((value, index) =>
+    {
+        expect(interpreter.memoryRegions.get(`var_arr_${index}`))
+            .toStrictEqual(new Uint32Array([ value ]));
+    });
+});
