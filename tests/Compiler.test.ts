@@ -1786,3 +1786,71 @@ test("Test 'counting_sort.c'.", async () => {
             .toStrictEqual(new Uint32Array([ value ]));
     });
 });
+
+test("Test 'pigeonhole_sort.c'.", async () => {
+    const compiler = new Compiler();
+    const result = compiler.compile(`
+        int arr[] = {
+            55, 47, 35, 15, 20, 42,
+            52, 30, 58, 15, 13, 19,
+            32, 18, 44, 11, 7, 9,
+            34, 56, 17, 25, 14, 48,
+            40, 4, 5, 7, 36, 1,
+            33, 49, 25, 26, 30, 9
+        };
+        
+        int phole[100];
+        
+        void pigeonhole_sort(int n)
+        {
+            int min = arr[0];
+            int max = arr[0];
+            int range, i, j, index;
+         
+            for(int a = 0; a < n; a++)
+            {
+                if(arr[a] > max)
+                    max = arr[a];
+                if(arr[a] < min)
+                    min = arr[a];
+            }
+         
+            range = max - min + 1;
+            
+             
+            for(i = 0; i < n; i++)
+            phole[i] = 0;
+         
+            for(i = 0; i < n; i++)
+                phole[arr[i] - min]++;
+         
+             
+            index = 0;
+         
+            for(j = 0; j < range; j++)
+                while(phole[j] --> 0)
+                    arr[index++] = j + min;
+         
+        }
+        
+        pigeonhole_sort(arr.length);
+    `);
+
+    const interpreter = new Interpreter(result);
+    await interpreter.run();
+
+    const sortedList = [
+        55, 47, 35, 15, 20, 42,
+        52, 30, 58, 15, 13, 19,
+        32, 18, 44, 11, 7, 9,
+        34, 56, 17, 25, 14, 48,
+        40, 4, 5, 7, 36, 1,
+        33, 49, 25, 26, 30, 9
+    ].sort((a, b) => a - b);
+
+    sortedList.forEach((value, index) =>
+    {
+        expect(interpreter.memoryRegions.get(`var_arr_${index}`))
+            .toStrictEqual(new Int32Array([ value ]));
+    });
+});
