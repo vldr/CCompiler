@@ -1504,3 +1504,76 @@ test("Test 'shell_sort.c'.", async () => {
             .toStrictEqual(new Uint32Array([ value ]));
     });
 });
+
+test("Test 'comb_sort.c'.", async () => {
+    const compiler = new Compiler();
+    const result = compiler.compile(`
+        int a[] = {
+            55, 47, 35, 15, 20, 42,
+            52, 30, 58, 15, 13, 19,
+            32, 18, 44, 11, 7, 9,
+            34, 56, 17, 25, 14, 48,
+            40, 4, 5, 7, 36, 1,
+            33, 49, 25, 26, 30, 9
+        };
+        
+        void swap(int i, int j) 
+        {
+            int temp = a[i];
+            a[i] = a[j];
+            a[j] = temp;
+        }
+        
+        int getNextGap(int gap)
+        {
+            gap = (gap * 10) / 13;
+         
+            if (gap < 1)
+                return 1;
+            return gap;
+        }
+        
+        void combSort()
+        {
+            int n = a.length;
+            int gap = n;
+         
+            int swapped = 1;
+         
+            while (gap != 1 || swapped == 1)
+            {
+                gap = getNextGap(gap);    
+                swapped = 0;
+         
+                for (int i = 0; i < n - gap; i++)
+                {
+                    if (a[i] > a[i + gap])
+                    {
+                        swap(i, i + gap);
+                        swapped = 1;
+                    }
+                }
+            }
+        }
+        
+        combSort();
+    `);
+
+    const interpreter = new Interpreter(result);
+    await interpreter.run();
+
+    const sortedList = [
+        55, 47, 35, 15, 20, 42,
+        52, 30, 58, 15, 13, 19,
+        32, 18, 44, 11, 7, 9,
+        34, 56, 17, 25, 14, 48,
+        40, 4, 5, 7, 36, 1,
+        33, 49, 25, 26, 30, 9
+    ].sort((a, b) => a - b);
+
+    sortedList.forEach((value, index) =>
+    {
+        expect(interpreter.memoryRegions.get(`var_a_${index}`))
+            .toStrictEqual(new Uint32Array([ value ]));
+    });
+});
