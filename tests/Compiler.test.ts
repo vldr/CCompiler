@@ -1577,3 +1577,76 @@ test("Test 'comb_sort.c'.", async () => {
             .toStrictEqual(new Uint32Array([ value ]));
     });
 });
+
+test("Test 'pancake_sort.c'.", async () => {
+    const compiler = new Compiler();
+    const result = compiler.compile(`
+        int arr[] = {
+            55, 47, 35, 15, 20, 42,
+            52, 30, 58, 15, 13, 19,
+            32, 18, 44, 11, 7, 9,
+            34, 56, 17, 25, 14, 48,
+            40, 4, 5, 7, 36, 1,
+            33, 49, 25, 26, 30, 9
+        };
+        
+        void flip(int i)
+        {
+            int temp, start = 0;
+        
+            while (start < i) 
+            {
+                temp = arr[start];
+                arr[start] = arr[i];
+                arr[i] = temp;
+                start++;
+                i--;
+            }
+        }
+        
+        int findMax(int n)
+        {
+            int mi = 0, i = 0;
+            
+            for (; i < n; ++i)
+                if (arr[i] > arr[mi])
+                    mi = i;
+        
+            return mi;
+        }
+         
+        void pancakeSort(int n)
+        {
+            for (int curr_size = n; curr_size > 1; --curr_size)
+            {
+                int mi = findMax(curr_size);
+         
+                if (mi != curr_size - 1) 
+                {
+                    flip(mi);
+                    flip(curr_size - 1);
+                }
+            }
+        }
+         
+        pancakeSort(arr.length);
+    `);
+
+    const interpreter = new Interpreter(result);
+    await interpreter.run();
+
+    const sortedList = [
+        55, 47, 35, 15, 20, 42,
+        52, 30, 58, 15, 13, 19,
+        32, 18, 44, 11, 7, 9,
+        34, 56, 17, 25, 14, 48,
+        40, 4, 5, 7, 36, 1,
+        33, 49, 25, 26, 30, 9
+    ].sort((a, b) => a - b);
+
+    sortedList.forEach((value, index) =>
+    {
+        expect(interpreter.memoryRegions.get(`var_arr_${index}`))
+            .toStrictEqual(new Uint32Array([ value ]));
+    });
+});
