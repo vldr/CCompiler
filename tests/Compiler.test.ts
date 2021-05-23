@@ -1650,3 +1650,80 @@ test("Test 'pancake_sort.c'.", async () => {
             .toStrictEqual(new Uint32Array([ value ]));
     });
 });
+
+test("Test 'cocktail_sort.c'.", async () => {
+    const compiler = new Compiler();
+    const result = compiler.compile(`
+        int a[] = {
+            55, 47, 35, 15, 20, 42,
+            52, 30, 58, 15, 13, 19,
+            32, 18, 44, 11, 7, 9,
+            34, 56, 17, 25, 14, 48,
+            40, 4, 5, 7, 36, 1,
+            33, 49, 25, 26, 30, 9
+        };
+        
+        void swap(int i, int j) 
+        {
+            int temp = a[i];
+            a[i] = a[j];
+            a[j] = temp;
+        }
+        
+        void CocktailSort(int n)
+        {
+            int swapped = 1;
+            int start = 0;
+            int end = n - 1;
+         
+            while (swapped)
+            {
+                swapped = 0;
+        
+                for (int i = start; i < end; ++i)
+                {
+                    if (a[i] > a[i + 1]) {
+                        swap(i, i + 1);
+                        swapped = 1;
+                    }
+                }
+        
+                if (!swapped)
+                    break;
+        
+                swapped = 0;
+                --end;
+        
+                for (int i = end - 1; i >= start; --i)
+                {
+                    if (a[i] > a[i + 1]) {
+                        swap(i, i + 1);
+                        swapped = 1;
+                    }
+                }
+        
+                ++start;
+            }
+        }
+        
+        CocktailSort(a.length);
+    `);
+
+    const interpreter = new Interpreter(result);
+    await interpreter.run();
+
+    const sortedList = [
+        55, 47, 35, 15, 20, 42,
+        52, 30, 58, 15, 13, 19,
+        32, 18, 44, 11, 7, 9,
+        34, 56, 17, 25, 14, 48,
+        40, 4, 5, 7, 36, 1,
+        33, 49, 25, 26, 30, 9
+    ].sort((a, b) => a - b);
+
+    sortedList.forEach((value, index) =>
+    {
+        expect(interpreter.memoryRegions.get(`var_a_${index}`))
+            .toStrictEqual(new Uint32Array([ value ]));
+    });
+});
