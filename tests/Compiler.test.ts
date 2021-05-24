@@ -1854,3 +1854,119 @@ test("Test 'pigeonhole_sort.c'.", async () => {
             .toStrictEqual(new Int32Array([ value ]));
     });
 });
+
+test("Test 'tim_sort.c'.", async () => {
+    const compiler = new Compiler();
+    const result = compiler.compile(`
+        int arr[] = {
+            55, 47, 35, 15, 20, 42,
+            52, 30, 58, 15, 13, 19,
+            32, 18, 44, 11, 7, 9,
+            34, 56, 17, 25, 14, 48,
+            40, 4, 5, 7, 36, 1,
+            33, 49, 25, 26, 30, 9
+        };
+        
+        const int RUN = 32; 
+          
+        void insertionSort(int left, int right) 
+        { 
+            for (int i = left + 1; i <= right; i++) 
+            { 
+                int temp = arr[i]; 
+                int j = i - 1; 
+                while (j >= left && arr[j] > temp) 
+                { 
+                    arr[j+1] = arr[j]; 
+                    j--; 
+                } 
+                arr[j+1] = temp; 
+            } 
+        } 
+          
+        void merge(int l, int m, int r) 
+        { 
+            int len1 = m - l + 1, len2 = r - m; 
+            int left[36], right[36]; 
+            for (int i = 0; i < len1; i++) 
+                left[i] = arr[l + i]; 
+            for (int i = 0; i < len2; i++) 
+                right[i] = arr[m + 1 + i]; 
+          
+            int i = 0; 
+            int j = 0; 
+            int k = l; 
+          
+            while (i < len1 && j < len2) 
+            { 
+                if (left[i] <= right[j]) 
+                { 
+                    arr[k] = left[i]; 
+                    i++; 
+                } 
+                else
+                { 
+                    arr[k] = right[j]; 
+                    j++; 
+                } 
+                k++; 
+            } 
+          
+            while (i < len1) 
+            { 
+                arr[k] = left[i]; 
+                k++; 
+                i++; 
+            } 
+          
+            while (j < len2) 
+            { 
+                arr[k] = right[j]; 
+                k++; 
+                j++; 
+            } 
+        } 
+        
+        int min(int a, int b)
+        {
+            return a < b ? a : b;
+        }
+          
+        void timSort(int n) 
+        {  
+            for (int i = 0; i < n; i+=RUN) 
+                insertionSort(i, min((i+31), (n-1))); 
+          
+            for (int size = RUN; size < n; size = 2*size) 
+            { 
+                for (int left = 0; left < n; left += 2*size) 
+                { 
+                    int mid = left + size - 1; 
+                    int right = min((left + 2*size - 1), (n-1)); 
+        
+                    merge(left, mid, right); 
+                } 
+            } 
+        } 
+        
+        timSort(arr.length);
+    `);
+
+    const interpreter = new Interpreter(result);
+    await interpreter.run();
+
+    const sortedList = [
+        55, 47, 35, 15, 20, 42,
+        52, 30, 58, 15, 13, 19,
+        32, 18, 44, 11, 7, 9,
+        34, 56, 17, 25, 14, 48,
+        40, 4, 5, 7, 36, 1,
+        33, 49, 25, 26, 30, 9
+    ].sort((a, b) => a - b);
+
+    sortedList.forEach((value, index) =>
+    {
+        expect(interpreter.memoryRegions.get(`var_arr_${index}`))
+            .toStrictEqual(new Uint32Array([ value ]));
+    });
+});
