@@ -1135,6 +1135,46 @@ test("Test 'jenkins_hash.c'.", async () => {
     expect(interpreter.memoryRegions.get(`var_result`)).toStrictEqual(new Uint32Array([ 0x519e91f5 ]));
 });
 
+test("Test 'binary_search.c'.", async () => {
+    const compiler = new Compiler();
+    const result = compiler.compile(`
+        int arr[] = {
+            1, 4, 5, 7, 7, 9, 9, 
+            11, 13, 14, 15, 15, 17,
+            18, 19, 20, 25, 25, 26, 
+            30, 30, 32, 33, 34, 35, 
+            36, 40, 42, 44, 47, 48, 
+            49, 52, 55, 56, 58
+        };
+        
+        int binarySearch(int x)
+        {
+            int l = 0, r = arr.length - 1;
+        
+            while (l <= r) {
+                int m = l + (r - l) / 2;
+        
+                if (arr[m] == x)
+                    return m;
+        
+                if (arr[m] < x)
+                    l = m + 1;
+                else
+                    r = m - 1;
+            }
+            
+            return -1;
+        }
+        
+        int result = binarySearch(34);
+    `);
+
+    const interpreter = new Interpreter(result);
+    await interpreter.run();
+
+    expect(interpreter.memoryRegions.get(`var_result`)).toStrictEqual(new Int32Array([ 23 ]));
+});
+
 test("Test 'PJW_hash.c'.", async () => {
     const compiler = new Compiler();
     const result = compiler.compile(`
