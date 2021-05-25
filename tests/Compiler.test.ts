@@ -1283,6 +1283,83 @@ test("Test 'min_adj_swaps.c'.", async () => {
     expect(interpreter.memoryRegions.get(`var_result`)).toStrictEqual(new Int32Array([ 2 ]));
 });
 
+test("Test 'min_jumps.c'.", async () => {
+    const compiler = new Compiler();
+    const result = compiler.compile(`
+        int arr[6] = { 1, 3, 6, 1, 0, 9 };
+        int jumps[6];
+        
+        const int INT_MAX = 2147483647;
+        
+        int minJumps(int n)
+        {
+            int min;
+            jumps[n - 1] = 0;
+         
+            for (int i = n - 2; i >= 0; i--) {
+                if (arr[i] == 0)
+                    jumps[i] = INT_MAX;
+                else if (arr[i] >= n - i - 1)
+                    jumps[i] = 1;
+                else {
+                    min = INT_MAX;
+        
+                    for (int j = i + 1; j < n && j <= arr[i] + i; j++) {
+                        if (min > jumps[j])
+                            min = jumps[j];
+                    }
+        
+                    if (min != INT_MAX)
+                        jumps[i] = min + 1;
+                    else
+                        jumps[i] = min;
+                }
+            }
+         
+            return jumps[0];
+        }
+        
+        int result = minJumps(arr.length);
+    `);
+
+    const interpreter = new Interpreter(result);
+    await interpreter.run();
+
+    expect(interpreter.memoryRegions.get(`var_result`)).toStrictEqual(new Int32Array([ 3 ]));
+});
+
+test("Test 'is_inside_triangle.c'.", async () => {
+    const compiler = new Compiler();
+    const result = compiler.compile(`
+        float abs (float i)
+        {
+            return i < 0.f ? -i : i;
+        }
+        
+        float area(float x1, float y1, float x2, float y2, float x3, float y3)
+        {
+           return abs((x1*(y2-y3) + x2*(y3-y1)+ x3*(y1-y2))/2.0);
+        }
+        
+        int isInside(float x1, float y1, float x2, float y2, float x3, float y3, float x, float y)
+        {  
+           float A = area (x1, y1, x2, y2, x3, y3);  
+           float A1 = area (x, y, x2, y2, x3, y3); 
+           float A2 = area (x1, y1, x, y, x3, y3);  
+           float A3 = area (x1, y1, x2, y2, x, y);
+           
+           return (A == A1 + A2 + A3);
+        }
+        
+        int result = isInside(0.0, 0.0, 20.0, 0.0, 10.0, 30.0, 10.0, 15.0);
+    `);
+
+    const interpreter = new Interpreter(result);
+    await interpreter.run();
+
+    expect(interpreter.memoryRegions.get(`var_result`)).toStrictEqual(new Uint32Array([ 1 ]));
+});
+
 test("Test 'lbs.c'.", async () => {
     const compiler = new Compiler();
     const result = compiler.compile(`
@@ -1325,6 +1402,41 @@ test("Test 'lbs.c'.", async () => {
     await interpreter.run();
 
     expect(interpreter.memoryRegions.get(`var_result`)).toStrictEqual(new Int32Array([ 7 ]));
+});
+
+test("Test 'msi.c'.", async () => {
+    const compiler = new Compiler();
+    const result = compiler.compile(`
+        int arr[7] = {1, 101, 2, 3, 100, 4, 5};
+        int msis[7];
+        
+        int maxSumIS(int n)
+        {
+            int i, j, max = 0;
+        
+            for ( i = 0; i < n; i++ )
+                msis[i] = arr[i];
+         
+            for ( i = 1; i < n; i++ )
+                for ( j = 0; j < i; j++ )
+                    if (arr[i] > arr[j] &&
+                        msis[i] < msis[j] + arr[i])
+                        msis[i] = msis[j] + arr[i];
+         
+            for ( i = 0; i < n; i++ )
+                if ( max < msis[i] )
+                    max = msis[i];
+         
+            return max;
+        }
+         
+        int result = maxSumIS(arr.length);
+    `);
+
+    const interpreter = new Interpreter(result);
+    await interpreter.run();
+
+    expect(interpreter.memoryRegions.get(`var_result`)).toStrictEqual(new Int32Array([ 106 ]));
 });
 
 test("Test 'fnv_hash.c'.", async () => {
