@@ -1247,6 +1247,42 @@ test("Test 'count_ones.c'.", async () => {
     expect(interpreter.memoryRegions.get(`var_result`)).toStrictEqual(new Int32Array([ 4 ]));
 });
 
+test("Test 'min_adj_swaps.c'.", async () => {
+    const compiler = new Compiler();
+    const result = compiler.compile(`
+        int a[] = {
+            5, 6, 1, 3
+        };
+        
+        int solve(int n)
+        {
+            int maxx = -1, minn = a[0], l = 0, r = 0;
+            for (int i = 0; i < n; i++) {
+                if (a[i] > maxx) {
+                    maxx = a[i];
+                    l = i;
+                }
+         
+                if (a[i] <= minn) {
+                    minn = a[i];
+                    r = i;
+                }
+            }
+            if (r < l)
+                return l + (n - r - 2);
+            else
+                return l + (n - r - 1);
+        }
+        
+        int result = solve(a.length);
+    `);
+
+    const interpreter = new Interpreter(result);
+    await interpreter.run();
+
+    expect(interpreter.memoryRegions.get(`var_result`)).toStrictEqual(new Int32Array([ 2 ]));
+});
+
 test("Test 'fnv_hash.c'.", async () => {
     const compiler = new Compiler();
     const result = compiler.compile(`
