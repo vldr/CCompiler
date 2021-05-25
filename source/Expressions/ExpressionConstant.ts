@@ -52,7 +52,7 @@ export default class ExpressionConstant extends Expression
         {
             type = new TypeUnsignedInteger(new QualifierNone(), 1);
 
-            if (value > 4294967295)
+            if (value < 0 || value > 4294967295)
             {
                 throw ExternalErrors.OUT_OF_BOUNDS_UINT(node);
             }
