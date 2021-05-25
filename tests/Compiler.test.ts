@@ -1216,6 +1216,37 @@ test("Test 'PJW_hash.c'.", async () => {
     expect(interpreter.memoryRegions.get(`var_result`)).toStrictEqual(new Uint32Array([ 69733463 ]));
 });
 
+test("Test 'count_ones.c'.", async () => {
+    const compiler = new Compiler();
+    const result = compiler.compile(`
+        int arr[] = { 1, 1, 1, 1, 0, 0, 0 };
+        
+        int countOnes(int low, int high)
+        {
+            if (high >= low)
+            {
+                int mid = low + (high - low)/2;
+        
+                if ( (mid == high || arr[mid+1] == 0) && (arr[mid] == 1))
+                    return mid+1;
+        
+                if (arr[mid] == 1)
+                    return countOnes((mid + 1), high);
+        
+                return countOnes(low, (mid -1));
+            }
+            return 0;
+        }
+        
+        int result = countOnes(0, arr.length - 1);
+    `);
+
+    const interpreter = new Interpreter(result);
+    await interpreter.run();
+
+    expect(interpreter.memoryRegions.get(`var_result`)).toStrictEqual(new Int32Array([ 4 ]));
+});
+
 test("Test 'fnv_hash.c'.", async () => {
     const compiler = new Compiler();
     const result = compiler.compile(`
@@ -1990,6 +2021,61 @@ test("Test 'tim_sort.c'.", async () => {
         } 
         
         timSort(arr.length);
+    `);
+
+    const interpreter = new Interpreter(result);
+    await interpreter.run();
+
+    const sortedList = [
+        55, 47, 35, 15, 20, 42,
+        52, 30, 58, 15, 13, 19,
+        32, 18, 44, 11, 7, 9,
+        34, 56, 17, 25, 14, 48,
+        40, 4, 5, 7, 36, 1,
+        33, 49, 25, 26, 30, 9
+    ].sort((a, b) => a - b);
+
+    sortedList.forEach((value, index) =>
+    {
+        expect(interpreter.memoryRegions.get(`var_arr_${index}`))
+            .toStrictEqual(new Uint32Array([ value ]));
+    });
+});
+
+test("Test 'gnome_sort.c'.", async () => {
+    const compiler = new Compiler();
+    const result = compiler.compile(`
+        int arr[] = {
+            55, 47, 35, 15, 20, 42,
+            52, 30, 58, 15, 13, 19,
+            32, 18, 44, 11, 7, 9,
+            34, 56, 17, 25, 14, 48,
+            40, 4, 5, 7, 36, 1,
+            33, 49, 25, 26, 30, 9
+        };
+        
+        void gnomeSort()
+        {
+            int n = arr.length;
+            int index = 0;
+        
+            while (index < n)
+            {
+                if (index == 0)
+                    index++;
+                if (arr[index] >= arr[index - 1])
+                    index++;
+                else {
+                    int temp = 0;
+                    temp = arr[index];
+                    arr[index] = arr[index - 1];
+                    arr[index - 1] = temp;
+                    index--;
+                }
+            }
+        }
+        
+        gnomeSort();
     `);
 
     const interpreter = new Interpreter(result);
