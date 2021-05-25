@@ -1,5 +1,5 @@
 ![CCompiler Logo](logo.svg)<br>
-The C compiler used in https://vldr.org/cpu
+The C compiler used in https://cpu.vldr.org/
 
 ## About
 This C compiler is entirely made with Typescript.
@@ -10,4 +10,4 @@ and upload the compiled output directly to the CPU all in one place.
 
 ## Try it out
 You can now program the C15 CPU using the C language directly from your browser: 
-https://vldr.org/cpu
+https://cpu.vldr.org/
