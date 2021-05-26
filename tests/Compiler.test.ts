@@ -978,6 +978,37 @@ test("Test 'bell_numbers.c'.", async () => {
     expect(interpreter.memoryRegions.get(`var_results_8`)).toStrictEqual(new Int32Array([ 4140 ]));
 });
 
+test("Test 'golomb.c'.", async () => {
+    const compiler = new Compiler();
+    const result = compiler.compile(`
+        int dp[10];
+
+        void golomb(int n)
+        {
+            dp[1] = 1;
+        
+            for (int i = 2; i <= n; i++)
+                dp[i] = 1 + dp[i - dp[dp[i - 1]]];
+        }
+        
+        golomb(dp.length - 1);
+    `);
+
+    const interpreter = new Interpreter(result);
+    await interpreter.run();
+
+    expect(interpreter.memoryRegions.get(`var_dp_0`)).toStrictEqual(new Uint32Array([ 0 ]));
+    expect(interpreter.memoryRegions.get(`var_dp_1`)).toStrictEqual(new Uint32Array([ 1 ]));
+    expect(interpreter.memoryRegions.get(`var_dp_2`)).toStrictEqual(new Int32Array([ 2 ]));
+    expect(interpreter.memoryRegions.get(`var_dp_3`)).toStrictEqual(new Int32Array([ 2 ]));
+    expect(interpreter.memoryRegions.get(`var_dp_4`)).toStrictEqual(new Int32Array([ 3 ]));
+    expect(interpreter.memoryRegions.get(`var_dp_5`)).toStrictEqual(new Int32Array([ 3 ]));
+    expect(interpreter.memoryRegions.get(`var_dp_6`)).toStrictEqual(new Int32Array([ 4 ]));
+    expect(interpreter.memoryRegions.get(`var_dp_7`)).toStrictEqual(new Int32Array([ 4 ]));
+    expect(interpreter.memoryRegions.get(`var_dp_8`)).toStrictEqual(new Int32Array([ 4 ]));
+    expect(interpreter.memoryRegions.get(`var_dp_9`)).toStrictEqual(new Int32Array([ 5 ]));
+});
+
 test("Test 'matrix_determinant.c'.", async () => {
     const compiler = new Compiler();
     const result = compiler.compile(`
