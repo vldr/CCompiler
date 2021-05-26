@@ -928,6 +928,110 @@ test("Test 'square_free.c'.", async () => {
     expect(interpreter.memoryRegions.get(`var_result`)).toStrictEqual(new Int32Array([ 6 ]));
 });
 
+test("Test 'matrix_determinant.c'.", async () => {
+    const compiler = new Compiler();
+    const result = compiler.compile(`
+        struct SubMatrix {
+            int pad1;
+            int pad2[2];
+            int b[3];
+            float pad3;
+        };
+        
+        struct Matrix {
+            int pad1;
+            int pad2[2];
+            SubMatrix a[3];
+            float pad3;
+        };
+        
+        Matrix m[3];
+        
+        int determinant(int index) 
+        {
+            return m[index].a[0].b[0] * ((m[index].a[1].b[1] * m[index].a[2].b[2]) - (m[index].a[2].b[1]*m[index].a[1].b[2])) -m[index].a[0].b[1] * (m[index].a[1].b[0]
+           * m[index].a[2].b[2] - m[index].a[2].b[0] * m[index].a[1].b[2]) + m[index].a[0].b[2] * (m[index].a[1].b[0] * m[index].a[2].b[1] - m[index].a[2].b[0] * m[index].a[1].b[1]);
+        }
+        
+        int run(int index)
+        {
+            m[index].pad1 = 123456789;
+            
+            for (int i = 0; i < m[index].pad2.length; i++)
+                 m[index].pad2[i] = 123456789;
+            
+            m[index].pad3 = 123456789.f;
+            
+            for (int i = 0; i < m[index].a.length; i++)
+            {
+                 m[index].a[i].pad1 = 123456789;
+            
+                for (int j = 0; j < m[index].pad2.length; j++)
+                     m[index].a[i].pad2[j] = 123456789;
+                
+                m[index].a[i].pad3 = 123456789.f;
+            }
+        
+        
+            if (index == 0)
+            {
+                m[index].a[0].b[0] = 6;
+                m[index].a[0].b[1] = 1;
+                m[index].a[0].b[2] = 1;
+            
+                m[index].a[1].b[0] = 4;
+                m[index].a[1].b[1] = -2;
+                m[index].a[1].b[2] = 5;
+            
+                m[index].a[2].b[0] = 2;
+                m[index].a[2].b[1] = 8;
+                m[index].a[2].b[2] = 7;
+            }
+            else if (index == 1)
+            {
+                m[index].a[0].b[0] = 1;
+                m[index].a[0].b[1] = 2;
+                m[index].a[0].b[2] = 3;
+            
+                m[index].a[1].b[0] = 0;
+                m[index].a[1].b[1] = -4;
+                m[index].a[1].b[2] = 1;
+            
+                m[index].a[2].b[0] = 0;
+                m[index].a[2].b[1] = 3;
+                m[index].a[2].b[2] = -1;
+            }
+            else
+            {
+                m[index].a[0].b[0] = 5;
+                m[index].a[0].b[1] = -2;
+                m[index].a[0].b[2] = 1;
+            
+                m[index].a[1].b[0] = 0;
+                m[index].a[1].b[1] = 3;
+                m[index].a[1].b[2] = -1;
+            
+                m[index].a[2].b[0] = 2;
+                m[index].a[2].b[1] = 0;
+                m[index].a[2].b[2] = 7;
+            }
+                
+            return determinant(index);
+        }
+        
+        int result_0 = run(0);
+        int result_1 = run(1);
+        int result_2 = run(2);
+    `);
+
+    const interpreter = new Interpreter(result);
+    await interpreter.run();
+
+    expect(interpreter.memoryRegions.get(`var_result_0`)).toStrictEqual(new Int32Array([ -306 ]));
+    expect(interpreter.memoryRegions.get(`var_result_1`)).toStrictEqual(new Int32Array([ 1 ]));
+    expect(interpreter.memoryRegions.get(`var_result_2`)).toStrictEqual(new Int32Array([ 103 ]));
+});
+
 test("Test 'nth_root.c'.", async () => {
     const compiler = new Compiler();
     const result = compiler.compile(`
