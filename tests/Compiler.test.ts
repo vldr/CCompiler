@@ -928,6 +928,56 @@ test("Test 'square_free.c'.", async () => {
     expect(interpreter.memoryRegions.get(`var_result`)).toStrictEqual(new Int32Array([ 6 ]));
 });
 
+test("Test 'bell_numbers.c'.", async () => {
+    const compiler = new Compiler();
+    const result = compiler.compile(`
+        struct Bell {
+            int a[10];
+        };
+        
+        Bell bell[10];
+        int results[9];
+        
+        int bellNumber(int n)
+        {
+            bell[0].a[0] = 1;
+        
+            for (int i = 1; i<=n; i++)
+            {
+                bell[i].a[0] = bell[i-1].a[i-1];
+        
+                for (int j = 1; j <= i; j++)
+                    bell[i].a[j] = bell[i-1].a[j-1] + bell[i].a[j-1];
+            }
+        
+            return bell[n].a[0];
+        }
+        
+        void run()
+        {
+            for (int i = 0; i < results.length; i++)
+            {
+                results[i] = bellNumber(i);
+            }
+        }
+        
+        run();
+    `);
+
+    const interpreter = new Interpreter(result);
+    await interpreter.run();
+
+    expect(interpreter.memoryRegions.get(`var_results_0`)).toStrictEqual(new Uint32Array([ 1 ]));
+    expect(interpreter.memoryRegions.get(`var_results_1`)).toStrictEqual(new Uint32Array([ 1 ]));
+    expect(interpreter.memoryRegions.get(`var_results_2`)).toStrictEqual(new Int32Array([ 2 ]));
+    expect(interpreter.memoryRegions.get(`var_results_3`)).toStrictEqual(new Int32Array([ 5 ]));
+    expect(interpreter.memoryRegions.get(`var_results_4`)).toStrictEqual(new Int32Array([ 15 ]));
+    expect(interpreter.memoryRegions.get(`var_results_5`)).toStrictEqual(new Int32Array([ 52 ]));
+    expect(interpreter.memoryRegions.get(`var_results_6`)).toStrictEqual(new Int32Array([ 203 ]));
+    expect(interpreter.memoryRegions.get(`var_results_7`)).toStrictEqual(new Int32Array([ 877 ]));
+    expect(interpreter.memoryRegions.get(`var_results_8`)).toStrictEqual(new Int32Array([ 4140 ]));
+});
+
 test("Test 'matrix_determinant.c'.", async () => {
     const compiler = new Compiler();
     const result = compiler.compile(`
