@@ -947,6 +947,10 @@ test("Test 'matrix_determinant.c'.", async () => {
         
         Matrix m[3];
         
+        const int PAD1_VALUE = 123456789;
+        const int PAD2_VALUE = 789456123;
+        const float PAD3_VALUE = 123456789.f;
+        
         int determinant(int index) 
         {
             return m[index].a[0].b[0] * ((m[index].a[1].b[1] * m[index].a[2].b[2]) - (m[index].a[2].b[1]*m[index].a[1].b[2])) -m[index].a[0].b[1] * (m[index].a[1].b[0]
@@ -955,24 +959,23 @@ test("Test 'matrix_determinant.c'.", async () => {
         
         int run(int index)
         {
-            m[index].pad1 = 123456789;
+            m[index].pad1 = PAD1_VALUE;
             
             for (int i = 0; i < m[index].pad2.length; i++)
-                 m[index].pad2[i] = 123456789;
+                 m[index].pad2[i] = PAD2_VALUE;
             
-            m[index].pad3 = 123456789.f;
+            m[index].pad3 = PAD3_VALUE;
             
             for (int i = 0; i < m[index].a.length; i++)
             {
-                 m[index].a[i].pad1 = 123456789;
+                 m[index].a[i].pad1 = PAD1_VALUE;
             
                 for (int j = 0; j < m[index].pad2.length; j++)
-                     m[index].a[i].pad2[j] = 123456789;
+                     m[index].a[i].pad2[j] = PAD2_VALUE;
                 
-                m[index].a[i].pad3 = 123456789.f;
-            }
-        
-        
+                m[index].a[i].pad3 = PAD3_VALUE;
+            }   
+
             if (index == 0)
             {
                 m[index].a[0].b[0] = 6;
@@ -1015,6 +1018,31 @@ test("Test 'matrix_determinant.c'.", async () => {
                 m[index].a[2].b[1] = 0;
                 m[index].a[2].b[2] = 7;
             }
+            
+            /////////////////////////////////////////////////
+            
+            if (m[index].pad1 != PAD1_VALUE)
+                return 0;
+            
+            for (int i = 0; i < m[index].pad2.length; i++)
+                if (m[index].pad2[i] != PAD2_VALUE)
+                    return 0;
+
+            if (m[index].pad3 != PAD3_VALUE)
+                return 0;
+            
+            for (int i = 0; i < m[index].a.length; i++)
+            {
+                if (m[index].a[i].pad1 != PAD1_VALUE)
+                    return 0;
+            
+                for (int j = 0; j < m[index].pad2.length; j++)
+                    if (m[index].a[i].pad2[j] != PAD2_VALUE)
+                        return 0;
+                        
+                if (m[index].a[i].pad3 != PAD3_VALUE)
+                    return 0;
+            }   
                 
             return determinant(index);
         }
