@@ -1020,6 +1020,52 @@ test("Test 'bell_numbers.c'.", async () => {
     expect(interpreter.memoryRegions.get(`var_results_8`)).toStrictEqual(new Int32Array([ 4140 ]));
 });
 
+test("Test ' moser_de_bruijn.c'.", async () => {
+    const compiler = new Compiler();
+    const result = compiler.compile(`
+        int S[16];
+        int n = S.length - 1;
+        
+        int gen()
+        {
+            S[0] = 0;
+            S[1] = 1;
+         
+            for (int i = 2; i <= n; i++)
+            {   
+                if (i % 2 == 0)
+                   S[i] = 4 * S[i / 2];
+                else
+                   S[i] = 4 * S[i / 2] + 1;
+            }
+             
+            return S[n];
+        }
+        
+        gen();
+    `);
+
+    const interpreter = new Interpreter(result);
+    await interpreter.run();
+
+    expect(interpreter.memoryRegions.get(`var_S_0`)).toStrictEqual(new Uint32Array([ 0 ]));
+    expect(interpreter.memoryRegions.get(`var_S_1`)).toStrictEqual(new Uint32Array([ 1 ]));
+    expect(interpreter.memoryRegions.get(`var_S_2`)).toStrictEqual(new Int32Array([ 4 ]));
+    expect(interpreter.memoryRegions.get(`var_S_3`)).toStrictEqual(new Int32Array([ 5 ]));
+    expect(interpreter.memoryRegions.get(`var_S_4`)).toStrictEqual(new Int32Array([ 16 ]));
+    expect(interpreter.memoryRegions.get(`var_S_5`)).toStrictEqual(new Int32Array([ 17 ]));
+    expect(interpreter.memoryRegions.get(`var_S_6`)).toStrictEqual(new Int32Array([ 20 ]));
+    expect(interpreter.memoryRegions.get(`var_S_7`)).toStrictEqual(new Int32Array([ 21 ]));
+    expect(interpreter.memoryRegions.get(`var_S_8`)).toStrictEqual(new Int32Array([ 64 ]));
+    expect(interpreter.memoryRegions.get(`var_S_9`)).toStrictEqual(new Int32Array([ 65 ]));
+    expect(interpreter.memoryRegions.get(`var_S_10`)).toStrictEqual(new Int32Array([ 68 ]));
+    expect(interpreter.memoryRegions.get(`var_S_11`)).toStrictEqual(new Int32Array([ 69 ]));
+    expect(interpreter.memoryRegions.get(`var_S_12`)).toStrictEqual(new Int32Array([ 80 ]));
+    expect(interpreter.memoryRegions.get(`var_S_13`)).toStrictEqual(new Int32Array([ 81 ]));
+    expect(interpreter.memoryRegions.get(`var_S_14`)).toStrictEqual(new Int32Array([ 84 ]));
+    expect(interpreter.memoryRegions.get(`var_S_15`)).toStrictEqual(new Int32Array([ 85 ]));
+});
+
 test("Test 'golomb.c'.", async () => {
     const compiler = new Compiler();
     const result = compiler.compile(`
