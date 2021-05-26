@@ -12,7 +12,7 @@ export default class VariablePrimitive extends Variable
         scope: Scope,
         compiler: Compiler,
         shouldRead = true,
-        private _initialValues: string[] = new Array(type.size).fill(0)
+        private _initialValues: string[] = new Array(Math.max(type.arraySize, 1)).fill(0)
     )
     {
         super(name, type, scope, compiler, shouldRead);
@@ -20,10 +20,10 @@ export default class VariablePrimitive extends Variable
 
     getElement(index: number)
     {
-        if (index >= this.type.size || index < 0)
+        if (index >= this.type.arraySize || index < 0)
             throw InternalErrors.generateError("Invalid index for get element.");
 
-        let pseudoVariable = new VariablePrimitive(`${this.name}_${index}`, this._type.clone(1), this.scope, this._compiler, this._shouldRead, this._initialValues)
+        let pseudoVariable = new VariablePrimitive(`${this.name}_${index}`, this._type.cloneSingular(), this.scope, this._compiler, this._shouldRead, this._initialValues)
         pseudoVariable.setInitialValue = (_, value) =>
         {
             this.setInitialValue(index, value);
@@ -41,9 +41,9 @@ export default class VariablePrimitive extends Variable
     {
         this._compiler.emitToVariables(`${this.labelName}:\n`);
 
-        if (this.type.size > 1)
+        if (this.type.arraySize > 0)
         {
-            for (let i = 0; i < this.type.size; i++)
+            for (let i = 0; i < this.type.arraySize; i++)
             {
                 this._compiler.emitToVariables(`${this.labelName}_${i}:\n`);
                 this._compiler.emitToVariables(`.data ${this._initialValues[i]}\n`);
@@ -52,7 +52,7 @@ export default class VariablePrimitive extends Variable
         }
         else
         {
-            this._compiler.emitToVariables(`.data ${this._initialValues}\n`);
+            this._compiler.emitToVariables(`.data ${this._initialValues[0]}\n`);
             this._compiler.emitToVariables(this.shouldRead ? `.read ${this.labelName} ${this.labelName}\n` : ``);
         }
     }

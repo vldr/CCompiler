@@ -4,11 +4,11 @@ export default class TypeFloat extends Type
 {
     public toString(): string
     {
-        return "float" + (this.size > 1 ? `[${this.size}]` : String());;
+        return "float" + (this.arraySize > 0 ? `[${this.arraySize}]` : String());
     }
 
-    public clone(size: number): Type
+    public cloneSingular(): Type
     {
-        return new TypeFloat(this.qualifer, size);
+        return new TypeFloat(this.qualifer, 0);
     }
 }

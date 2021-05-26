@@ -4,16 +4,8 @@ import ExpressionResult from "./ExpressionResult";
 import InternalErrors from "../Errors/InternalErrors";
 import Type from "../Types/Type";
 import TypeUnsignedInteger from "../Types/TypeUnsignedInteger";
-import NodeBinary from "../Nodes/NodeBinary";
-import Utils from "../Utils";
 import DestinationRegisterA from "../Destinations/DestinationRegisterA";
 import DestinationRegisterB from "../Destinations/DestinationRegisterB";
-import InstructionADD from "../Instructions/InstructionADD";
-import InstructionSUB from "../Instructions/InstructionSUB";
-import InstructionDIV from "../Instructions/InstructionDIV";
-import InstructionMULT from "../Instructions/InstructionMULT";
-import InstructionREM from "../Instructions/InstructionREM";
-import InstructionCMP from "../Instructions/InstructionCMP";
 import DestinationVariable from "../Destinations/DestinationVariable";
 import DestinationStack from "../Destinations/DestinationStack";
 import DestinationNone from "../Destinations/DestinationNone";
@@ -21,22 +13,10 @@ import InstructionSAVE from "../Instructions/InstructionSAVE";
 import InstructionSAVETOA from "../Instructions/InstructionSAVETOA";
 import InstructionSAVETOB from "../Instructions/InstructionSAVETOB";
 import InstructionSAVEPUSH from "../Instructions/InstructionSAVEPUSH";
-import InstructionSHIFTL from "../Instructions/InstructionSHIFTL";
-import InstructionSHIFTR from "../Instructions/InstructionSHIFTR";
-import InstructionOR from "../Instructions/InstructionOR";
-import InstructionAND from "../Instructions/InstructionAND";
-import InstructionXOR from "../Instructions/InstructionXOR";
 import InstructionGETPOPB from "../Instructions/InstructionGETPOPB";
 import InstructionGETPOPA from "../Instructions/InstructionGETPOPA";
 import TypeFloat from "../Types/TypeFloat";
 import ExternalErrors from "../Errors/ExternalErrors";
-import ExpressionResultAccessor from "./ExpressionResultAccessor";
-import ExpressionResultVariable from "./ExpressionResultVariable";
-import InstructionMOVOUT from "../Instructions/InstructionMOVOUT";
-import InstructionGETPOPR from "../Instructions/InstructionGETPOPR";
-import InstructionMOVINPOP from "../Instructions/InstructionMOVINPOP";
-import InstructionMOVIN from "../Instructions/InstructionMOVIN";
-import TypeStruct from "../Types/TypeStruct";
 import TypeVoid from "../Types/TypeVoid";
 import QualifierNone from "../Qualifiers/QualifierNone";
 import NodeFunctionCall from "../Nodes/NodeFunctionCall";
@@ -94,7 +74,6 @@ export default class ExpressionFunctionCall extends Expression
         const fnReturnType = fn.returnType;
 
         const destination = this._destination;
-        const destinationType = destination.type;
 
         this._compiler.addSymbol(new SymbolFunction(functionIdentifier.location));
 
@@ -166,7 +145,7 @@ export default class ExpressionFunctionCall extends Expression
             throw ExternalErrors.PARAMETER_MISSING(node, functionName, expectedParameters, nodeParameters.length);
         }
 
-        const returnType = new TypeVoid(new QualifierNone(), 1);
+        const returnType = new TypeVoid(new QualifierNone(), 0);
 
         let destination = functionName.endsWith("_a") ?
             new DestinationRegisterA(returnType) : new DestinationRegisterB(returnType);
@@ -180,7 +159,7 @@ export default class ExpressionFunctionCall extends Expression
         if ((targetExpressionResult.type instanceof TypeInteger ||
             targetExpressionResult.type instanceof TypeUnsignedInteger ||
             targetExpressionResult.type instanceof TypeFloat)
-            && targetExpressionResult.type.size === 1
+            && targetExpressionResult.type.arraySize <= 0
         )
         {
             expressionResult.pushExpressionResult(targetExpressionResult);
@@ -204,7 +183,7 @@ export default class ExpressionFunctionCall extends Expression
             throw ExternalErrors.PARAMETER_MISSING(node, functionName, expectedParameters, nodeParameters.length);
         }
 
-        const returnType = new TypeVoid(new QualifierNone(), 1);
+        const returnType = new TypeVoid(new QualifierNone(), 0);
 
         const targetExpressionResult = this._compiler.generateExpression(
             new DestinationRegisterA(returnType), this._scope, nodeParameters[0]
@@ -214,7 +193,7 @@ export default class ExpressionFunctionCall extends Expression
         if ((targetExpressionResult.type instanceof TypeInteger ||
             targetExpressionResult.type instanceof TypeUnsignedInteger ||
             targetExpressionResult.type instanceof TypeFloat)
-            && targetExpressionResult.type.size === 1
+            && targetExpressionResult.type.arraySize <= 0
         )
         {
             expressionResult.pushExpressionResult(targetExpressionResult);
@@ -239,7 +218,7 @@ export default class ExpressionFunctionCall extends Expression
             throw ExternalErrors.PARAMETER_MISSING(node, functionName, expectedParameters, nodeParameters.length);
         }
 
-        const returnType = new TypeVoid(new QualifierNone(), 1);
+        const returnType = new TypeVoid(new QualifierNone(), 0);
 
         const targetExpressionResult = this._compiler.generateExpression(
             new DestinationStack(returnType), this._scope, nodeParameters[0]
@@ -250,7 +229,7 @@ export default class ExpressionFunctionCall extends Expression
         if ((targetExpressionResult.type instanceof TypeInteger ||
             targetExpressionResult.type instanceof TypeUnsignedInteger ||
             targetExpressionResult.type instanceof TypeFloat)
-            && targetExpressionResult.type.size === 1
+            && targetExpressionResult.type.arraySize <= 0
         )
         {
             expressionResult.pushExpressionResult(targetExpressionResult);
@@ -281,15 +260,15 @@ export default class ExpressionFunctionCall extends Expression
 
         if (functionName.endsWith("_uint"))
         {
-            returnType = new TypeUnsignedInteger(new QualifierNone(), 1);
+            returnType = new TypeUnsignedInteger(new QualifierNone(), 0);
         }
         else if (functionName.endsWith("_int"))
         {
-            returnType = new TypeInteger(new QualifierNone(), 1);
+            returnType = new TypeInteger(new QualifierNone(), 0);
         }
         else if (functionName.endsWith("_float"))
         {
-            returnType = new TypeFloat(new QualifierNone(), 1);
+            returnType = new TypeFloat(new QualifierNone(), 0);
         }
         else
         {
@@ -343,7 +322,7 @@ export default class ExpressionFunctionCall extends Expression
 
         //////////////////////////////////////////////////////////////////
 
-        const expressionResult = new ExpressionResult(new TypeUnsignedInteger(new QualifierNone(), 1), this);
+        const expressionResult = new ExpressionResult(new TypeUnsignedInteger(new QualifierNone(), 0), this);
         expressionResult.pushInstruction(new InstructionTICK());
 
         if (destination instanceof DestinationVariable)
@@ -389,7 +368,7 @@ export default class ExpressionFunctionCall extends Expression
 
         //////////////////////////////////////////////////////////////////
 
-        const expressionResult = new ExpressionResult(new TypeUnsignedInteger(new QualifierNone(), 1), this);
+        const expressionResult = new ExpressionResult(new TypeUnsignedInteger(new QualifierNone(), 0), this);
         expressionResult.pushInstruction(new InstructionRAND());
 
         if (destination instanceof DestinationVariable)

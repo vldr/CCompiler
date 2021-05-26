@@ -11,7 +11,7 @@ export default class StatementRootFunctionCall extends Statement
         const node = this._node as NodeFunctionCall;
 
         const expressionResult = this._compiler.generateExpression(
-            new DestinationNone(new TypeVoid(new QualifierNone(), 1)),
+            new DestinationNone(new TypeVoid(new QualifierNone(), 0)),
             this._scope,
             node
         );

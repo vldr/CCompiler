@@ -4,11 +4,11 @@ export default class TypeInteger extends Type
 {
     public toString(): string
     {
-        return "int" + (this.size > 1 ? `[${this.size}]` : String());
+        return "int" + (this.arraySize > 0 ? `[${this.arraySize}]` : String());
     }
 
-    public clone(size: number): Type
+    public cloneSingular(): Type
     {
-        return new TypeInteger(this.qualifer, size);
+        return new TypeInteger(this.qualifer, 0);
     }
 }

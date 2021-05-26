@@ -19,9 +19,9 @@ export default class VariableStruct extends Variable
     {
         super(name, type, scope, compiler, shouldRead);
 
-        if (type.size > 1)
+        if (type.arraySize > 0)
         {
-            for (let i = 0; i < type.size; i++)
+            for (let i = 0; i < type.arraySize; i++)
             {
                 type.members.forEach((variableType, variableName) =>
                 {

@@ -1,6 +1,5 @@
 import Expression from "./Expression";
 import TypeInteger from "../Types/TypeInteger";
-import ExpressionResult from "./ExpressionResult";
 import InternalErrors from "../Errors/InternalErrors";
 import Type from "../Types/Type";
 import TypeFloat from "../Types/TypeFloat";
@@ -23,7 +22,6 @@ import VariablePrimitive from "../Variables/VariablePrimitive";
 import Utils from "../Utils";
 import DestinationNone from "../Destinations/DestinationNone";
 import QualifierNone from "../Qualifiers/QualifierNone";
-import TypeVoid from "../Types/TypeVoid";
 import ExpressionResultConstant from "./ExpressionResultConstant";
 
 export default class ExpressionConstant extends Expression
@@ -41,7 +39,7 @@ export default class ExpressionConstant extends Expression
 
         if (typeName === "int")
         {
-            type = new TypeInteger(new QualifierNone(), 1);
+            type = new TypeInteger(new QualifierNone(), 0);
 
             if (value > 2147483647 || value < -2147483648)
             {
@@ -50,7 +48,7 @@ export default class ExpressionConstant extends Expression
         }
         else if (typeName === "uint")
         {
-            type = new TypeUnsignedInteger(new QualifierNone(), 1);
+            type = new TypeUnsignedInteger(new QualifierNone(), 0);
 
             if (value < 0 || value > 4294967295)
             {
@@ -59,7 +57,7 @@ export default class ExpressionConstant extends Expression
         }
         else if (typeName === "float")
         {
-            type = new TypeFloat(new QualifierNone(), 1);
+            type = new TypeFloat(new QualifierNone(), 0);
 
             stringValue += "f";
         }

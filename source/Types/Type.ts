@@ -5,17 +5,17 @@ export default abstract class Type
 {
     constructor(
         public readonly qualifer: Qualifier,
-        public readonly size: number
+        public readonly arraySize: number
     )
     {
     }
 
     public abstract toString(): string;
-    public abstract clone(size: number): Type;
+    public abstract cloneSingular(): Type;
 
     public equals(type: Type): boolean
     {
-        return type.constructor === this.constructor && type.size === this.size;
+        return type.constructor === this.constructor && type.arraySize === this.arraySize;
     }
 
     get isConstant()  { return this.qualifer instanceof QualifierConst; }

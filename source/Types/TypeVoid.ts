@@ -7,8 +7,8 @@ export default class TypeVoid extends Type
         return "void";
     }
 
-    public clone(size: number): Type
+    public cloneSingular(): Type
     {
-        return new TypeVoid(this.qualifer, size);
+        return new TypeVoid(this.qualifer, 0);
     }
 }

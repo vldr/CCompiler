@@ -4,11 +4,11 @@ export default class TypeUnsignedInteger extends Type
 {
     public toString(): string
     {
-        return "uint" + (this.size > 1 ? `[${this.size}]` : String());;
+        return "uint" + (this.arraySize > 0 ? `[${this.arraySize}]` : String());
     }
 
-    public clone(size: number): Type
+    public cloneSingular(): Type
     {
-        return new TypeUnsignedInteger(this.qualifer, size);
+        return new TypeUnsignedInteger(this.qualifer, 0);
     }
 }

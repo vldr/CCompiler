@@ -24,7 +24,7 @@ test("Test 'fib.c'.", async () => {
     );
 
     const interpreter = new Interpreter(result);
-    await await interpreter.run();
+    await interpreter.run();
 
     expect(interpreter.memoryRegions.get("var_result")).toStrictEqual(new Int32Array([ 2584 ]));
 });

@@ -4,36 +4,22 @@ import ExpressionResult from "./ExpressionResult";
 import InternalErrors from "../Errors/InternalErrors";
 import Type from "../Types/Type";
 import TypeUnsignedInteger from "../Types/TypeUnsignedInteger";
-import NodeBinary from "../Nodes/NodeBinary";
-import Utils from "../Utils";
 import Node from "../Nodes/Node";
 import DestinationRegisterA from "../Destinations/DestinationRegisterA";
 import DestinationRegisterB from "../Destinations/DestinationRegisterB";
 import InstructionADD from "../Instructions/InstructionADD";
-import InstructionSUB from "../Instructions/InstructionSUB";
-import InstructionDIV from "../Instructions/InstructionDIV";
 import InstructionMULT from "../Instructions/InstructionMULT";
-import InstructionREM from "../Instructions/InstructionREM";
-import InstructionCMP from "../Instructions/InstructionCMP";
 import DestinationVariable from "../Destinations/DestinationVariable";
 import DestinationStack from "../Destinations/DestinationStack";
 import DestinationNone from "../Destinations/DestinationNone";
 import InstructionSAVE from "../Instructions/InstructionSAVE";
 import InstructionSAVETOA from "../Instructions/InstructionSAVETOA";
-import InstructionSAVETOB from "../Instructions/InstructionSAVETOB";
 import InstructionSAVEPUSH from "../Instructions/InstructionSAVEPUSH";
-import InstructionSHIFTL from "../Instructions/InstructionSHIFTL";
-import InstructionSHIFTR from "../Instructions/InstructionSHIFTR";
-import InstructionOR from "../Instructions/InstructionOR";
-import InstructionAND from "../Instructions/InstructionAND";
-import InstructionXOR from "../Instructions/InstructionXOR";
 import InstructionGETPOPB from "../Instructions/InstructionGETPOPB";
 import InstructionGETPOPA from "../Instructions/InstructionGETPOPA";
 import TypeFloat from "../Types/TypeFloat";
 import ExternalErrors from "../Errors/ExternalErrors";
 import QualifierNone from "../Qualifiers/QualifierNone";
-import NodeUnary from "../Nodes/NodeUnary";
-import InstructionNEG from "../Instructions/InstructionNEG";
 import InstructionVGETA from "../Instructions/InstructionVGETA";
 import InstructionFINC from "../Instructions/InstructionFINC";
 import InstructionFDEC from "../Instructions/InstructionFDEC";
@@ -49,7 +35,6 @@ import NodePostfix from "../Nodes/NodePostfix";
 import InstructionVGETB from "../Instructions/InstructionVGETB";
 import InstructionMOVOUTPUSH from "../Instructions/InstructionMOVOUTPUSH";
 import InstructionMOVOUT from "../Instructions/InstructionMOVOUT";
-import VariablePrimitive from "../Variables/VariablePrimitive";
 import ExpressionResultAccessor from "./ExpressionResultAccessor";
 import InstructionMOVINPOP from "../Instructions/InstructionMOVINPOP";
 import NodeFieldSelector from "../Nodes/NodeFieldSelector";
@@ -57,12 +42,9 @@ import ExpressionResultVariable from "./ExpressionResultVariable";
 import VariableStruct from "../Variables/VariableStruct";
 import TypeStruct from "../Types/TypeStruct";
 import InstructionGETA from "../Instructions/InstructionGETA";
-import InstructionComment from "../Instructions/InstructionComment";
 import TypeVoid from "../Types/TypeVoid";
-import Variable from "../Variables/Variable";
 import InstructionVPUSH from "../Instructions/InstructionVPUSH";
 import InstructionQSTORE from "../Instructions/InstructionQSTORE";
-import SymbolFunction from "../Symbols/SymbolFunction";
 import SymbolStructMember from "../Symbols/SymbolStructMember";
 import SymbolAccessor from "../Symbols/SymbolAccessor";
 
@@ -271,7 +253,7 @@ export default class ExpressionPostfix extends Expression
 
         if (targetExpressionResult instanceof ExpressionResultVariable)
         {
-            if (selection === "length" && targetExpressionResult.type.size > 1)
+            if (selection === "length" && targetExpressionResult.type.arraySize > 0)
             {
                 return this.generateArrayLength(expression, targetExpressionResult.type) as ExpressionResultAccessor;
             }
@@ -284,9 +266,9 @@ export default class ExpressionPostfix extends Expression
             const structVariable = targetExpressionResult.variable as VariableStruct;
             const targetVariable = structVariable.members.get(selection)
 
-            if (structVariable.type.size > 1)
+            if (structVariable.type.arraySize > 0)
             {
-                throw ExternalErrors.CANNOT_CONVERT_TYPE(node, structVariable.type.toString(), (structVariable.type as TypeStruct).name);
+                throw ExternalErrors.CANNOT_CONVERT_TYPE(node, structVariable.type.toString(), structVariable.type.cloneSingular().toString());
             }
 
             if (targetVariable === undefined)
@@ -328,7 +310,7 @@ export default class ExpressionPostfix extends Expression
         }
         else if (targetExpressionResult instanceof ExpressionResultAccessor)
         {
-            if (selection === "length" && targetExpressionResult.type.size > 1)
+            if (selection === "length" && targetExpressionResult.type.arraySize > 0)
             {
                 return this.generateArrayLength(expression, targetExpressionResult.type) as ExpressionResultAccessor;
             }
@@ -341,7 +323,7 @@ export default class ExpressionPostfix extends Expression
             const structVariable = targetExpressionResult.variable as VariableStruct;
             const targetVariable = structVariable.members.get(selection);
 
-            if (destinationType.size > 1)
+            if (destinationType.arraySize > 0)
             {
                 throw ExternalErrors.CANNOT_CONVERT_TYPE(node, structVariable.type.toString(), (structVariable.type as TypeStruct).name);
             }
@@ -359,11 +341,11 @@ export default class ExpressionPostfix extends Expression
                 {
                     if (t instanceof TypeStruct)
                     {
-                        totalSize += calcTotalSizeStruct(t) * t.size;
+                        totalSize += calcTotalSizeStruct(t) * Math.max(t.arraySize, 1);
                     }
                     else
                     {
-                        totalSize += t.size /* 32 bits */;
+                        totalSize += Math.max(t.arraySize, 1) /* 32 bits */;
                     }
                 });
 
@@ -377,11 +359,11 @@ export default class ExpressionPostfix extends Expression
 
                 if (type instanceof TypeStruct)
                 {
-                    totalSize += calcTotalSizeStruct(type) * type.size;
+                    totalSize += calcTotalSizeStruct(type) * Math.max(type.arraySize, 1);
                 }
                 else
                 {
-                    totalSize += type.size;
+                    totalSize += Math.max(type.arraySize, 1);
                 }
 
                 return totalSize;
@@ -414,7 +396,7 @@ export default class ExpressionPostfix extends Expression
             expressionResult.pushExpressionResult(targetExpressionResult);
             expressionResult.pushInstruction(new InstructionSAVETOA());
             expressionResult.pushInstruction(new InstructionVGETB(offset.toString()));
-            expressionResult.pushInstruction(new InstructionADD(new TypeInteger(new QualifierNone(), 1)));
+            expressionResult.pushInstruction(new InstructionADD(new TypeInteger(new QualifierNone(), 0)));
 
             if (destination instanceof DestinationNone)
             {
@@ -480,12 +462,12 @@ export default class ExpressionPostfix extends Expression
             throw ExternalErrors.OPERATOR_EXPECTS_VARIABLE(node, "[]");
         }
 
-        if (targetExpressionResult.variable.type.size <= 1)
+        if (targetExpressionResult.variable.type.arraySize <= 0)
         {
             throw ExternalErrors.MUST_BE_ARRAY_TYPE(node, targetExpressionResult.variable.type.toString());
         }
 
-        const newType = targetExpressionResult.variable.type.clone(1);
+        const newType = targetExpressionResult.variable.type.cloneSingular();
 
         const expressionResult = new ExpressionResultAccessor(
             newType,
@@ -500,7 +482,7 @@ export default class ExpressionPostfix extends Expression
         }
 
         const indexExpressionResult = this._compiler.generateExpression(
-            new DestinationRegisterA(new TypeVoid(new QualifierNone(), 1)), this._scope, accessorNode.index
+            new DestinationRegisterA(new TypeVoid(new QualifierNone(), 0)), this._scope, accessorNode.index
         );
 
         if (!(indexExpressionResult.type instanceof TypeInteger) && !(indexExpressionResult.type instanceof TypeUnsignedInteger))
@@ -508,7 +490,7 @@ export default class ExpressionPostfix extends Expression
             throw ExternalErrors.CANNOT_CONVERT_TYPE(accessorNode, indexExpressionResult.type.toString(), "int | uint");
         }
 
-        if (indexExpressionResult.type.size > 1 || indexExpressionResult.type instanceof TypeStruct)
+        if (indexExpressionResult.type.arraySize > 0 || indexExpressionResult.type instanceof TypeStruct)
         {
             throw ExternalErrors.CANNOT_NO_STRUCT_ARRAY(accessorNode);
         }
@@ -525,11 +507,11 @@ export default class ExpressionPostfix extends Expression
                 {
                     if (t instanceof TypeStruct)
                     {
-                        totalSize += calcTotalSize(t) * t.size;
+                        totalSize += calcTotalSize(t) * Math.max(t.arraySize, 1);
                     }
                     else
                     {
-                        totalSize += t.size /* 32 bits */;
+                        totalSize += Math.max(t.arraySize, 1) /* 32 bits */;
                     }
                 });
 
@@ -539,7 +521,7 @@ export default class ExpressionPostfix extends Expression
             let totalSize = calcTotalSize((targetExpressionResult.variable.type as TypeStruct));
 
             expressionResult.pushInstruction(new InstructionVGETB(totalSize.toString()));
-            expressionResult.pushInstruction(new InstructionMULT(new TypeInteger(new QualifierNone(), 1)));
+            expressionResult.pushInstruction(new InstructionMULT(new TypeInteger(new QualifierNone(), 0)));
             expressionResult.pushInstruction(new InstructionSAVETOA());
         }
         else
@@ -556,7 +538,7 @@ export default class ExpressionPostfix extends Expression
             expressionResult.pushInstruction(new InstructionVGETB(targetExpressionResult.variable.labelName));
         }
 
-        expressionResult.pushInstruction(new InstructionADD(new TypeInteger(new QualifierNone(), 1)));
+        expressionResult.pushInstruction(new InstructionADD(new TypeInteger(new QualifierNone(), 0)));
 
         if (destination instanceof DestinationNone)
         {
@@ -598,31 +580,30 @@ export default class ExpressionPostfix extends Expression
     private generateArrayLength(node: Node, type: Type): ExpressionResult
     {
         const expressionResult = new ExpressionResult(
-            new TypeInteger(new QualifierNone(), 1),
+            new TypeInteger(new QualifierNone(), 0),
             this,
         );
 
         const destination = this._destination;
-        const destinationType = destination.type;
 
-        if (type.size <= 1)
+        if (type.arraySize <= 0)
             throw ExternalErrors.MUST_BE_ARRAY_TYPE(node, type.toString());
 
         if (destination instanceof DestinationRegisterA)
         {
-            expressionResult.pushInstruction(new InstructionVGETA(type.size.toString()));
+            expressionResult.pushInstruction(new InstructionVGETA(type.arraySize.toString()));
         }
         else if (destination instanceof DestinationRegisterB)
         {
-            expressionResult.pushInstruction(new InstructionVGETB(type.size.toString()));
+            expressionResult.pushInstruction(new InstructionVGETB(type.arraySize.toString()));
         }
         else if (destination instanceof DestinationStack)
         {
-            expressionResult.pushInstruction(new InstructionVPUSH(type.size.toString()));
+            expressionResult.pushInstruction(new InstructionVPUSH(type.arraySize.toString()));
         }
         else if (destination instanceof DestinationVariable)
         {
-            expressionResult.pushInstruction(new InstructionQSTORE(type.size.toString(), destination.variable));
+            expressionResult.pushInstruction(new InstructionQSTORE(type.arraySize.toString(), destination.variable));
         }
         else if (destination instanceof DestinationNone)
         {

@@ -2,10 +2,8 @@ import Expression from "./Expression";
 import TypeInteger from "../Types/TypeInteger";
 import ExpressionResult from "./ExpressionResult";
 import InternalErrors from "../Errors/InternalErrors";
-import Type from "../Types/Type";
 import TypeUnsignedInteger from "../Types/TypeUnsignedInteger";
 import NodeBinary from "../Nodes/NodeBinary";
-import Utils from "../Utils";
 import DestinationRegisterA from "../Destinations/DestinationRegisterA";
 import DestinationRegisterB from "../Destinations/DestinationRegisterB";
 import InstructionADD from "../Instructions/InstructionADD";
@@ -27,27 +25,21 @@ import InstructionOR from "../Instructions/InstructionOR";
 import InstructionAND from "../Instructions/InstructionAND";
 import InstructionXOR from "../Instructions/InstructionXOR";
 import InstructionGETPOPB from "../Instructions/InstructionGETPOPB";
-import InstructionGETPOPA from "../Instructions/InstructionGETPOPA";
 import TypeFloat from "../Types/TypeFloat";
 import ExternalErrors from "../Errors/ExternalErrors";
 import ExpressionResultAccessor from "./ExpressionResultAccessor";
 import ExpressionResultVariable from "./ExpressionResultVariable";
-import InstructionMOVOUT from "../Instructions/InstructionMOVOUT";
 import InstructionGETPOPR from "../Instructions/InstructionGETPOPR";
 import InstructionMOVINPOP from "../Instructions/InstructionMOVINPOP";
-import InstructionMOVIN from "../Instructions/InstructionMOVIN";
 import TypeStruct from "../Types/TypeStruct";
-import TypeVoid from "../Types/TypeVoid";
 import InstructionLOR from "../Instructions/InstructionLOR";
 import InstructionLAND from "../Instructions/InstructionLAND";
-import InstructionComment from "../Instructions/InstructionComment";
 import ExpressionResultConstant from "./ExpressionResultConstant";
 import Node from "../Nodes/Node";
 import Destination from "../Destinations/Destination";
 import InstructionLabel from "../Instructions/InstructionLabel";
 import InstructionJA from "../Instructions/InstructionJA";
 import InstructionJNA from "../Instructions/InstructionJNA";
-import InstructionVGETA from "../Instructions/InstructionVGETA";
 import InstructionVGETB from "../Instructions/InstructionVGETB";
 
 export default class ExpressionBinary extends Expression
@@ -102,7 +94,7 @@ export default class ExpressionBinary extends Expression
             }
 
             if (rightExpressionResult instanceof ExpressionResultVariable &&
-                (rightExpressionResult.variable.type instanceof TypeStruct || rightExpressionResult.variable.type.size > 1))
+                (rightExpressionResult.variable.type instanceof TypeStruct || rightExpressionResult.variable.type.arraySize > 0))
                 throw ExternalErrors.CANNOT_COPY_STRUCT(node);
 
             if (operator !== "=")
@@ -231,11 +223,11 @@ export default class ExpressionBinary extends Expression
             case "==":
             case "!=":
                 if (expressionResult.type instanceof TypeInteger)
-                    expressionResult.type = new TypeInteger(expressionResult.type.qualifer, expressionResult.type.size);
+                    expressionResult.type = new TypeInteger(expressionResult.type.qualifer, expressionResult.type.arraySize);
                 else if (expressionResult.type instanceof TypeFloat)
-                    expressionResult.type = new TypeInteger(expressionResult.type.qualifer, expressionResult.type.size);
+                    expressionResult.type = new TypeInteger(expressionResult.type.qualifer, expressionResult.type.arraySize);
                 else
-                    expressionResult.type = new TypeUnsignedInteger(expressionResult.type.qualifer, expressionResult.type.size);
+                    expressionResult.type = new TypeUnsignedInteger(expressionResult.type.qualifer, expressionResult.type.arraySize);
 
                 expressionResult.pushInstruction(new InstructionCMP(leftExpressionResult.type, operator));
                 break;
@@ -308,7 +300,6 @@ export default class ExpressionBinary extends Expression
 
         const substatementIndex = this._scope.getNextSubstatementIndex();
         const expressionName = `${operator === "||" ? "or" : "and"}_expression_${substatementIndex}`;
-        const alternateLabel = `${this._scope.name}_${expressionName}_alternate`;
         const finishLabel = `${this._scope.name}_${expressionName}_finish`;
 
         if (operator === "||")

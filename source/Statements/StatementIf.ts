@@ -40,13 +40,13 @@ export default class StatementIf extends Statement
         const finishLabel = `${this._scope.name}_${statementName}_finish`
 
         const conditionalExpressionResult = this._compiler.generateExpression(
-            new DestinationRegisterA(new TypeVoid(new QualifierNone(), 1)),
+            new DestinationRegisterA(new TypeVoid(new QualifierNone(), 0)),
             this._scope,
             condition
         );
 
-        if (!conditionalExpressionResult.type.equals(new TypeInteger(new QualifierNone(), 1))
-            && !conditionalExpressionResult.type.equals(new TypeUnsignedInteger(new QualifierNone(), 1)))
+        if (!conditionalExpressionResult.type.equals(new TypeInteger(new QualifierNone(), 0))
+            && !conditionalExpressionResult.type.equals(new TypeUnsignedInteger(new QualifierNone(), 0)))
         {
             throw ExternalErrors.CANNOT_CONVERT_TYPE(condition, conditionalExpressionResult.type.toString(), "int | uint");
         }

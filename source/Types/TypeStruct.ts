@@ -6,7 +6,7 @@ export default class TypeStruct extends Type
     constructor(
         qualifer: Qualifier,
         public readonly name: string,
-        public readonly size: number,
+        size: number,
         public readonly members: Map<string, Type>,
     )
     {
@@ -36,13 +36,13 @@ export default class TypeStruct extends Type
 
     }
 
-    public clone(size: number): Type
+    public cloneSingular(): Type
     {
-        return new TypeStruct(this.qualifer, this.name, size, this.members);
+        return new TypeStruct(this.qualifer, this.name, 0, this.members);
     }
 
     public toString(): string
     {
-        return this.name + (this.size > 1 ? `[${this.size}]` : String());;
+        return this.name + (this.arraySize > 0 ? `[${this.arraySize}]` : String());
     }
 }

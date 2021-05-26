@@ -1,4 +1,3 @@
-import Compiler from "../Compiler";
 import Statement from "./Statement";
 import NodeFunctionDefinition from "../Nodes/NodeFunctionDefinition";
 import Utils from "../Utils";
@@ -13,11 +12,9 @@ import TypeFloat from "../Types/TypeFloat";
 import TypeStruct from "../Types/TypeStruct";
 import TypeVoid from "../Types/TypeVoid";
 import Variable from "../Variables/Variable";
-import VariableStruct from "../Variables/VariableStruct";
 import VariablePrimitive from "../Variables/VariablePrimitive";
 import InstructionRTN from "../Instructions/InstructionRTN";
 import CodePathAnalysis from "../CodePathAnalysis";
-import Node from "../Nodes/Node";
 import ExternalWarnings from "../Errors/ExternalWarnings";
 import SymbolFunction from "../Symbols/SymbolFunction";
 
@@ -46,26 +43,23 @@ export default class StatementFunctionDeclaration extends Statement
         switch (returnTypeNode.name)
         {
             case "int":
-                returnType = new TypeInteger(new QualifierNone(), 1);
+                returnType = new TypeInteger(new QualifierNone(), 0);
                 break;
 
             case "uint":
-                returnType = new TypeUnsignedInteger(new QualifierNone(), 1);
+                returnType = new TypeUnsignedInteger(new QualifierNone(), 0);
                 break;
 
             case "float":
-                returnType = new TypeFloat(new QualifierNone(), 1);
+                returnType = new TypeFloat(new QualifierNone(), 0);
                 break;
 
             case "void":
-                returnType = new TypeVoid(new QualifierNone(), 1);
+                returnType = new TypeVoid(new QualifierNone(), 0);
                 break;
 
             default:
-            {
                 throw ExternalErrors.UNSUPPORTED_RETURN_TYPE(node, returnTypeNode.name);
-                break;
-            }
         }
 
         if (returnType.constructor !== TypeVoid && !CodePathAnalysis.returnsAllPaths(bodyNode))
@@ -87,16 +81,16 @@ export default class StatementFunctionDeclaration extends Statement
             const parameterTypeName = parameterNode.type_name;
             const parameterName = parameterNode.name;
 
-            const size = parameterNode.arraySize?.value_base10 || 1;
+            const size = parameterNode.arraySize?.value_base10 || 0;
 
             const qualifier = Utils.getQualifer(parameterNode, parameterNode.typeQualifier);
             const type = Utils.getType(parameterNode, parameterTypeName, size, qualifier, newScope);
 
             let variable: Variable;
 
-            if (size > 1 || type instanceof TypeStruct)
+            if (size > 0 || type instanceof TypeStruct)
             {
-                throw ExternalErrors.CANNOT_NO_STRUCT_ARRAY(node);
+                throw ExternalErrors.CANNOT_NO_STRUCT_ARRAY(parameterNode);
             }
             else
             {

@@ -1,24 +1,13 @@
-import Compiler from "../Compiler";
 import Statement from "./Statement";
-import Instruction from "../Instructions/Instruction";
-import Type from "../Types/Type";
-import TypeInteger from "../Types/TypeInteger";
-import Qualifier from "../Qualifiers/Qualifier";
 import QualifierConst from "../Qualifiers/QualifierConst";
-import TypeUnsignedInteger from "../Types/TypeUnsignedInteger";
-import TypeFloat from "../Types/TypeFloat";
 import ExternalErrors from "../Errors/ExternalErrors";
-import InternalErrors from "../Errors/InternalErrors";
-import QualifierNone from "../Qualifiers/QualifierNone";
 import DestinationVariable from "../Destinations/DestinationVariable";
 import TypeStruct from "../Types/TypeStruct";
 import Utils from "../Utils";
-import Node from "../Nodes/Node";
 import NodeDeclarator from "../Nodes/NodeDeclarator";
 import Variable from "../Variables/Variable";
 import VariablePrimitive from "../Variables/VariablePrimitive";
 import VariableStruct from "../Variables/VariableStruct";
-import TypeVoid from "../Types/TypeVoid";
 import SymbolStruct from "../Symbols/SymbolStruct";
 
 export default class StatementDeclarator extends Statement
@@ -55,15 +44,15 @@ export default class StatementDeclarator extends Statement
                 if (declaratorNode.arraySize.type !== "int" && declaratorNode.arraySize.type !== "uint")
                     throw ExternalErrors.ARRAY_SIZE_MUST_BE_CONSTANT(declaratorNode);
 
-                if (declaratorNode.arraySize.value_base10 === 1)
-                    throw ExternalErrors.ARRAY_MUST_BE_ATLEAST_TWO(declaratorNode);
+                if (declaratorNode.arraySize.value_base10 <= 0)
+                    throw ExternalErrors.ARRAY_MUST_BE_ATLEAST_ONE(declaratorNode);
             }
 
-            const size = declaratorNode.arraySize?.value_base10 || 1;
+            const size = declaratorNode.arraySize?.value_base10 || 0;
             const initializerNode = declaratorNode.initializer;
             const initializerList = declaratorNode.initializer_list;
 
-            if (size < 1)
+            if (size < 0)
             {
                 throw ExternalErrors.ARRAY_TOO_SMALL(declaratorNode);
             }
@@ -96,9 +85,9 @@ export default class StatementDeclarator extends Statement
                     throw ExternalErrors.CANNOT_NO_STRUCT_ARRAY(node);
                 }
 
-                if (initializerList.length > type.size)
+                if (initializerList.length > type.arraySize)
                 {
-                    throw ExternalErrors.INTI_LIST_INDEX_OUT_OF_BOUNDS(node, type.size, initializerList.length);
+                    throw ExternalErrors.INTI_LIST_INDEX_OUT_OF_BOUNDS(node, type.arraySize, initializerList.length);
                 }
 
                 initializerList.forEach((item, index) =>

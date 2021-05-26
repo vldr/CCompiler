@@ -187,9 +187,9 @@ export default abstract class ExternalErrors
         return this.generateError("C0034", `A variable cannot be declared here.`, node);
     }
 
-    static ARRAY_MUST_BE_ATLEAST_TWO(node: Node)
+    static ARRAY_MUST_BE_ATLEAST_ONE(node: Node)
     {
-        return this.generateError("C0035", `An array's size must be at-least two, otherwise, use a ordinary variable.`, node);
+        return this.generateError("C0035", `An array's size must be at least one.`, node);
     }
 
     static FUNCTION_NAME_UNDERSCORE(node: Node)

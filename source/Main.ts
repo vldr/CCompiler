@@ -1,10 +1,9 @@
-import Logger from "./Logger"
 import Compiler from "./Compiler";
 import Interpreter from "./Interpreter";
 
 class Main
 {
-    static async start()
+    static start()
     {
         const compiler = new Compiler();
         const result = compiler.compile(`
@@ -61,7 +60,7 @@ class Main
         `);
 
         const interpreter = new Interpreter(result);
-        await interpreter.run();
+        //await interpreter.run();
         console.log(interpreter.memoryRegions);
     }
 }
