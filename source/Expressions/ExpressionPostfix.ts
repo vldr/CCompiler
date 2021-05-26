@@ -449,8 +449,6 @@ export default class ExpressionPostfix extends Expression
         const destinationType = destination.type;
         const expression = node.expression;
 
-        this._compiler.addSymbol(new SymbolAccessor(expression.location));
-
         const accessorNode = operator as NodeAccessor;
         let targetExpressionResult = this._compiler.generateExpression(
             new DestinationNone(destinationType), this._scope, expression
@@ -462,12 +460,12 @@ export default class ExpressionPostfix extends Expression
             throw ExternalErrors.OPERATOR_EXPECTS_VARIABLE(node, "[]");
         }
 
-        if (targetExpressionResult.variable.type.arraySize <= 0)
+        if (targetExpressionResult.type.arraySize <= 0)
         {
-            throw ExternalErrors.MUST_BE_ARRAY_TYPE(node, targetExpressionResult.variable.type.toString());
+            throw ExternalErrors.MUST_BE_ARRAY_TYPE(node, targetExpressionResult.type.toString());
         }
 
-        const newType = targetExpressionResult.variable.type.cloneSingular();
+        const newType = targetExpressionResult.type.cloneSingular();
 
         const expressionResult = new ExpressionResultAccessor(
             newType,
@@ -518,7 +516,7 @@ export default class ExpressionPostfix extends Expression
                 return totalSize;
             };
 
-            let totalSize = calcTotalSize((targetExpressionResult.variable.type as TypeStruct));
+            let totalSize = calcTotalSize((targetExpressionResult.type as TypeStruct));
 
             expressionResult.pushInstruction(new InstructionVGETB(totalSize.toString()));
             expressionResult.pushInstruction(new InstructionMULT(new TypeInteger(new QualifierNone(), 0)));
