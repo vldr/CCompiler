@@ -928,6 +928,48 @@ test("Test 'square_free.c'.", async () => {
     expect(interpreter.memoryRegions.get(`var_result`)).toStrictEqual(new Int32Array([ 6 ]));
 });
 
+test("Test 'subset_sum.c'.", async () => {
+    const compiler = new Compiler();
+    const result = compiler.compile(`
+        struct Subset {
+            int a[10];
+        };
+        
+        int set[] = { 3, 34, 4, 12, 5, 2 };
+        int sum = 9;
+        int n = set.length;
+        
+        int isSubsetSum()
+        {
+            Subset subset[7];
+        
+            for (int i = 0; i <= n; i++)
+                subset[i].a[0] = 1;
+         
+            for (int i = 1; i <= sum; i++)
+                subset[0].a[i] = 0;
+        
+            for (int i = 1; i <= n; i++) {
+                for (int j = 1; j <= sum; j++) {
+                    if (j < set[i - 1])
+                        subset[i].a[j] = subset[i - 1].a[j];
+                    if (j >= set[i - 1])
+                        subset[i].a[j] = subset[i - 1].a[j] || subset[i - 1].a[j - set[i - 1]];
+                }
+            }
+        
+            return subset[n].a[sum];
+        }
+        
+        int result = isSubsetSum();
+    `);
+
+    const interpreter = new Interpreter(result);
+    await interpreter.run();
+
+    expect(interpreter.memoryRegions.get(`var_result`)).toStrictEqual(new Uint32Array([ 1 ]));
+});
+
 test("Test 'bell_numbers.c'.", async () => {
     const compiler = new Compiler();
     const result = compiler.compile(`
