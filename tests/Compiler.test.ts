@@ -1020,7 +1020,7 @@ test("Test 'bell_numbers.c'.", async () => {
     expect(interpreter.memoryRegions.get(`var_results_8`)).toStrictEqual(new Int32Array([ 4140 ]));
 });
 
-test("Test ' moser_de_bruijn.c'.", async () => {
+test("Test 'moser_de_bruijn.c'.", async () => {
     const compiler = new Compiler();
     const result = compiler.compile(`
         int S[16];
@@ -1064,6 +1064,50 @@ test("Test ' moser_de_bruijn.c'.", async () => {
     expect(interpreter.memoryRegions.get(`var_S_13`)).toStrictEqual(new Int32Array([ 81 ]));
     expect(interpreter.memoryRegions.get(`var_S_14`)).toStrictEqual(new Int32Array([ 84 ]));
     expect(interpreter.memoryRegions.get(`var_S_15`)).toStrictEqual(new Int32Array([ 85 ]));
+});
+
+test("Test 'count_jump.c'.", async () => {
+    const compiler = new Compiler();
+    const result = compiler.compile(`
+        int arr[] = {1, 3, 5, 8, 9, 1, 0, 7, 6, 8, 9};
+        int count_jump[11];
+        
+        void countWaysToJump(int n)
+        {
+            for (int i = 0; i < n; i++)
+                count_jump[i] = 0;
+        
+            for (int i = n - 2; i >= 0; i--)
+            {
+                if (arr[i] >= n - i - 1)
+                    count_jump[i]++;
+         
+                for (int j = i + 1; j < n - 1 && j <= arr[i] + i; j++)
+                    if (count_jump[j] != -1)
+                        count_jump[i] += count_jump[j];
+         
+                if (count_jump[i] == 0)
+                    count_jump[i] = -1;
+            }
+        }
+         
+        countWaysToJump(arr.length);
+    `);
+
+    const interpreter = new Interpreter(result);
+    await interpreter.run();
+
+    expect(interpreter.memoryRegions.get(`var_count_jump_0`)).toStrictEqual(new Int32Array([ 52 ]));
+    expect(interpreter.memoryRegions.get(`var_count_jump_1`)).toStrictEqual(new Int32Array([ 52 ]));
+    expect(interpreter.memoryRegions.get(`var_count_jump_2`)).toStrictEqual(new Int32Array([ 28 ]));
+    expect(interpreter.memoryRegions.get(`var_count_jump_3`)).toStrictEqual(new Int32Array([ 16 ]));
+    expect(interpreter.memoryRegions.get(`var_count_jump_4`)).toStrictEqual(new Int32Array([ 8 ]));
+    expect(interpreter.memoryRegions.get(`var_count_jump_5`)).toStrictEqual(new Int32Array([ -1 ]));
+    expect(interpreter.memoryRegions.get(`var_count_jump_6`)).toStrictEqual(new Int32Array([ -1 ]));
+    expect(interpreter.memoryRegions.get(`var_count_jump_7`)).toStrictEqual(new Int32Array([ 4 ]));
+    expect(interpreter.memoryRegions.get(`var_count_jump_8`)).toStrictEqual(new Int32Array([ 2 ]));
+    expect(interpreter.memoryRegions.get(`var_count_jump_9`)).toStrictEqual(new Int32Array([ 1 ]));
+    expect(interpreter.memoryRegions.get(`var_count_jump_10`)).toStrictEqual(new Uint32Array([ 0 ]));
 });
 
 test("Test 'golomb.c'.", async () => {
