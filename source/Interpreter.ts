@@ -36,6 +36,9 @@ export default class Interpreter
         this.processLabels();
         this.processMemoryRegions();
         this.processInstructions();
+
+        if (this.stack.length !== 0)
+            throw Error("stack is not empty.");
     }
 
     private async initExports()
