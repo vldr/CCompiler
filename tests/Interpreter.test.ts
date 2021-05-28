@@ -45,7 +45,7 @@ test("Test PUSH, VPUSH, STOREPUSH, SAVEPUSH.", async () => {
             var_a:
             .data 10.25f
         `);
-    await interpreter.run();
+    await interpreter.runWithoutStackCheck();
 
     expect(interpreter.stack.pop()).toStrictEqual(new Uint32Array([ 69 ]));
     expect(interpreter.stack.pop()).toStrictEqual(new Uint32Array([ 12 ]));
@@ -63,7 +63,7 @@ test("Test MOVOUTPUSH.", async () => {
             var_a:
             .data 10.25f
         `);
-    await interpreter.run();
+    await interpreter.runWithoutStackCheck();
 
     expect(interpreter.stack.pop()).toStrictEqual(new Float32Array([ 10.25 ]));
 });
@@ -547,7 +547,7 @@ test("Test CMPE, CMPNE, CMPLT, CMPLTE, CMPGT, CMPGTE", async () => {
 
             HALT
         `);
-    await interpreter.run();
+    await interpreter.runWithoutStackCheck();
 
     expect(interpreter.stack.pop()).toStrictEqual(new Uint32Array([ 0 ]));
     expect(interpreter.stack.pop()).toStrictEqual(new Uint32Array([ 0 ]));
@@ -582,7 +582,7 @@ test("Test SCMPE, SCMPNE, SCMPLT, SCMPLTE, SCMPGT, SCMPGTE", async () => {
 
             HALT
         `);
-    await interpreter.run();
+    await interpreter.runWithoutStackCheck();
 
     expect(interpreter.stack.pop()).toStrictEqual(new Uint32Array([ 1 ]));
     expect(interpreter.stack.pop()).toStrictEqual(new Uint32Array([ 1 ]));
@@ -617,7 +617,7 @@ test("Test FCMPE, FCMPNE, FCMPLT, FCMPLTE, FCMPGT, FCMPGTE", async () => {
 
             HALT
         `);
-    await interpreter.run();
+    await interpreter.runWithoutStackCheck();
 
     expect(interpreter.stack.pop()).toStrictEqual(new Uint32Array([ 1 ]));
     expect(interpreter.stack.pop()).toStrictEqual(new Uint32Array([ 1 ]));
@@ -655,7 +655,7 @@ test("Test NEG, SNEG, FNEG", async () => {
 
             HALT
         `);
-    await interpreter.run();
+    await interpreter.runWithoutStackCheck();
 
     expect(interpreter.stack.pop()).toStrictEqual(new Float32Array([ 10.5 ]));
     expect(interpreter.stack.pop()).toStrictEqual(new Float32Array([ -10.5 ]));
@@ -685,7 +685,7 @@ test("Test INC, FINC, DEC, FDEC", async () => {
 
             HALT
         `);
-    await interpreter.run();
+    await interpreter.runWithoutStackCheck();
 
     expect(interpreter.stack.pop()).toStrictEqual(new Float32Array([ 49.5 ]));
     expect(interpreter.stack.pop()).toStrictEqual(new Float32Array([ 101.5 ]));
@@ -717,7 +717,7 @@ test("Test REM, AND, SHIFTL, SHIFTR", async () => {
 
             HALT
         `);
-    await interpreter.run();
+    await interpreter.runWithoutStackCheck();
 
     expect(interpreter.stack.pop()).toStrictEqual(new Uint32Array([ 256 ]));
     expect(interpreter.stack.pop()).toStrictEqual(new Uint32Array([ 64 ]));
@@ -743,7 +743,7 @@ test("Test NOT, OR, XOR", async () => {
 
             HALT
         `);
-    await interpreter.run();
+    await interpreter.runWithoutStackCheck();
 
     expect(interpreter.stack.pop()).toStrictEqual(new Uint32Array([ 4294967295 ]));
     expect(interpreter.stack.pop()).toStrictEqual(new Uint32Array([ 4042322160 ]));
@@ -762,7 +762,7 @@ test("Test FLTOINT, INTTOFL", async () => {
 
             HALT
         `);
-    await interpreter.run();
+    await interpreter.runWithoutStackCheck();
 
     expect(interpreter.stack.pop()).toStrictEqual(new Float32Array([ 12 ]));
     expect(interpreter.stack.pop()).toStrictEqual(new Int32Array([ 12 ]));
@@ -792,7 +792,7 @@ test("Test LAND", async () => {
 
             HALT
         `);
-    await interpreter.run();
+    await interpreter.runWithoutStackCheck();
 
     expect(interpreter.stack.pop()).toStrictEqual(new Uint32Array([ 1 ]));
     expect(interpreter.stack.pop()).toStrictEqual(new Uint32Array([ 0 ]));
@@ -824,7 +824,7 @@ test("Test LOR", async () => {
 
             HALT
         `);
-    await interpreter.run();
+    await interpreter.runWithoutStackCheck();
 
     expect(interpreter.stack.pop()).toStrictEqual(new Uint32Array([ 1 ]));
     expect(interpreter.stack.pop()).toStrictEqual(new Uint32Array([ 1 ]));
@@ -850,7 +850,7 @@ test("Test QADD, QSTORE, STORE", async () => {
 
             HALT
         `);
-    await interpreter.run();
+    await interpreter.runWithoutStackCheck();
 
     expect(interpreter.memoryRegions.get("var_a")).toStrictEqual(new Uint32Array([ 64 ]));
     expect(interpreter.memoryRegions.get("var_b")).toStrictEqual(new Uint32Array([ 128 ]));
