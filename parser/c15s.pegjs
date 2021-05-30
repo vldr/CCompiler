@@ -938,7 +938,22 @@ unary_expression
             operator: head
           })
         });
+
+        if (head === "-")
+        {
+            if (
+                (result.expression.type === "int" && result.expression.format === "number" && result.expression.value_base10 > 0) ||
+                (result.expression.type === "float" && result.expression.value_base10 > 0)
+            )
+            {
+                tail.value_base10 *= -1;
+                tail.value = "-" + tail.value;
+
+                return tail;
+            }
+        }
       }
+
       return result;
     }
 
