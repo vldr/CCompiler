@@ -36,8 +36,8 @@ export default class StatementIf extends Statement
 
         const substatementIndex = this._scope.getNextSubstatementIndex();
         const statementName = `if_statement_${substatementIndex}`;
-        const alternateLabel = `${this._scope.name}_${statementName}_alternate`
-        const finishLabel = `${this._scope.name}_${statementName}_finish`
+        const alternateLabel = `${this._scope.name}_${statementName}_alternate`;
+        const finishLabel = `${this._scope.name}_${statementName}_finish`;
 
         const conditionalExpressionResult = this._compiler.generateExpression(
             new DestinationRegisterA(new TypeVoid(new QualifierNone(), 0)),
@@ -61,7 +61,7 @@ export default class StatementIf extends Statement
 
         if (elseBody)
         {
-            this.generateBody(statementName, elseBody);
+            this.generateBody(statementName + "_alternate", elseBody);
         }
 
         this._compiler.emitToFunctions(new InstructionLabel(finishLabel).write());
