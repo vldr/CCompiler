@@ -1833,6 +1833,133 @@ test("Test 'fnv_hash.c'.", async () => {
     expect(interpreter.memoryRegions.get(`var_result_a`)).toStrictEqual(new Uint32Array([ 0xae4d67e2 ]));
 });
 
+test("Test 'atan_pi.c'.", async () => {
+    const compiler = new Compiler();
+    const result = compiler.compile(`
+        const float LUT[102] = {
+            0.0f,         0.0099996664f, 0.019997334f, 0.029991005f, 0.039978687f,
+            0.049958397f, 0.059928156f,  0.069885999f, 0.079829983f, 0.089758173f,
+            0.099668652f, 0.10955953f,   0.11942893f,  0.12927501f,  0.13909595f,
+            0.14888994f,  0.15865526f,   0.16839015f,  0.17809294f,  0.18776195f,
+            0.19739556f,  0.20699219f,   0.21655031f,  0.22606839f,  0.23554498f,
+            0.24497867f,  0.25436807f,   0.26371184f,  0.27300870f,  0.28225741f,
+            0.29145679f,  0.30060568f,   0.30970293f,  0.31874755f,  0.32773849f,
+            0.33667481f,  0.34555557f,   0.35437992f,  0.36314702f,  0.37185606f,
+            0.38050637f,  0.38909724f,   0.39762798f,  0.40609807f,  0.41450688f,
+            0.42285392f,  0.43113875f,   0.43936089f,  0.44751999f,  0.45561564f,
+            0.46364760f,  0.47161558f,   0.47951928f,  0.48735857f,  0.49513325f,
+            0.50284320f,  0.51048833f,   0.51806855f,  0.52558380f,  0.53303409f,
+            0.54041952f,  0.54774004f,   0.55499572f,  0.56218672f,  0.56931317f,
+            0.57637525f,  0.58337301f,   0.59030676f,  0.59717667f,  0.60398299f,
+            0.61072594f,  0.61740589f,   0.62402308f,  0.63057774f,  0.63707036f,
+            0.64350110f,  0.64987046f,   0.65617871f,  0.66242629f,  0.66861355f,
+            0.67474097f,  0.68080884f,   0.68681765f,  0.69276786f,  0.69865984f,
+            0.70449406f,  0.71027100f,   0.71599114f,  0.72165483f,  0.72726268f,
+            0.73281509f,  0.73831260f,   0.74375558f,  0.74914461f,  0.75448018f,
+            0.75976276f,  0.76499283f,   0.77017093f,  0.77529752f,  0.78037310f,
+            0.78539819f,  0.79037325f
+        };
+        
+        const float M_PI_2 = 1.57079632679489661923;
+        
+        int round(float x)
+        {
+            if (x < 0.0)
+                return (int)(x - 0.5);
+            else
+                return (int)(x + 0.5);
+        }
+         
+        float atan(float x) 
+        {
+            if (x >= 0.0) 
+            {
+                if (x <= 1.0) 
+                {
+                    int index = round(x * 100.0);
+                    return (LUT[index] + (x * 100.0 - (float)index) * (LUT[index + 1] - LUT[index]));
+                } 
+                else 
+                {
+                    float re_x = 1.0 / x;
+                    int index = round(re_x * 100.0);
+                    return (M_PI_2 - (LUT[index] + (re_x * 100.0 - (float)index) * (LUT[index + 1] - LUT[index])));
+                }
+            } 
+            else 
+            {
+                if (x >= -1.0) 
+                {
+                    float abs_x = -x;
+                    int index = round(abs_x * 100.0);
+                    return -(LUT[index] + (abs_x * 100.0 - (float)index) * (LUT[index + 1] - LUT[index]));
+                }
+                else 
+                {
+                    float re_x = 1.0 / (-x);
+                    int index = round(re_x * 100.0);
+                    return (LUT[index] + (re_x * 100.0 - (float)index) * (LUT[index+1] - LUT[index])) - M_PI_2;
+                }
+            }
+        }
+        
+        float result = atan(1.0) + atan(2.0) + atan(3.0);
+    `);
+
+    const interpreter = new Interpreter(result);
+    await interpreter.run();
+
+    expect(interpreter.memoryRegions.get(`var_result`)).toStrictEqual(new Float32Array([ 3.141598701477051 ]));
+});
+
+test("Test 'viete_pi.c'.", async () => {
+    const compiler = new Compiler();
+    const result = compiler.compile(`
+        float sqrt(float n) 
+        { 
+            float x = n; 
+            float y = 1.0; 
+            float e = 0.000001;
+        
+            while (x - y > e) 
+            { 
+                x = (x + y) / 2.0;
+                y = n / x;
+            } 
+        
+            return x; 
+        } 
+        
+        float run()
+        {
+            float n, i, j;
+            float f;
+            float pi = 1.0;
+        
+            n = 100.0; 
+            for(i = n; i > 1.0; i--) {
+                f = 2.0;
+                for(j = 1.0; j < i; j++){
+                    f = 2.0 + sqrt(f);
+                }
+                f = sqrt(f);
+                pi = pi * f / 2.0;
+            }
+            pi *= sqrt(2.0) / 2.0;
+            pi = 2.0 / pi;
+        
+            return pi;
+        }
+        
+        float result = run();
+    `);
+
+    const interpreter = new Interpreter(result);
+    await interpreter.run();
+
+    expect(interpreter.memoryRegions.get(`var_result`)).toStrictEqual(new Float32Array([ 3.141590118408203 ]));
+});
+
 test("Test 'heap_sort.c'.", async () => {
     const compiler = new Compiler();
     const result = compiler.compile(`
