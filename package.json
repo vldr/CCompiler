@@ -6,7 +6,7 @@
   "author": "",
   "license": "ISC",
   "scripts": {
-    "test": "jest",
+    "test": "jest --verbose",
     "compile": "tsc -p tsconfig.json && node tools/generateParser.js",
     "bundle": "npm run compile && webpack --config webpack.config.js"
   },
