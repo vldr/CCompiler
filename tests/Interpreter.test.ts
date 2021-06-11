@@ -832,14 +832,17 @@ test("Test LOR", async () => {
     expect(interpreter.stack.pop()).toStrictEqual(new Uint32Array([ 0 ]));
 });
 
-test("Test QADD, QSTORE, STORE", async () => {
-    const interpreter = new Interpreter(`
-            QADD 128 32
+test("Test QADD, QSUB, QSTORE, STORE", async () => {
+    const interpreter = new Interpreter(`     
+            QSTORE 64 var_a
+            STORE 128 var_b 
+            
+            QSUB -128 32
             SAVEPUSH
             
-            QSTORE 64 var_a
-            STORE 128 var_b      
-           
+            QADD 128 32
+            SAVEPUSH
+
             HALT
             
             var_a:
@@ -847,12 +850,48 @@ test("Test QADD, QSTORE, STORE", async () => {
             
             var_b:
             .data 0
-
-            HALT
         `);
     await interpreter.runWithoutStackCheck();
 
+    expect(interpreter.stack.pop()).toStrictEqual(new Int32Array([ 160 ]));
+    expect(interpreter.stack.pop()).toStrictEqual(new Int32Array([ -160 ]));
+
     expect(interpreter.memoryRegions.get("var_a")).toStrictEqual(new Uint32Array([ 64 ]));
     expect(interpreter.memoryRegions.get("var_b")).toStrictEqual(new Uint32Array([ 128 ]));
-    expect(interpreter.stack.pop()).toStrictEqual(new Uint32Array([ 160 ]));
+
+});
+
+test("Test QLADD, QLSUB", async () => {
+    const interpreter = new Interpreter(`
+            QLADD var_a 10
+            SAVEPUSH
+            
+            QLADD var_a var_b
+            SAVEPUSH
+                  
+            QLSUB var_a 10
+            SAVEPUSH
+            
+            QLSUB var_a var_b
+            SAVEPUSH
+
+            HALT
+            
+            # $9
+            var_a:
+            .data 64
+            .read var_a var_a
+            
+            # $10
+            var_b:
+            .data 128
+            .read var_b var_b
+        `);
+    await interpreter.runWithoutStackCheck();
+
+    expect(interpreter.stack.pop()).toStrictEqual(new Int32Array([ 54 ]));
+    expect(interpreter.stack.pop()).toStrictEqual(new Int32Array([ 54 ]));
+    expect(interpreter.stack.pop()).toStrictEqual(new Int32Array([ 74 ]));
+    expect(interpreter.stack.pop()).toStrictEqual(new Int32Array([ 74 ]));
+
 });

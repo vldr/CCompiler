@@ -7,10 +7,15 @@ class Main
     {
         const compiler = new Compiler();
         const result = compiler.compile(`
-            void test()
+            int array[] = {
+                55
+            };
+            
+            void swap(int i, int j) 
             {
-                int a[2];
-                a[0];
+                int temp = array[i];
+                array[i] = array[j];
+                array[j] = temp;
             }
         `);
 

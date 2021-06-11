@@ -452,6 +452,9 @@ export default class Interpreter
                 instruction.operand === "LAND" ||
                 instruction.operand === "LOR" ||
                 instruction.operand === "QADD" ||
+                instruction.operand === "QSUB" ||
+                instruction.operand === "QLADD" ||
+                instruction.operand === "QLSUB" ||
                 instruction.operand === "QSTORE" ||
                 instruction.operand === "TICK" ||
                 instruction.operand === "RAND" ||
@@ -615,6 +618,9 @@ export default class Interpreter
                 }
                 else if (
                     instruction.operand === "QADD" ||
+                    instruction.operand === "QSUB" ||
+                    instruction.operand === "QLADD" ||
+                    instruction.operand === "QLSUB" ||
                     instruction.operand === "QSTORE" ||
                     instruction.operand === "STORE"
                 )
@@ -1034,17 +1040,38 @@ export default class Interpreter
     }
 
     // Implement InstructionQADD.ts
+    // Implement InstructionQSUB.ts
+    // Implement InstructionQLADD.ts
+    // Implement InstructionQLSUB.ts
     // Implement InstructionQSTORE.ts
     // Implement InstructionSTORE.ts
     private interpretSTORE(instruction: InterpreterInstruction)
     {
-        if (instruction.operand === "QADD")
+        if (instruction.operand === "QADD" || instruction.operand === "QSUB")
         {
             const valueA = this.getNumericValue(instruction, InterpreterLocation.Arg0);
             const valueB = this.getNumericValue(instruction, InterpreterLocation.Arg1);
 
-            this._registerR = new Uint32Array([new Uint32Array(valueA)[0] + new Uint32Array(valueB)[0]]);
+            let fn = this._exports.add;
+
+            if (instruction.operand === "QSUB")
+                fn = this._exports.sub;
+
+            this._registerR = new Int32Array( [ fn(this.getIntegerValue(valueA), this.getIntegerValue(valueB)) ]);
         }
+        else if (instruction.operand === "QLADD" || instruction.operand === "QLSUB")
+        {
+            const valueA = this.getMemoryValue(instruction, InterpreterLocation.Arg0);
+            const valueB = this.getNumericValue(instruction, InterpreterLocation.Arg1);
+
+            let fn = this._exports.add;
+
+            if (instruction.operand === "QLSUB")
+                fn = this._exports.sub;
+
+            this._registerR = new Int32Array( [ fn(this.getIntegerValue(valueA), this.getIntegerValue(valueB)) ]);
+        }
+
         else if (instruction.operand === "STORE" || instruction.operand === "QSTORE")
         {
             this.setMemoryValue(instruction, InterpreterLocation.Arg1, InterpreterLocation.Arg0);
