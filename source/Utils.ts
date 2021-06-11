@@ -16,11 +16,14 @@ export default class Utils
     {
         let result = false;
 
-        if (type instanceof TypeInteger || type instanceof TypeUnsignedInteger)
+        if (type.arraySize <= 0)
         {
-            if (Number.isInteger(value) && value >= 0 && value <= 4095)
+            if (type instanceof TypeInteger || type instanceof TypeUnsignedInteger)
             {
-                result = true;
+                if (Number.isInteger(value) && value >= 0 && value <= 4095)
+                {
+                    result = true;
+                }
             }
         }
 

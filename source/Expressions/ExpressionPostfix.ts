@@ -47,6 +47,10 @@ import InstructionVPUSH from "../Instructions/InstructionVPUSH";
 import InstructionQSTORE from "../Instructions/InstructionQSTORE";
 import SymbolStructMember from "../Symbols/SymbolStructMember";
 import SymbolAccessor from "../Symbols/SymbolAccessor";
+import ExpressionResultConstant from "./ExpressionResultConstant";
+import Utils from "../Utils";
+import InstructionQADD from "../Instructions/InstructionQADD";
+import InstructionQLADD from "../Instructions/InstructionQLADD";
 
 export default class ExpressionPostfix extends Expression
 {
@@ -352,7 +356,6 @@ export default class ExpressionPostfix extends Expression
                 return totalSize;
             };
 
-
             const calcTotalSize = (type: Type) =>
             {
                 let totalSize = 0;
@@ -493,50 +496,70 @@ export default class ExpressionPostfix extends Expression
             throw ExternalErrors.CANNOT_NO_STRUCT_ARRAY(accessorNode);
         }
 
-        if (newType instanceof TypeStruct)
+        if (
+            targetExpressionResult instanceof ExpressionResultVariable &&
+            indexExpressionResult instanceof ExpressionResultConstant &&
+            !(newType instanceof TypeStruct) &&
+            Utils.isInlinable(indexExpressionResult.type, indexExpressionResult.value)
+        )
         {
-            expressionResult.pushExpressionResult(indexExpressionResult);
-
-            const calcTotalSize = (type: TypeStruct) =>
+            expressionResult.pushInstruction(new InstructionQADD(targetExpressionResult.variable.labelName, indexExpressionResult.value.toString()));
+        }
+        else if (
+            targetExpressionResult instanceof ExpressionResultVariable &&
+            indexExpressionResult instanceof ExpressionResultVariable &&
+            !(newType instanceof TypeStruct)
+        )
+        {
+            expressionResult.pushInstruction(new InstructionQLADD(indexExpressionResult.variable.labelName, targetExpressionResult.variable.labelName));
+        }
+        else
+        {
+            if (newType instanceof TypeStruct)
             {
-                let totalSize = 0;
+                expressionResult.pushExpressionResult(indexExpressionResult);
 
-                type.members.forEach((t) =>
+                const calcTotalSize = (type: TypeStruct) =>
                 {
-                    if (t instanceof TypeStruct)
+                    let totalSize = 0;
+
+                    type.members.forEach((t) =>
                     {
-                        totalSize += calcTotalSize(t) * Math.max(t.arraySize, 1);
-                    }
-                    else
-                    {
-                        totalSize += Math.max(t.arraySize, 1) /* 32 bits */;
-                    }
-                });
+                        if (t instanceof TypeStruct)
+                        {
+                            totalSize += calcTotalSize(t) * Math.max(t.arraySize, 1);
+                        }
+                        else
+                        {
+                            totalSize += Math.max(t.arraySize, 1) /* 32 bits */;
+                        }
+                    });
 
-                return totalSize;
-            };
+                    return totalSize;
+                };
 
-            let totalSize = calcTotalSize((targetExpressionResult.type as TypeStruct));
+                let totalSize = calcTotalSize((targetExpressionResult.type as TypeStruct));
 
-            expressionResult.pushInstruction(new InstructionVGETB(totalSize.toString()));
-            expressionResult.pushInstruction(new InstructionMULT(new TypeInteger(new QualifierNone(), 0)));
-            expressionResult.pushInstruction(new InstructionSAVETOA());
+                expressionResult.pushInstruction(new InstructionVGETB(totalSize.toString()));
+                expressionResult.pushInstruction(new InstructionMULT(new TypeInteger(new QualifierNone(), 0)));
+                expressionResult.pushInstruction(new InstructionSAVETOA());
+            }
+            else
+            {
+                expressionResult.pushExpressionResult(indexExpressionResult);
+            }
+
+            if (targetExpressionResult instanceof ExpressionResultAccessor)
+            {
+                expressionResult.pushInstruction(new InstructionGETPOPB());
+            }
+            else
+            {
+                expressionResult.pushInstruction(new InstructionVGETB(targetExpressionResult.variable.labelName));
+            }
+
+            expressionResult.pushInstruction(new InstructionADD(new TypeInteger(new QualifierNone(), 0)));
         }
-        else
-        {
-            expressionResult.pushExpressionResult(indexExpressionResult);
-        }
-
-        if (targetExpressionResult instanceof ExpressionResultAccessor)
-        {
-            expressionResult.pushInstruction(new InstructionGETPOPB());
-        }
-        else
-        {
-            expressionResult.pushInstruction(new InstructionVGETB(targetExpressionResult.variable.labelName));
-        }
-
-        expressionResult.pushInstruction(new InstructionADD(new TypeInteger(new QualifierNone(), 0)));
 
         if (destination instanceof DestinationNone)
         {
