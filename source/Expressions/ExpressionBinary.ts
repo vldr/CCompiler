@@ -46,6 +46,7 @@ import InstructionQLADD from "../Instructions/InstructionQLADD";
 import InstructionQADD from "../Instructions/InstructionQADD";
 import InstructionQLSUB from "../Instructions/InstructionQLSUB";
 import InstructionQSUB from "../Instructions/InstructionQSUB";
+import InstructionGETAVB from "../Instructions/InstructionGETAVB";
 
 export default class ExpressionBinary extends Expression
 {
@@ -458,8 +459,19 @@ export default class ExpressionBinary extends Expression
         }
         else if (isLeftInlinable && isRightInlinable)
         {
-            generateLeft(new DestinationRegisterA(this._destination.type));
-            generateRight(new DestinationRegisterB(this._destination.type));
+            if (leftExpressionResult instanceof ExpressionResultVariable &&
+                rightExpressionResult instanceof ExpressionResultConstant &&
+                Utils.isInlinable(rightExpressionResult.type, rightExpressionResult.value))
+            {
+                expressionResult.pushInstruction(
+                    new InstructionGETAVB(leftExpressionResult.variable.labelName, rightExpressionResult.value.toString())
+                );
+            }
+            else
+            {
+                generateLeft(new DestinationRegisterA(this._destination.type));
+                generateRight(new DestinationRegisterB(this._destination.type));
+            }
         }
         else
         {
