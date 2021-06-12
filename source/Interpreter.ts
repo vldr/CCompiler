@@ -376,6 +376,7 @@ export default class Interpreter
 
             if (
                 instruction.operand === "HALT" ||
+                instruction.operand === "GETAVB" ||
                 instruction.operand === "GETA" ||
                 instruction.operand === "GETB" ||
                 instruction.operand === "VGETA" ||
@@ -630,6 +631,7 @@ export default class Interpreter
                 else if (
                     instruction.operand === "TICK" ||
                     instruction.operand === "RAND" ||
+                    instruction.operand === "GETAVB" ||
                     instruction.operand === "SETLED"
                 )
                 {
@@ -1085,6 +1087,7 @@ export default class Interpreter
     // Implement InstructionRAND.ts
     // Implement InstructionSETLED.ts
     // Implement InstructionTICK.ts
+    // Implement InstructionGETAVB.ts
     private interpretSPECIAL(instruction: InterpreterInstruction)
     {
         if (instruction.operand === "RAND")
@@ -1094,6 +1097,14 @@ export default class Interpreter
             };
 
             this._registerR = new Uint32Array([ getRandomNumber(0, 4294967295) ]);
+        }
+        else if (instruction.operand === "GETAVB")
+        {
+            const valueA = this.getMemoryValue(instruction, InterpreterLocation.Arg0);
+            const valueB = this.getNumericValue(instruction, InterpreterLocation.Arg1);
+
+            this._registerA = valueA;
+            this._registerB = valueB;
         }
         else if (instruction.operand === "SETLED" || instruction.operand === "TICK") {}
         else

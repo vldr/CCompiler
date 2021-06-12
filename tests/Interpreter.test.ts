@@ -893,5 +893,28 @@ test("Test QLADD, QLSUB", async () => {
     expect(interpreter.stack.pop()).toStrictEqual(new Int32Array([ 54 ]));
     expect(interpreter.stack.pop()).toStrictEqual(new Int32Array([ 74 ]));
     expect(interpreter.stack.pop()).toStrictEqual(new Int32Array([ 74 ]));
+});
 
+test("Test GETAVB", async () => {
+    const interpreter = new Interpreter(`      
+            GETAVB var_a 10    
+            SAVEB var_b
+            
+            GETAVB var_a var_b    
+             
+            HALT
+            
+            var_a:
+            .data 64
+            .read var_a var_a
+
+            var_b:
+            .data 128
+            .read var_b var_b
+        `);
+    await interpreter.runWithoutStackCheck();
+
+    expect(interpreter.registerA).toStrictEqual(new Uint32Array([ 64 ]));
+    expect(interpreter.registerB).toStrictEqual(new Uint32Array([ 5 ]));
+    expect(interpreter.memoryRegions.get("var_b")).toStrictEqual(new Uint32Array([ 10 ]));
 });
