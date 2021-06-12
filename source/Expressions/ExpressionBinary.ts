@@ -41,6 +41,11 @@ import InstructionLabel from "../Instructions/InstructionLabel";
 import InstructionJA from "../Instructions/InstructionJA";
 import InstructionJNA from "../Instructions/InstructionJNA";
 import InstructionVGETB from "../Instructions/InstructionVGETB";
+import Utils from "../Utils";
+import InstructionQLADD from "../Instructions/InstructionQLADD";
+import InstructionQADD from "../Instructions/InstructionQADD";
+import InstructionQLSUB from "../Instructions/InstructionQLSUB";
+import InstructionQSUB from "../Instructions/InstructionQSUB";
 
 export default class ExpressionBinary extends Expression
 {
@@ -82,6 +87,8 @@ export default class ExpressionBinary extends Expression
             operator == ">>="
         );
 
+        let isOptimizableOperand = false;
+
         if (isAssignment)
         {
             if (leftExpressionResult instanceof ExpressionResultAccessor && leftExpressionResult.variable.type.isConstant)
@@ -99,7 +106,12 @@ export default class ExpressionBinary extends Expression
 
             if (operator !== "=")
             {
-                this.loadOperand(expressionResult, isAssignment, left, right, leftExpressionResult, rightExpressionResult);
+                isOptimizableOperand = this.generateOptimizedOperand(operator, expressionResult, leftExpressionResult, rightExpressionResult);
+
+                if (!isOptimizableOperand)
+                {
+                    this.loadOperand(expressionResult, isAssignment, left, right, leftExpressionResult, rightExpressionResult);
+                }
             }
             else
             {
@@ -129,110 +141,118 @@ export default class ExpressionBinary extends Expression
         }
         else
         {
-            this.loadOperand(expressionResult, isAssignment, left, right, leftExpressionResult, rightExpressionResult);
+            isOptimizableOperand = this.generateOptimizedOperand(operator, expressionResult, leftExpressionResult, rightExpressionResult);
+
+            if (!isOptimizableOperand)
+            {
+                this.loadOperand(expressionResult, isAssignment, left, right, leftExpressionResult, rightExpressionResult);
+            }
         }
 
-        switch (operator)
+        if (!isOptimizableOperand)
         {
-            case "=":
-            case "&&":
-            case "||":
-                break;
+            switch (operator)
+            {
+                case "=":
+                case "&&":
+                case "||":
+                    break;
 
-            case "+":
-            case "+=":
-                expressionResult.pushInstruction(new InstructionADD(leftExpressionResult.type));
-                break;
-            case "-":
-            case "-=":
-                expressionResult.pushInstruction(new InstructionSUB(leftExpressionResult.type));
-                break;
-            case "/":
-            case "/=":
-                expressionResult.pushInstruction(new InstructionDIV(leftExpressionResult.type));
-                break;
-            case "*":
-            case "*=":
-                expressionResult.pushInstruction(new InstructionMULT(leftExpressionResult.type));
-                break;
+                case "+":
+                case "+=":
+                    expressionResult.pushInstruction(new InstructionADD(leftExpressionResult.type));
+                    break;
+                case "-":
+                case "-=":
+                    expressionResult.pushInstruction(new InstructionSUB(leftExpressionResult.type));
+                    break;
+                case "/":
+                case "/=":
+                    expressionResult.pushInstruction(new InstructionDIV(leftExpressionResult.type));
+                    break;
+                case "*":
+                case "*=":
+                    expressionResult.pushInstruction(new InstructionMULT(leftExpressionResult.type));
+                    break;
 
-            case "%":
-            case "%=":
-                if (expressionResult.type.constructor !== TypeUnsignedInteger &&
-                    expressionResult.type.constructor !== TypeInteger)
-                    throw ExternalErrors.UNSUPPORTED_TYPE_FOR_BINARY_OPERATOR(
-                        node, operator, expressionResult.type.toString()
-                    );
+                case "%":
+                case "%=":
+                    if (expressionResult.type.constructor !== TypeUnsignedInteger &&
+                        expressionResult.type.constructor !== TypeInteger)
+                        throw ExternalErrors.UNSUPPORTED_TYPE_FOR_BINARY_OPERATOR(
+                            node, operator, expressionResult.type.toString()
+                        );
 
-                expressionResult.pushInstruction(new InstructionREM());
-                break;
-            case "<<":
-            case "<<=":
-                if (expressionResult.type.constructor !== TypeUnsignedInteger &&
-                    expressionResult.type.constructor !== TypeInteger)
-                    throw ExternalErrors.UNSUPPORTED_TYPE_FOR_BINARY_OPERATOR(
-                        node, operator, expressionResult.type.toString()
-                    );
+                    expressionResult.pushInstruction(new InstructionREM());
+                    break;
+                case "<<":
+                case "<<=":
+                    if (expressionResult.type.constructor !== TypeUnsignedInteger &&
+                        expressionResult.type.constructor !== TypeInteger)
+                        throw ExternalErrors.UNSUPPORTED_TYPE_FOR_BINARY_OPERATOR(
+                            node, operator, expressionResult.type.toString()
+                        );
 
-                expressionResult.pushInstruction(new InstructionSHIFTL());
-                break;
-            case ">>":
-            case ">>=":
-                if (expressionResult.type.constructor !== TypeUnsignedInteger &&
-                    expressionResult.type.constructor !== TypeInteger)
-                    throw ExternalErrors.UNSUPPORTED_TYPE_FOR_BINARY_OPERATOR(
-                        node, operator, expressionResult.type.toString()
-                    );
+                    expressionResult.pushInstruction(new InstructionSHIFTL());
+                    break;
+                case ">>":
+                case ">>=":
+                    if (expressionResult.type.constructor !== TypeUnsignedInteger &&
+                        expressionResult.type.constructor !== TypeInteger)
+                        throw ExternalErrors.UNSUPPORTED_TYPE_FOR_BINARY_OPERATOR(
+                            node, operator, expressionResult.type.toString()
+                        );
 
-                expressionResult.pushInstruction(new InstructionSHIFTR());
-                break;
-            case "|":
-            case "|=":
-                if (expressionResult.type.constructor !== TypeUnsignedInteger &&
-                    expressionResult.type.constructor !== TypeInteger)
-                    throw ExternalErrors.UNSUPPORTED_TYPE_FOR_BINARY_OPERATOR(
-                        node, operator, expressionResult.type.toString()
-                    );
+                    expressionResult.pushInstruction(new InstructionSHIFTR());
+                    break;
+                case "|":
+                case "|=":
+                    if (expressionResult.type.constructor !== TypeUnsignedInteger &&
+                        expressionResult.type.constructor !== TypeInteger)
+                        throw ExternalErrors.UNSUPPORTED_TYPE_FOR_BINARY_OPERATOR(
+                            node, operator, expressionResult.type.toString()
+                        );
 
-                expressionResult.pushInstruction(new InstructionOR());
-                break;
-            case "&":
-            case "&=":
-                if (expressionResult.type.constructor !== TypeUnsignedInteger &&
-                    expressionResult.type.constructor !== TypeInteger)
-                    throw ExternalErrors.UNSUPPORTED_TYPE_FOR_BINARY_OPERATOR(
-                        node, operator, expressionResult.type.toString()
-                    );
+                    expressionResult.pushInstruction(new InstructionOR());
+                    break;
+                case "&":
+                case "&=":
+                    if (expressionResult.type.constructor !== TypeUnsignedInteger &&
+                        expressionResult.type.constructor !== TypeInteger)
+                        throw ExternalErrors.UNSUPPORTED_TYPE_FOR_BINARY_OPERATOR(
+                            node, operator, expressionResult.type.toString()
+                        );
 
-                expressionResult.pushInstruction(new InstructionAND());
-                break;
-            case "^":
-            case "^=":
-                if (expressionResult.type.constructor !== TypeUnsignedInteger &&
-                    expressionResult.type.constructor !== TypeInteger)
-                    throw ExternalErrors.UNSUPPORTED_TYPE_FOR_BINARY_OPERATOR(
-                        node, operator, expressionResult.type.toString()
-                    );
+                    expressionResult.pushInstruction(new InstructionAND());
+                    break;
+                case "^":
+                case "^=":
+                    if (expressionResult.type.constructor !== TypeUnsignedInteger &&
+                        expressionResult.type.constructor !== TypeInteger)
+                        throw ExternalErrors.UNSUPPORTED_TYPE_FOR_BINARY_OPERATOR(
+                            node, operator, expressionResult.type.toString()
+                        );
 
-                expressionResult.pushInstruction(new InstructionXOR());
-                break;
-            case "<":
-            case "<=":
-            case ">":
-            case ">=":
-            case "==":
-            case "!=":
-                if (expressionResult.type instanceof TypeInteger)
-                    expressionResult.type = new TypeInteger(expressionResult.type.qualifer, expressionResult.type.arraySize);
-                else if (expressionResult.type instanceof TypeFloat)
-                    expressionResult.type = new TypeInteger(expressionResult.type.qualifer, expressionResult.type.arraySize);
-                else
-                    expressionResult.type = new TypeUnsignedInteger(expressionResult.type.qualifer, expressionResult.type.arraySize);
+                    expressionResult.pushInstruction(new InstructionXOR());
+                    break;
+                case "<":
+                case "<=":
+                case ">":
+                case ">=":
+                case "==":
+                case "!=":
+                    if (expressionResult.type instanceof TypeInteger)
+                        expressionResult.type = new TypeInteger(expressionResult.type.qualifer, expressionResult.type.arraySize);
+                    else if (expressionResult.type instanceof TypeFloat)
+                        expressionResult.type = new TypeInteger(expressionResult.type.qualifer, expressionResult.type.arraySize);
+                    else
+                        expressionResult.type = new TypeUnsignedInteger(expressionResult.type.qualifer, expressionResult.type.arraySize);
 
-                expressionResult.pushInstruction(new InstructionCMP(leftExpressionResult.type, operator));
-                break;
-            default:
-                throw InternalErrors.generateError("Unsupported binary operator.");
+                    expressionResult.pushInstruction(new InstructionCMP(leftExpressionResult.type, operator));
+                    break;
+                default:
+                    throw InternalErrors.generateError("Unsupported binary operator.");
+            }
         }
 
         if (isAssignment && operator != "=")
@@ -276,6 +296,73 @@ export default class ExpressionBinary extends Expression
         }
 
         return expressionResult;
+    }
+
+    private generateOptimizedOperand(
+        operator: string,
+        expressionResult: ExpressionResult,
+        leftExpressionResult: ExpressionResult,
+        rightExpressionResult: ExpressionResult
+    ): boolean
+    {
+        if ((leftExpressionResult.type instanceof TypeUnsignedInteger || leftExpressionResult.type instanceof TypeInteger))
+        {
+            if (operator === "+" || operator === "+=")
+            {
+                if (leftExpressionResult instanceof ExpressionResultConstant &&
+                    rightExpressionResult instanceof ExpressionResultVariable &&
+                    Utils.isInlinable(leftExpressionResult.type, leftExpressionResult.value)
+                )
+                {
+                    expressionResult.pushInstruction(new InstructionQLADD(rightExpressionResult.variable.labelName, leftExpressionResult.value.toString()))
+
+                    return true;
+                }
+                else if (leftExpressionResult instanceof ExpressionResultVariable &&
+                    rightExpressionResult instanceof ExpressionResultConstant &&
+                    Utils.isInlinable(rightExpressionResult.type, rightExpressionResult.value)
+                )
+                {
+                    expressionResult.pushInstruction(new InstructionQLADD(leftExpressionResult.variable.labelName, rightExpressionResult.value.toString()))
+
+                    return true;
+                }
+                else if (leftExpressionResult instanceof ExpressionResultConstant &&
+                    rightExpressionResult instanceof ExpressionResultConstant &&
+                    Utils.isInlinable(leftExpressionResult.type, leftExpressionResult.value) &&
+                    Utils.isInlinable(rightExpressionResult.type, rightExpressionResult.value)
+                )
+                {
+                    expressionResult.pushInstruction(new InstructionQADD(leftExpressionResult.value.toString(), rightExpressionResult.value.toString()))
+
+                    return true;
+                }
+            }
+            else if (operator === "-" || operator === "-=")
+            {
+                if (leftExpressionResult instanceof ExpressionResultVariable &&
+                    rightExpressionResult instanceof ExpressionResultConstant &&
+                    Utils.isInlinable(rightExpressionResult.type, rightExpressionResult.value)
+                )
+                {
+                    expressionResult.pushInstruction(new InstructionQLSUB(leftExpressionResult.variable.labelName, rightExpressionResult.value.toString()))
+
+                    return true;
+                }
+                else if (leftExpressionResult instanceof ExpressionResultConstant &&
+                    rightExpressionResult instanceof ExpressionResultConstant &&
+                    Utils.isInlinable(leftExpressionResult.type, leftExpressionResult.value) &&
+                    Utils.isInlinable(rightExpressionResult.type, rightExpressionResult.value)
+                )
+                {
+                    expressionResult.pushInstruction(new InstructionQSUB(leftExpressionResult.value.toString(), rightExpressionResult.value.toString()))
+
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     private generateLogicalExpression(

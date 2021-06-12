@@ -7,76 +7,92 @@ class Main
     {
         const compiler = new Compiler();
         const result = compiler.compile(`
-        int array[] = {
-            55, 47, 35, 15, 20, 42,
-            52, 30, 58, 15, 13, 19,
-            32, 18, 44, 11, 7, 9,
-            34, 56, 17, 25, 14, 48,
-            40, 4, 5, 7, 36, 1,
-            33, 49, 25, 26, 30, 9
-        };
-        
-        void swap(int i, int j) 
-        {
-            int temp = array[i];
-            array[i] = array[j];
-            array[j] = temp;
+        // Credits to http://www.rosettacode.org/wiki/Tonelli-Shanks_algorithm#C
+
+uint modpow(uint a, uint b, uint n) 
+{
+    uint x = 1u, y = a;
+
+    while (b > 0u) 
+    {
+        if (b % 2u == 1u) {
+            x = (x * y) % n; // multiplying with base
         }
-        
-        int partition(int l, int h) 
-        { 
-            int x = array[h]; 
-            int i = (l - 1); 
-          
-            for (int j = l; j <= h - 1; j++) 
-            { 
-                if (array[j] <= x) 
-                { 
-                    i++; 
-                    swap(i, j); 
-                } 
-            } 
-            swap(i + 1, h); 
-        
-            return (i + 1); 
-        } 
-        
-        void qsort(int l, int h) 
-        { 
-            _push(l);
-            _push(h);
-        
-            int top = 2;
-          
-            while (top > 0) 
-            { 
-                h = _pop_int();
-                l = _pop_int();
-        
-                top -= 2;
-         
-                int p = partition(l, h); 
-        
-                if (p > 0 && p - 1 > l) 
-                { 
-                    _push(l);
-                    _push(p - 1);
-        
-                    top += 2;
-                } 
-          
-                if (p + 1 < h) 
-                { 
-                    _push(p + 1);
-                    _push(h);
-        
-                    top += 2;
-                }  
-            }
+        y = (y * y) % n; // squaring the base
+        b /= 2u;
+    }
+
+    return x % n;
+}
+ 
+struct Solution 
+{
+    uint root1, root2;
+    uint exists;
+};
+
+Solution sol;
+ 
+void makeSolution(uint root1, uint root2, uint exists) 
+{
+    sol.root1 = root1;
+    sol.root2 = root2;
+    sol.exists = exists;
+}
+ 
+void ts(uint n, uint p) 
+{
+    uint q = p - 1u;
+    uint ss = 0u;
+    uint z = 2u;
+    uint c, r, t, m;
+ 
+    if (modpow(n, (p - 1u) / 2u, p) != 1u) {
+        return makeSolution(0u, 0u, 0u);
+    }
+ 
+    while ((q & 1u) == 0u) {
+        ss += 1u;
+        q >>= 1u;
+    }
+ 
+    if (ss == 1u) {
+        uint r1 = modpow(n, (p + 1u) / 4u, p);
+        return makeSolution(r1, p - r1, 1u);
+    }
+ 
+    while (modpow(z, (p - 1u) / 2u, p) != p - 1u) {
+        z++;
+    }
+ 
+    c = modpow(z, q, p);
+    r = modpow(n, (q + 1u) / 2u, p);
+    t = modpow(n, q, p);
+    m = ss;
+ 
+    while (1) {
+        uint i = 0u, zz = t;
+        uint b = c, e;
+        if (t == 1u) {
+            return makeSolution(r, p - r, 1u);
         }
-        
-        qsort(0, array.length - 1);
-        _tick();
+        while (zz != 1u && i < (m - 1u)) {
+            zz = zz * zz % p;
+            i++;
+        }
+        e = m - i - 1u;
+        while (e > 0u) {
+            b = b * b % p;
+            e--;
+        }
+        r = r * b % p;
+        c = b * b % p;
+        t = t * c % p;
+        m = i;
+    }
+}
+
+ts(1030u, 10009u);
         `);
 
         const interpreter = new Interpreter(result);
