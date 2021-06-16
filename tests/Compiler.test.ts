@@ -2757,6 +2757,50 @@ test("Test 'shaker_sort.c'.", async () => {
     });
 });
 
+test("Test 'bisection.c'.", async () => {
+    const compiler = new Compiler();
+    const result = compiler.compile(`
+        const float EPSILON = 0.01f;
+        const float NaN = (float)0xffffffffu;
+        
+        float func(float x)
+        {
+            return x * x * x - x * x + 2.f;
+        }
+         
+        float bisection(float a, float b)
+        {
+            if (func(a) * func(b) >= 0.f)
+            {
+                return NaN;
+            }
+         
+            float c = a;
+            while ((b-a) >= EPSILON)
+            {
+                c = (a + b) / 2.f;
+         
+                if (func(c) == 0.0)
+                    break;
+         
+                else if (func(c) * func(a) < 0.f)
+                    b = c;
+                else
+                    a = c;
+            }
+        
+            return c;
+        }
+        
+        float result = bisection(-200.f, 300.f);
+    `);
+
+    const interpreter = new Interpreter(result);
+    await interpreter.run();
+
+    expect(interpreter.memoryRegions.get(`var_result`)).toStrictEqual(new Float32Array([ -1.00250244140625 ]));
+});
+
 test("Test 'monte_carlo_pi.c'.", async () => {
     const compiler = new Compiler();
     const result = compiler.compile(`
