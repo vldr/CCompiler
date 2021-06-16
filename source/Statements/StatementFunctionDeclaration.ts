@@ -31,12 +31,12 @@ export default class StatementFunctionDeclaration extends Statement
 
         if (functionName.startsWith("_"))
         {
-            throw ExternalErrors.FUNCTION_NAME_UNDERSCORE(node);
+            throw ExternalErrors.FUNCTION_NAME_UNDERSCORE(functionIdentifierNode);
         }
 
         if (this._scope.getFunctionByName(functionName) !== undefined)
         {
-            throw ExternalErrors.FUNCTION_NAME_TAKEN(node, functionName);
+            throw ExternalErrors.FUNCTION_NAME_TAKEN(functionIdentifierNode, functionName);
         }
 
         let returnType: Type;

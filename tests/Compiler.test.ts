@@ -2801,6 +2801,38 @@ test("Test 'bisection.c'.", async () => {
     expect(interpreter.memoryRegions.get(`var_result`)).toStrictEqual(new Float32Array([ -1.00250244140625 ]));
 });
 
+test("Test 'constant_array_size.c'.", async () => {
+    const compiler = new Compiler();
+    const result = compiler.compile(`
+        int arr[] = {
+            55, 47, 35, 15, 20, 42,
+            52, 30, 58, 15, 13, 19,
+            32, 18, 44, 11, 7, 9,
+            34, 56, 17, 25, 14, 48,
+            40, 4, 5, 7, 36, 1,
+            33, 49, 25, 26, 30, 9
+        };
+        
+        int arr2[arr.length];
+        
+        struct Test {
+            int arr[arr2.length];
+        };
+        
+        Test test;
+    `);
+
+    const interpreter = new Interpreter(result);
+    await interpreter.run();
+
+    for (let i = 0; i < 36; i++)
+    {
+        expect(interpreter.memoryRegions.get(`var_arr_${i}`)).toBeDefined();
+        expect(interpreter.memoryRegions.get(`var_arr2_${i}`)).toStrictEqual(new Uint32Array([ 0 ]));
+        expect(interpreter.memoryRegions.get(`var_test__arr_${i}`)).toStrictEqual(new Uint32Array([ 0 ]));
+    }
+});
+
 test("Test 'monte_carlo_pi.c'.", async () => {
     const compiler = new Compiler();
     const result = compiler.compile(`

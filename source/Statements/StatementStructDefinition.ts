@@ -5,6 +5,12 @@ import TypeStruct from "../Types/TypeStruct";
 import Utils from "../Utils";
 import NodeStructDefinition from "../Nodes/NodeStructDefinition";
 import SymbolStruct from "../Symbols/SymbolStruct";
+import DestinationNone from "../Destinations/DestinationNone";
+import TypeVoid from "../Types/TypeVoid";
+import QualifierNone from "../Qualifiers/QualifierNone";
+import TypeInteger from "../Types/TypeInteger";
+import TypeUnsignedInteger from "../Types/TypeUnsignedInteger";
+import ExpressionResultConstant from "../Expressions/ExpressionResultConstant";
 
 export default class StatementStructDefinition extends Statement
 {
@@ -59,11 +65,27 @@ export default class StatementStructDefinition extends Statement
 
                 //////////////////////////////////////////////
 
-                const arraySizeNode = declaratorNode.arraySize;
-                const size = arraySizeNode?.value_base10 || 0;
+                let size = 0;
 
-                if (arraySizeNode && arraySizeNode.value_base10 <= 0)
-                    throw ExternalErrors.ARRAY_MUST_BE_ATLEAST_ONE(declaratorNode);
+                if (declaratorNode.arraySize)
+                {
+                    const arraySizeExpression = this._compiler.generateExpression(
+                        new DestinationNone(new TypeVoid(new QualifierNone(), 0)),
+                        this._scope,
+                        declaratorNode.arraySize
+                    );
+
+                    if (!(arraySizeExpression.type instanceof TypeInteger) && !(arraySizeExpression.type instanceof TypeUnsignedInteger))
+                        throw ExternalErrors.ARRAY_SIZE_MUST_BE_INT_OR_UINT(declaratorNode);
+
+                    if (!(arraySizeExpression instanceof ExpressionResultConstant))
+                        throw ExternalErrors.ARRAY_SIZE_MUST_BE_CONSTANT(declaratorNode);
+
+                    if (arraySizeExpression.value <= 0)
+                        throw ExternalErrors.ARRAY_MUST_BE_ATLEAST_ONE(declaratorNode);
+
+                    size = arraySizeExpression.value;
+                }
 
                 //////////////////////////////////////////////
 

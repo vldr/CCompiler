@@ -9,6 +9,12 @@ import Variable from "../Variables/Variable";
 import VariablePrimitive from "../Variables/VariablePrimitive";
 import VariableStruct from "../Variables/VariableStruct";
 import SymbolStruct from "../Symbols/SymbolStruct";
+import DestinationNone from "../Destinations/DestinationNone";
+import TypeVoid from "../Types/TypeVoid";
+import QualifierNone from "../Qualifiers/QualifierNone";
+import TypeInteger from "../Types/TypeInteger";
+import TypeUnsignedInteger from "../Types/TypeUnsignedInteger";
+import ExpressionResultConstant from "../Expressions/ExpressionResultConstant";
 
 export default class StatementDeclarator extends Statement
 {
@@ -39,16 +45,28 @@ export default class StatementDeclarator extends Statement
 
             //////////////////////////////////////////////
 
+            let size = 0;
+
             if (declaratorNode.arraySize)
             {
-                if (declaratorNode.arraySize.type !== "int" && declaratorNode.arraySize.type !== "uint")
+                const arraySizeExpression = this._compiler.generateExpression(
+                    new DestinationNone(new TypeVoid(new QualifierNone(), 0)),
+                    this._scope,
+                    declaratorNode.arraySize
+                );
+
+                if (!(arraySizeExpression.type instanceof TypeInteger) && !(arraySizeExpression.type instanceof TypeUnsignedInteger))
+                    throw ExternalErrors.ARRAY_SIZE_MUST_BE_INT_OR_UINT(declaratorNode);
+
+                if (!(arraySizeExpression instanceof ExpressionResultConstant))
                     throw ExternalErrors.ARRAY_SIZE_MUST_BE_CONSTANT(declaratorNode);
 
-                if (declaratorNode.arraySize.value_base10 <= 0)
+                if (arraySizeExpression.value <= 0)
                     throw ExternalErrors.ARRAY_MUST_BE_ATLEAST_ONE(declaratorNode);
+
+                size = arraySizeExpression.value;
             }
 
-            const size = declaratorNode.arraySize?.value_base10 || 0;
             const initializerNode = declaratorNode.initializer;
             const initializerList = declaratorNode.initializer_list;
 

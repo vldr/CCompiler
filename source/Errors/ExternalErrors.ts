@@ -99,7 +99,7 @@ export default abstract class ExternalErrors
 
     static ARRAY_SIZE_MUST_BE_CONSTANT(node: Node)
     {
-        return this.generateError("C0017", `The size of an array must be an unsigned integer constant.`, node);
+        return this.generateError("C0017", `The size of an array must be a constant.`, node);
     }
 
     static TYPE_MUST_BE_STRUCT(node: Node)
@@ -205,5 +205,10 @@ export default abstract class ExternalErrors
     static OUT_OF_BOUNDS_INT(node: Node)
     {
         return this.generateError("C0038", `The signed integer is out of bounds, that is, the value must be between -2147483648 and 2147483647.`, node);
+    }
+
+    static ARRAY_SIZE_MUST_BE_INT_OR_UINT(node: Node)
+    {
+        return this.generateError("C0039", `The size of an array must be an integer or unsigned integer.`, node);
     }
 }
