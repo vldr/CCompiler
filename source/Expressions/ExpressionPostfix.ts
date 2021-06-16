@@ -600,15 +600,16 @@ export default class ExpressionPostfix extends Expression
 
     private generateArrayLength(node: Node, type: Type): ExpressionResult
     {
-        const expressionResult = new ExpressionResult(
+        if (type.arraySize <= 0)
+            throw ExternalErrors.MUST_BE_ARRAY_TYPE(node, type.toString());
+
+        const expressionResult = new ExpressionResultConstant(
             new TypeInteger(new QualifierNone(), 0),
             this,
+            type.arraySize
         );
 
         const destination = this._destination;
-
-        if (type.arraySize <= 0)
-            throw ExternalErrors.MUST_BE_ARRAY_TYPE(node, type.toString());
 
         if (destination instanceof DestinationRegisterA)
         {
