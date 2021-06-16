@@ -777,7 +777,7 @@ test("Test 'tuxedo_rental_problem.c'.", async () => {
         };
         
         int result[4];
-        RentalRequest A[4];
+        RentalRequest A[result.length];
         
         int max(int a, int b) { return a > b ? a : b; }
         
@@ -978,7 +978,7 @@ test("Test 'bell_numbers.c'.", async () => {
         };
         
         Bell bell[10];
-        int results[9];
+        int results[bell.length];
         
         int bellNumber(int n)
         {
@@ -1070,7 +1070,7 @@ test("Test 'count_jump.c'.", async () => {
     const compiler = new Compiler();
     const result = compiler.compile(`
         int arr[] = {1, 3, 5, 8, 9, 1, 0, 7, 6, 8, 9};
-        int count_jump[11];
+        int count_jump[arr.length];
         
         void countWaysToJump(int n)
         {
@@ -1567,8 +1567,8 @@ test("Test 'min_adj_swaps.c'.", async () => {
 test("Test 'min_jumps.c'.", async () => {
     const compiler = new Compiler();
     const result = compiler.compile(`
-        int arr[6] = { 1, 3, 6, 1, 0, 9 };
-        int jumps[6];
+        int arr[] = { 1, 3, 6, 1, 0, 9 };
+        int jumps[arr.length];
         
         const int INT_MAX = 2147483647;
         
@@ -1644,9 +1644,9 @@ test("Test 'is_inside_triangle.c'.", async () => {
 test("Test 'lbs.c'.", async () => {
     const compiler = new Compiler();
     const result = compiler.compile(`
-        int arr[16] = {0, 8, 4, 12, 2, 10, 6, 14, 1, 9, 5, 13, 3, 11, 7, 15};
-        int lis[16];
-        int lds[16];
+        int arr[] = {0, 8, 4, 12, 2, 10, 6, 14, 1, 9, 5, 13, 3, 11, 7, 15};
+        int lis[arr.length];
+        int lds[arr.length];
         
         int lbs(int n)
         {
@@ -1688,8 +1688,8 @@ test("Test 'lbs.c'.", async () => {
 test("Test 'msi.c'.", async () => {
     const compiler = new Compiler();
     const result = compiler.compile(`
-        int arr[7] = {1, 101, 2, 3, 100, 4, 5};
-        int msis[7];
+        int arr[] = {1, 101, 2, 3, 100, 4, 5};
+        int msis[arr.length];
         
         int maxSumIS(int n)
         {
@@ -1984,7 +1984,7 @@ test("Test 'heap_sort.c'.", async () => {
 test("Test 'radix_sort.c'.", async () => {
     const compiler = new Compiler();
     const result = compiler.compile(`
-        int arr[36] = {
+        int arr[] = {
             55, 47, 35, 15, 20, 42,
             52, 30, 58, 15, 13, 19,
             32, 18, 44, 11, 7, 9,
@@ -1993,7 +1993,7 @@ test("Test 'radix_sort.c'.", async () => {
             33, 49, 25, 26, 30, 9
         };
         
-        int output[36];
+        int output[arr.length];
         
         int getMax(int n)
         {
