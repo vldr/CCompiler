@@ -1564,6 +1564,78 @@ test("Test 'min_adj_swaps.c'.", async () => {
     expect(interpreter.memoryRegions.get(`var_result`)).toStrictEqual(new Int32Array([ 2 ]));
 });
 
+test("Test 'emirp.c'.", async () => {
+    const compiler = new Compiler();
+    const result = compiler.compile(`
+        uint answers[20];
+
+        int is_prime(uint n)
+        {
+            if (!(n % 2u) || !(n % 3u)) 
+                return 0;
+        
+            uint p = 1u;
+        
+            while(p * p < n)
+                if (n % (p += 4u) == 0u || n % (p += 2u) == 0u)
+                    return 0;
+        
+            return 1;
+        }
+         
+        uint reverse(uint n)
+        {
+            uint r;
+            for (r = 0u; n; n /= 10u)
+                r = r * 10u + (n % 10u);
+        
+            return r;
+        }
+         
+        int is_emirp(uint n)
+        {
+            uint r = reverse(n);
+            return (int)(r != n) && is_prime(n) && is_prime(r);
+        }
+        
+        void run()
+        {
+            uint x;
+            int c = 0;
+        
+            for (x = 11u; c < answers.length; x += 2u)
+                if (is_emirp(x))
+                    answers[c++] = x;
+        }
+         
+        run();
+    `);
+
+    const interpreter = new Interpreter(result);
+    await interpreter.run();
+
+    expect(interpreter.memoryRegions.get(`var_answers_0`)).toStrictEqual(new Int32Array([ 13 ]));
+    expect(interpreter.memoryRegions.get(`var_answers_1`)).toStrictEqual(new Int32Array([ 17 ]));
+    expect(interpreter.memoryRegions.get(`var_answers_2`)).toStrictEqual(new Int32Array([ 31 ]));
+    expect(interpreter.memoryRegions.get(`var_answers_3`)).toStrictEqual(new Int32Array([ 37 ]));
+    expect(interpreter.memoryRegions.get(`var_answers_4`)).toStrictEqual(new Int32Array([ 71 ]));
+    expect(interpreter.memoryRegions.get(`var_answers_5`)).toStrictEqual(new Int32Array([ 73 ]));
+    expect(interpreter.memoryRegions.get(`var_answers_6`)).toStrictEqual(new Int32Array([ 79 ]));
+    expect(interpreter.memoryRegions.get(`var_answers_7`)).toStrictEqual(new Int32Array([ 97 ]));
+    expect(interpreter.memoryRegions.get(`var_answers_8`)).toStrictEqual(new Int32Array([ 107 ]));
+    expect(interpreter.memoryRegions.get(`var_answers_9`)).toStrictEqual(new Int32Array([ 113 ]));
+    expect(interpreter.memoryRegions.get(`var_answers_10`)).toStrictEqual(new Int32Array([ 149 ]));
+    expect(interpreter.memoryRegions.get(`var_answers_11`)).toStrictEqual(new Int32Array([ 157 ]));
+    expect(interpreter.memoryRegions.get(`var_answers_12`)).toStrictEqual(new Int32Array([ 167 ]));
+    expect(interpreter.memoryRegions.get(`var_answers_13`)).toStrictEqual(new Int32Array([ 179 ]));
+    expect(interpreter.memoryRegions.get(`var_answers_14`)).toStrictEqual(new Int32Array([ 199 ]));
+    expect(interpreter.memoryRegions.get(`var_answers_15`)).toStrictEqual(new Int32Array([ 311 ]));
+    expect(interpreter.memoryRegions.get(`var_answers_16`)).toStrictEqual(new Int32Array([ 337 ]));
+    expect(interpreter.memoryRegions.get(`var_answers_17`)).toStrictEqual(new Int32Array([ 347 ]));
+    expect(interpreter.memoryRegions.get(`var_answers_18`)).toStrictEqual(new Int32Array([ 359 ]));
+    expect(interpreter.memoryRegions.get(`var_answers_19`)).toStrictEqual(new Int32Array([ 389 ]));
+});
+
 test("Test 'min_jumps.c'.", async () => {
     const compiler = new Compiler();
     const result = compiler.compile(`
