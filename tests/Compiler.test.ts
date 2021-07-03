@@ -1681,6 +1681,62 @@ test("Test 'min_jumps.c'.", async () => {
     expect(interpreter.memoryRegions.get(`var_result`)).toStrictEqual(new Int32Array([ 3 ]));
 });
 
+test("Test 'min_insertions.c'.", async () => {
+    const compiler = new Compiler();
+    const result = compiler.compile(`
+        int str[] = { 61, 62, 63, 64, 65 };
+
+        struct Table 
+        {
+            int a[str.length];
+        };
+        
+        int min(int a, int b)
+        {
+            return a < b ? a : b;
+        }
+        
+        int findMinInserts()
+        {
+            Table table[str.length];
+            int first, last, gap;
+        
+            for (gap = 1; gap < str.length; ++gap)
+            {
+                first = 0;
+                last = gap;
+        
+                while (last < str.length)
+                {
+                    if (str[first] == str[last])
+                    {
+                        table[first].a[last] = table[first + 1].a[last - 1];
+                    }
+                    else
+                    {
+                        table[first].a[last] = min(
+                            table[first].a[last - 1],
+                            table[first + 1].a[last]
+                        ) + 1;
+                    }
+        
+                    ++first; 
+                    ++last;
+                }
+            }
+        
+            return table[0].a[str.length - 1];
+        }
+        
+        int result = findMinInserts();
+    `);
+
+    const interpreter = new Interpreter(result);
+    await interpreter.run();
+
+    expect(interpreter.memoryRegions.get(`var_result`)).toStrictEqual(new Int32Array([ 4 ]));
+});
+
 test("Test 'is_inside_triangle.c'.", async () => {
     const compiler = new Compiler();
     const result = compiler.compile(`
