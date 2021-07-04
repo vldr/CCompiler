@@ -1840,6 +1840,81 @@ test("Test 'unique_paths_in_a_grid_with_obstacles.c'.", async () => {
     expect(interpreter.memoryRegions.get(`var_result`)).toStrictEqual(new Int32Array([ 6 ]));
 });
 
+test("Test 'dijkstra_shortest_path.c'.", async () => {
+    const compiler = new Compiler();
+    const result = compiler.compile(`
+        const int INT_MAX = 2147483647;
+
+        struct Table 
+        {
+            int a[3];
+        };
+        
+        Table graph[3];
+        
+        int dist[graph.length];
+        int sptSet[graph.length];
+        
+        int minDistance()
+        {
+            int min = INT_MAX, min_index;
+          
+            for (int v = 0; v < graph.length; v++)
+            {
+                if (sptSet[v] == 0 && dist[v] <= min)
+                {
+                    min = dist[v];
+                    min_index = v;
+                }
+            }
+          
+            return min_index;
+        }
+        
+        void dijkstra(int src)
+        {
+            for (int i = 0; i < graph.length; i++)
+            {
+                dist[i] = INT_MAX; 
+                sptSet[i] = 0;
+            }
+          
+            dist[src] = 0;
+          
+            for (int count = 0; count < graph.length - 1; count++) 
+            {
+                int u = minDistance();
+          
+                sptSet[u] = 1;
+          
+                for (int v = 0; v < graph.length; v++)
+                    if (!sptSet[v] && graph[u].a[v] && dist[u] != INT_MAX
+                        && dist[u] + graph[u].a[v] < dist[v])
+                        dist[v] = dist[u] + graph[u].a[v];
+            }
+        }
+        
+        void run()
+        {
+            graph[0].a[1] = 4;
+            graph[1].a[0] = 4;
+            graph[1].a[2] = 8;
+            graph[2].a[1] = 8;
+        
+            dijkstra(0);
+        }
+        
+        run();
+    `);
+
+    const interpreter = new Interpreter(result);
+    await interpreter.run();
+
+    expect(interpreter.memoryRegions.get(`var_dist_0`)).toStrictEqual(new Uint32Array([ 0 ]));
+    expect(interpreter.memoryRegions.get(`var_dist_1`)).toStrictEqual(new Int32Array([ 4 ]));
+    expect(interpreter.memoryRegions.get(`var_dist_2`)).toStrictEqual(new Int32Array([ 12 ]));
+});
+
 test("Test 'lbs.c'.", async () => {
     const compiler = new Compiler();
     const result = compiler.compile(`
