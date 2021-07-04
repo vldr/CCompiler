@@ -1769,6 +1769,77 @@ test("Test 'is_inside_triangle.c'.", async () => {
     expect(interpreter.memoryRegions.get(`var_result`)).toStrictEqual(new Uint32Array([ 1 ]));
 });
 
+test("Test 'unique_paths_in_a_grid_with_obstacles.c'.", async () => {
+    const compiler = new Compiler();
+    const result = compiler.compile(`
+        struct Table
+        {
+            int a[3];
+        };
+        
+        Table A[3];
+        
+        int uniquePathsWithObstacles()
+        {
+            int r = A.length;
+            int c = A[0].a.length;
+        
+            if (A[0].a[0])
+                return 0;
+        
+            A[0].a[0] = 1;
+         
+            for (int j = 1; j < c; j++) 
+            {
+                if (A[0].a[j] == 0) 
+                {
+                    A[0].a[j] = A[0].a[j - 1];
+                }
+                else 
+                {
+                    A[0].a[j] = 0;
+                }
+            }
+         
+            for (int i = 1; i < r; i++) 
+            {
+                if (A[i].a[0] == 0)
+                {
+                    A[i].a[0] = A[i - 1].a[0];
+                }
+                else
+                {
+                    A[i].a[0] = 0;
+                }
+            }
+         
+            for (int i = 1; i < r; i++) 
+            {
+                for (int j = 1; j < c; j++) 
+                {
+                    if (A[i].a[j] == 0) 
+                    {
+                        A[i].a[j] = A[i - 1].a[j] + A[i].a[j - 1];
+                    }
+                    else 
+                    {
+                        A[i].a[j] = 0;
+                    }
+                }
+            }
+         
+            return A[r - 1].a[c - 1];
+        }
+        
+        int result = uniquePathsWithObstacles();
+    `);
+
+    const interpreter = new Interpreter(result);
+    await interpreter.run();
+
+    expect(interpreter.memoryRegions.get(`var_result`)).toStrictEqual(new Int32Array([ 6 ]));
+});
+
 test("Test 'lbs.c'.", async () => {
     const compiler = new Compiler();
     const result = compiler.compile(`
