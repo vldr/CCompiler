@@ -412,6 +412,77 @@ test("Test 'minimum_sum_partition.c'.", async () => {
     expect(interpreter.memoryRegions.get(`var_result`)).toStrictEqual(new Int32Array([ 2 ]));
 });
 
+test("Test 'pots_of_gold.c'.", async () => {
+    const compiler = new Compiler();
+    const result = compiler.compile(`
+        int coin[] = { 9, 6, 2, 3 };
+
+        struct Table 
+        {
+            int a[coin.length];
+        };
+        
+        Table T[coin.length];
+        
+        int max(int a, int b)
+        {
+            return a > b ? a : b;
+        }
+        
+        int min(int a, int b)
+        {
+            return a < b ? a : b;
+        }
+        
+        int calculate(int i, int j)
+        {
+            if (i <= j) {
+                return T[i].a[j];
+            }
+         
+            return 0;
+        }
+         
+        int findMaxCoins(int n)
+        {
+            if (n == 1) 
+            {
+                return coin[0];
+            }
+        
+            if (n == 2) 
+            {
+                return max(coin[0], coin[1]);
+            }
+        
+            for (int iteration = 0; iteration < n; iteration++)
+            {
+                int i = 0, j = iteration;
+        
+                while (j < n)
+                {
+                    int start = coin[i] + min(calculate(i + 2, j), calculate(i + 1, j - 1));
+                    int end = coin[j] + min(calculate(i + 1, j - 1), calculate(i, j - 2));
+         
+                    T[i].a[j] = max(start, end);
+        
+                    i++;
+                    j++;
+                }
+            }
+         
+            return T[0].a[n - 1];
+        }
+        
+        int result = findMaxCoins(coin.length);
+    `);
+
+    const interpreter = new Interpreter(result);
+    await interpreter.run();
+
+    expect(interpreter.memoryRegions.get(`var_result`)).toStrictEqual(new Int32Array([ 12 ]));
+});
+
 test("Test 'crc32.c'.", async () => {
     const compiler = new Compiler();
     const result = compiler.compile(`
