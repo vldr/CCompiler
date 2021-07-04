@@ -366,6 +366,52 @@ test("Test 'sqrtf.c'.", async () => {
     expect(interpreter.memoryRegions.get(`var_answer`)).toStrictEqual(new Float32Array([ 8 ]));
 });
 
+test("Test 'minimum_sum_partition.c'.", async () => {
+    const compiler = new Compiler();
+    const result = compiler.compile(`
+        struct Table 
+        {
+            int a[27];
+        };
+        
+        int s[] = { 9, 5, 2, 3, 7 };
+        
+        int minPartition()
+        { 
+            Table T[6]; 
+            const int sum = T[0].a.length - 1;
+            
+            for (int i = 0; i <= s.length; i++)
+            {
+                T[i].a[0] = 1;
+            
+                for (int j = 1; i > 0 && j <= sum; j++)
+                {
+                    T[i].a[j] = T[i - 1].a[j];
+            
+                    if (s[i - 1] <= j) {
+                        T[i].a[j] |= T[i - 1].a[j - s[i - 1]];
+                    }
+                }
+            }
+            
+            int j = sum / 2;
+            while (j >= 0 && !T[s.length].a[j]) {
+                j--;
+            }
+        
+            return sum - 2*j;
+        }
+        
+        int result = minPartition();
+    `);
+
+    const interpreter = new Interpreter(result);
+    await interpreter.run();
+
+    expect(interpreter.memoryRegions.get(`var_result`)).toStrictEqual(new Int32Array([ 2 ]));
+});
+
 test("Test 'crc32.c'.", async () => {
     const compiler = new Compiler();
     const result = compiler.compile(`
