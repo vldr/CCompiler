@@ -1959,6 +1959,73 @@ test("Test 'lbs.c'.", async () => {
     expect(interpreter.memoryRegions.get(`var_result`)).toStrictEqual(new Int32Array([ 7 ]));
 });
 
+test("Test 'optimal_cost_to_construct_binary_tree.c'.", async () => {
+    const compiler = new Compiler();
+    const result = compiler.compile(`
+        const int INT_MAX = 2147483647;
+
+        int freq[] = { 25, 10, 20 };
+        
+        struct Table 
+        {
+            int a[4];
+        };
+        
+        Table cost[4];
+        
+        int min(int x, int y) 
+        {
+            return (x < y) ? x : y;
+        }
+         
+        int findOptimalCost()
+        {
+            int n = cost.length - 1;
+        
+            for (int i = 0; i < n; i++) {
+                cost[i].a[i] = freq[i];
+            }
+         
+            for (int size = 1; size <= n; size++)
+            {
+                for (int i = 0; i <= n - size + 1; i++)
+                {
+                    int j = min(i + size - 1, n - 1);
+                    cost[i].a[j] = INT_MAX;
+        
+                    for (int r = i; r <= j; r++)
+                    {
+                        int total = 0;
+        
+                        for (int k = i; k <= j; k++) {
+                            total += freq[k];
+                        }
+         
+                        if (r != i) {
+                            total += cost[i].a[r - 1];
+                        }
+        
+                        if (r != j) {
+                            total += cost[r + 1].a[j];
+                        }
+        
+                        cost[i].a[j] = min(total, cost[i].a[j]);
+                    }
+                }
+            }
+        
+            return cost[0].a[n - 1];
+        }
+        
+        int result = findOptimalCost();
+    `);
+
+    const interpreter = new Interpreter(result);
+    await interpreter.run();
+
+    expect(interpreter.memoryRegions.get(`var_result`)).toStrictEqual(new Int32Array([ 95 ]));
+});
+
 test("Test 'msi.c'.", async () => {
     const compiler = new Compiler();
     const result = compiler.compile(`
