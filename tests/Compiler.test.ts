@@ -2439,6 +2439,97 @@ test("Test 'heap_sort.c'.", async () => {
     });
 });
 
+test("Test 'heap_sort_2.c'.", async () => {
+    const compiler = new Compiler();
+    const result = compiler.compile(`
+        int arr[] = {
+            55, 47, 35, 15, 20, 42,
+            52, 30, 58, 15, 13, 19,
+            32, 18, 44, 11, 7, 9,
+            34, 56, 17, 25, 14, 48,
+            40, 4, 5, 7, 36, 1,
+            33, 49, 25, 26, 30, 9
+        };
+        
+        void swap(int i, int j) 
+        {
+            int temp = arr[i];
+            arr[i] = arr[j];
+            arr[j] = temp;
+        }
+        
+        void heapInsert(int index) 
+        {
+            while (arr[index] > arr[(index - 1) / 2]) 
+            {
+                swap(index, (index - 1) / 2);
+                index = (index - 1) / 2;
+            }
+        }
+        
+        void heapify(int index, int size)
+        {
+            int left = index * 2 +1;
+            while (left < size) 
+            {
+                int largest = left + 1 < size && arr[left + 1] > arr[left] ? left + 1 : left;
+                largest = arr[largest] > arr[index] ? largest : index;
+        
+                if (largest == index) 
+                {
+                    break;
+                }
+        
+                swap(largest, index);
+                index = largest;
+                left = index * 2 + 1; 
+            }
+        }
+        
+        void heapSort(int length) 
+        {
+            if (length < 2) 
+            {
+                return;
+            }
+        
+            for (int i = 0; i < length; i++) 
+            {
+                heapInsert(i);
+            }
+        
+            int heapSize = length;
+            swap(0, --heapSize);
+        
+            while (heapSize > 0) 
+            {
+                heapify(0, heapSize);
+                swap(0 , --heapSize);
+            }
+        }
+        
+        heapSort(arr.length);
+    `);
+
+    const interpreter = new Interpreter(result);
+    await interpreter.run();
+
+    const sortedList = [
+        55, 47, 35, 15, 20, 42,
+        52, 30, 58, 15, 13, 19,
+        32, 18, 44, 11, 7, 9,
+        34, 56, 17, 25, 14, 48,
+        40, 4, 5, 7, 36, 1,
+        33, 49, 25, 26, 30, 9
+    ].sort((a, b) => a - b);
+
+    sortedList.forEach((value, index) =>
+    {
+        expect(interpreter.memoryRegions.get(`var_arr_${index}`))
+            .toStrictEqual(new Uint32Array([ value ]));
+    });
+});
+
 test("Test 'radix_sort.c'.", async () => {
     const compiler = new Compiler();
     const result = compiler.compile(`
