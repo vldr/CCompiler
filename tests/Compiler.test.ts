@@ -2178,6 +2178,75 @@ test("Test 'msi.c'.", async () => {
     expect(interpreter.memoryRegions.get(`var_result`)).toStrictEqual(new Int32Array([ 106 ]));
 });
 
+test("Test 'bool.c'.", async () => {
+    const compiler = new Compiler();
+    const result = compiler.compile(`
+        int b = 0;
+
+        void test()
+        {
+            int a = 0;
+        
+            if (a = 0)
+            {
+                b = 1;
+            }
+        }
+        
+        test();
+    `);
+
+    const interpreter = new Interpreter(result);
+    await interpreter.run();
+
+    expect(interpreter.memoryRegions.get(`var_b`)).toStrictEqual(new Uint32Array([ 0 ]));
+});
+
+test("Test 'bool_inverse.c'.", async () => {
+    const compiler = new Compiler();
+    const result = compiler.compile(`
+        int b = 0;
+
+        void test()
+        {
+            int a = 0;
+            
+            if (a = b + 2)
+            {
+                b = a;
+            }
+        }
+        
+        test();
+    `);
+
+    const interpreter = new Interpreter(result);
+    await interpreter.run();
+
+    expect(interpreter.memoryRegions.get(`var_b`)).toStrictEqual(new Int32Array([ 2 ]));
+});
+
+test("Test 'multi_assignment.c'.", async () => {
+    const compiler = new Compiler();
+    const result = compiler.compile(`
+        int a = 0;
+        int b = 0;
+        
+        void main()
+        {
+            a = (b = 2);
+        }
+        
+        main();
+    `);
+
+    const interpreter = new Interpreter(result);
+    await interpreter.run();
+
+    expect(interpreter.memoryRegions.get(`var_a`)).toStrictEqual(new Uint32Array([ 2 ]));
+    expect(interpreter.memoryRegions.get(`var_b`)).toStrictEqual(new Uint32Array([ 2 ]));
+});
+
 test("Test 'fnv_hash.c'.", async () => {
     const compiler = new Compiler();
     const result = compiler.compile(`

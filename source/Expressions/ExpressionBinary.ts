@@ -47,6 +47,10 @@ import InstructionQADD from "../Instructions/InstructionQADD";
 import InstructionQLSUB from "../Instructions/InstructionQLSUB";
 import InstructionQSUB from "../Instructions/InstructionQSUB";
 import InstructionGETAVB from "../Instructions/InstructionGETAVB";
+import InstructionMOV from "../Instructions/InstructionMOV";
+import InstructionGETA from "../Instructions/InstructionGETA";
+import InstructionGETB from "../Instructions/InstructionGETB";
+import InstructionPUSH from "../Instructions/InstructionPUSH";
 
 export default class ExpressionBinary extends Expression
 {
@@ -274,19 +278,47 @@ export default class ExpressionBinary extends Expression
 
         if (destination instanceof DestinationVariable)
         {
-            expressionResult.pushInstruction(new InstructionSAVE(destination.variable));
+            if (leftExpressionResult instanceof ExpressionResultVariable && operator === "=")
+            {
+                expressionResult.pushInstruction(new InstructionMOV(leftExpressionResult.variable, destination.variable));
+            }
+            else
+            {
+                expressionResult.pushInstruction(new InstructionSAVE(destination.variable));
+            }
         }
         else if (destination instanceof DestinationRegisterA)
         {
-            expressionResult.pushInstruction(new InstructionSAVETOA());
+            if (leftExpressionResult instanceof ExpressionResultVariable && operator === "=")
+            {
+                expressionResult.pushInstruction(new InstructionGETA(leftExpressionResult.variable));
+            }
+            else
+            {
+                expressionResult.pushInstruction(new InstructionSAVETOA());
+            }
         }
         else if (destination instanceof DestinationRegisterB)
         {
-            expressionResult.pushInstruction(new InstructionSAVETOB());
+            if (leftExpressionResult instanceof ExpressionResultVariable && operator === "=")
+            {
+                expressionResult.pushInstruction(new InstructionGETB(leftExpressionResult.variable));
+            }
+            else
+            {
+                expressionResult.pushInstruction(new InstructionSAVETOB());
+            }
         }
         else if (destination instanceof DestinationStack)
         {
-            expressionResult.pushInstruction(new InstructionSAVEPUSH());
+            if (leftExpressionResult instanceof ExpressionResultVariable && operator === "=")
+            {
+                expressionResult.pushInstruction(new InstructionPUSH(leftExpressionResult.variable));
+            }
+            else
+            {
+                expressionResult.pushInstruction(new InstructionSAVEPUSH());
+            }
         }
         else if (destination instanceof DestinationNone)
         {
