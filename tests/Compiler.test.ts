@@ -2178,6 +2178,65 @@ test("Test 'msi.c'.", async () => {
     expect(interpreter.memoryRegions.get(`var_result`)).toStrictEqual(new Int32Array([ 106 ]));
 });
 
+test("Test 'boyer_moore.c'.", async () => {
+    const compiler = new Compiler();
+    const result = compiler.compile(`
+        int badchar[256];
+        
+        int txt[] = { 1, 2, 3, 1, 2, 1 };
+        int pat[] = { 1, 2, 1 };
+        
+        int result = 0;
+        
+        void badCharHeuristic()
+        {
+            int i;
+        
+            for (i = 0; i < badchar.length; i++)
+                badchar[i] = -1;
+        
+            for (i = 0; i < pat.length; i++)
+                badchar[pat[i]] = i;
+        }
+        
+        int max(int a, int b)
+        {
+            return a > b ? a : b;
+        }
+         
+        void search()
+        {
+            int m = pat.length;
+            int n = txt.length;
+         
+            badCharHeuristic();
+         
+            int s = 0;
+            while(s <= (n - m))
+            {
+                int j = m - 1;
+                while(j >= 0 && pat[j] == txt[s + j])
+                    j--;
+        
+                if (j < 0)
+                {
+                    result = s;
+                    s += (s + m < n)? m-badchar[txt[s + m]] : 1;
+                }
+                else
+                    s += max(1, j - badchar[txt[s + j]]);
+            }
+        }
+         
+        search();
+    `);
+
+    const interpreter = new Interpreter(result);
+    await interpreter.run();
+
+    expect(interpreter.memoryRegions.get(`var_result`)).toStrictEqual(new Int32Array([ 3 ]));
+});
+
 test("Test 'bool.c'.", async () => {
     const compiler = new Compiler();
     const result = compiler.compile(`
